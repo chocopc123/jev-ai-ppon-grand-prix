@@ -107,7 +107,7 @@ gcloud run deploy oogiri-grand-prix \
   --region asia-northeast1 \
   --platform managed \
   --allow-unauthenticated \
-  --min-instances 1 \
+  --min-instances 0 \
   --max-instances 1 \
   --cpu 1 \
   --memory 512Mi \
@@ -117,7 +117,7 @@ gcloud run deploy oogiri-grand-prix \
 ```
 
 ### Cloud Run 設定の重要ポイント:
-- `--min-instances 1`: コールドスタートによる待機時間・WebSocket切断を防止
+- `--min-instances 0`: アクセスがない間の維持費を 0円 に抑制（必要に応じて 1 に変更可能）
 - `--max-instances 1`: ルーム状態がインメモリ管理のため必須（単一インスタンス運用）
 - `--timeout 3600`: デフォルト300秒(5分)タイムアウトによるWebSocket強制切断を防止
 - `--concurrency 80`: 1コンテナで多数の同時接続を処理

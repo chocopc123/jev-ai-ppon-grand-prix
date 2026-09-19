@@ -999,7 +999,11 @@ export default function App() {
 
             <div className="themeStage__question">
               <p className="themeStage__eyebrow">お 題</p>
-              <h1 className="themeStage__title">{theme || "お題を読み込んでいます..."}</h1>
+              <div className="themeStage__titleWrapper">
+                <h1 className={`themeStage__title ${getThemeSizeClass(theme || "")}`}>
+                  {theme || "お題を読み込んでいます..."}
+                </h1>
+              </div>
             </div>
           </>
         )}
@@ -1022,15 +1026,7 @@ export default function App() {
 
               {/* 白フリップ */}
               <div className={`answerFlip ${judging.done && judging.isIppon ? "answerFlip--ippon" : ""}`}>
-                <p className={`answerFlip__text ${
-                  judging.answer.length <= 14
-                    ? "answerFlip__text--short"
-                    : judging.answer.length <= 28
-                    ? "answerFlip__text--medium"
-                    : judging.answer.length <= 45
-                    ? "answerFlip__text--long"
-                    : "answerFlip__text--xlarge"
-                }`}>
+                <p className={`answerFlip__text ${getAnswerSizeClass(judging.answer)}`}>
                   「{judging.answer}」
                 </p>
               </div>

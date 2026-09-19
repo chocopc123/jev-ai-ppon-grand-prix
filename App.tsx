@@ -411,6 +411,24 @@ export function JudgmentFrameMeter({ litFrames, totalFrames = 10, isIppon = fals
   );
 }
 
+function getThemeSizeClass(text: string): string {
+  const len = text.trim().length;
+  if (len <= 20) return "themeStage__title--short";
+  if (len <= 40) return "themeStage__title--medium";
+  if (len <= 70) return "themeStage__title--long";
+  if (len <= 110) return "themeStage__title--xlarge";
+  return "themeStage__title--xxlarge";
+}
+
+function getAnswerSizeClass(text: string): string {
+  const len = text.trim().length;
+  if (len <= 14) return "answerFlip__text--short";
+  if (len <= 28) return "answerFlip__text--medium";
+  if (len <= 50) return "answerFlip__text--long";
+  if (len <= 80) return "answerFlip__text--xlarge";
+  return "answerFlip__text--xxlarge";
+}
+
 export default function App() {
   const [screen, setScreen] = useState<"join" | "game">("join");
   const [name, setName] = useState("");
@@ -981,7 +999,11 @@ export default function App() {
 
             <div className="themeStage__question">
               <p className="themeStage__eyebrow">お 題</p>
-              <h1 className="themeStage__title">{theme || "お題を読み込んでいます..."}</h1>
+              <div className="themeStage__titleWrapper">
+                <h1 className={`themeStage__title ${getThemeSizeClass(theme || "")}`}>
+                  {theme || "お題を読み込んでいます..."}
+                </h1>
+              </div>
             </div>
           </>
         )}
@@ -1004,15 +1026,7 @@ export default function App() {
 
               {/* 白フリップ */}
               <div className={`answerFlip ${judging.done && judging.isIppon ? "answerFlip--ippon" : ""}`}>
-                <p className={`answerFlip__text ${
-                  judging.answer.length <= 14
-                    ? "answerFlip__text--short"
-                    : judging.answer.length <= 28
-                    ? "answerFlip__text--medium"
-                    : judging.answer.length <= 45
-                    ? "answerFlip__text--long"
-                    : "answerFlip__text--xlarge"
-                }`}>
+                <p className={`answerFlip__text ${getAnswerSizeClass(judging.answer)}`}>
                   「{judging.answer}」
                 </p>
               </div>

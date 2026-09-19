@@ -43,7 +43,7 @@ gcloud run deploy oogiri-grand-prix \
   --region asia-northeast1 \
   --platform managed \
   --allow-unauthenticated \
-  --min-instances 1 \
+  --min-instances 0 \
   --max-instances 1 \
   --cpu 1 \
   --memory 512Mi \
