@@ -1,5 +1,5 @@
 """
-OOGIRI GRAND PRIX Web の統合テスト (HTTP 静的配信 + WebSocket 対戦フロー)
+OOGIRI GRAND PRIX Web の統合テスト (HTTP 静的配信 + WebSocket 対戦フロー + 再接続・待機室)
 """
 import asyncio
 from fastapi.testclient import TestClient
@@ -20,25 +20,27 @@ def test_websocket_gameplay():
     ROOMS.clear()
 
     with patch("main.gatekeep") as mock_gk:
-        # 1回目: 通過、2回目: 通過、3回目: 重複没
         mock_gk.side_effect = [
             (True, ""),
             (True, ""),
             (False, "直前の回答と重複しています"),
         ]
-        # プレイヤー1が参加
+        # プレイヤー1が参加 (初期フェーズは waiting)
         with client.websocket_connect("/ws/test-room/player1") as ws1:
             msg1 = ws1.receive_json()
             assert msg1["type"] == "JOINED"
             assert msg1["room"] == "test-room"
-            
+            assert msg1["phase"] == "waiting"
+
             pj_msg1 = ws1.receive_json()
             assert pj_msg1["type"] == "PLAYER_JOINED"
 
+            # ゲーム開始前は THEME_STARTED は来ない。START_GAME を送信して開始する
+            ws1.send_json({"type": "START_GAME"})
             theme_msg1 = ws1.receive_json()
             assert theme_msg1["type"] == "THEME_STARTED"
             assert "theme" in theme_msg1
-            print(f"[OK] Player 1 joined, Theme: {theme_msg1['theme']}")
+            print(f"[OK] Player 1 started game, Theme: {theme_msg1['theme']}")
 
             # プレイヤー2が参加
             with client.websocket_connect("/ws/test-room/player2") as ws2:
@@ -54,34 +56,34 @@ def test_websocket_gameplay():
                 ws2_pj = ws2.receive_json()
                 # プレイヤー1が回答を送信 (1回目)
                 ws1.send_json({"type": "SUBMIT", "answer": "回答1"})
-                ws1.receive_json() # SUBMIT_ACK
-                ws1.receive_json() # ANSWER_REVEALED
+                ws1.receive_json()  # SUBMIT_ACK
+                ws1.receive_json()  # ANSWER_REVEALED
                 ws2.receive_json()
 
                 score1 = ws1.receive_json()
                 ws2.receive_json()
                 assert score1["type"] == "SCORE_REVEAL_START"
-                ws1.receive_json() # ROUND_RESULT
+                ws1.receive_json()  # ROUND_RESULT
                 ws2.receive_json()
                 print("[OK] 1st answer scored")
 
                 # プレイヤー1が2回目の回答を送信
                 ws1.send_json({"type": "SUBMIT", "answer": "回答2"})
-                ws1.receive_json() # SUBMIT_ACK
-                ws1.receive_json() # ANSWER_REVEALED
+                ws1.receive_json()  # SUBMIT_ACK
+                ws1.receive_json()  # ANSWER_REVEALED
                 ws2.receive_json()
 
                 score2 = ws1.receive_json()
                 ws2.receive_json()
                 assert score2["type"] == "SCORE_REVEAL_START"
-                ws1.receive_json() # ROUND_RESULT
+                ws1.receive_json()  # ROUND_RESULT
                 ws2.receive_json()
                 print("[OK] 2nd answer scored")
 
                 # プレイヤー1が3回目の同一回答を送信
                 ws1.send_json({"type": "SUBMIT", "answer": "回答2"})
-                ws1.receive_json() # SUBMIT_ACK
-                ws1.receive_json() # ANSWER_REVEALED
+                ws1.receive_json()  # SUBMIT_ACK
+                ws1.receive_json()  # ANSWER_REVEALED
                 ws2.receive_json()
 
                 reject1 = ws1.receive_json()
@@ -100,6 +102,8 @@ def test_full_scoring_flow():
         with client.websocket_connect("/ws/test-room-2/player1") as ws1:
             ws1.receive_json()  # JOINED
             ws1.receive_json()  # PLAYER_JOINED
+
+            ws1.send_json({"type": "START_GAME"})
             ws1.receive_json()  # THEME_STARTED
 
             # 回答送信
@@ -128,8 +132,10 @@ def test_timer_pause_resume():
     with client.websocket_connect("/ws/test-room-timer/player1") as ws1:
         joined = ws1.receive_json()  # JOINED
         assert joined["type"] == "JOINED"
-        assert joined["is_timer_paused"] is False
+        assert joined["phase"] == "waiting"
         ws1.receive_json()  # PLAYER_JOINED
+
+        ws1.send_json({"type": "START_GAME"})
         theme_msg = ws1.receive_json()  # THEME_STARTED
         assert theme_msg["type"] == "THEME_STARTED"
         assert theme_msg["is_timer_paused"] is False
@@ -161,9 +167,44 @@ def test_timer_pause_resume():
             print(f"[OK] Timer resumed: deadline_epoch={resumed_msg1['deadline_epoch']}")
 
 
+def test_reconnect_and_leave():
+    client = TestClient(app)
+    ROOMS.clear()
+
+    # 1. プレイヤーが初回接続
+    player_id = None
+    with client.websocket_connect("/ws/test-room-recon/player1") as ws:
+        joined = ws.receive_json()
+        player_id = joined["player_id"]
+        assert player_id is not None
+        ws.receive_json()  # PLAYER_JOINED
+
+        # 手動でIPPONを付与してみる
+        room = ROOMS["test-room-recon"]
+        room.players[player_id]["ippons"] = 2
+
+    # ws が切断された（リロードに相当）
+    # 猶予期間内（15秒以内）に同一 player_id で再接続
+    with client.websocket_connect(f"/ws/test-room-recon/player1?player_id={player_id}") as ws_recon:
+        recon_joined = ws_recon.receive_json()
+        assert recon_joined["player_id"] == player_id
+        # スコアが維持されていることを確認
+        assert recon_joined["players"][0]["ippons"] == 2
+        print("[OK] Reconnected successfully with preserved score")
+
+        # 2. 明示的退出 (LEAVE)
+        ws_recon.send_json({"type": "LEAVE"})
+
+    # 即座に退出処理され、部屋のプレイヤーから消えていること
+    room = ROOMS.get("test-room-recon")
+    assert player_id not in room.players
+    print("[OK] Left room successfully via LEAVE message")
+
+
 if __name__ == "__main__":
     test_static_files()
     test_websocket_gameplay()
     test_full_scoring_flow()
     test_timer_pause_resume()
+    test_reconnect_and_leave()
     print("=== All integration tests passed successfully ===")

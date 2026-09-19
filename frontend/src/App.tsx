@@ -429,10 +429,37 @@ function getAnswerSizeClass(text: string): string {
   return "answerFlip__text--xxlarge";
 }
 
+function generateRoomId(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let res = "";
+  for (let i = 0; i < 6; i++) {
+    res += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return res;
+}
+
 export default function App() {
   const [screen, setScreen] = useState<"join" | "game">("join");
-  const [name, setName] = useState("");
-  const [roomId, setRoomId] = useState("arena");
+  const [roomPhase, setRoomPhase] = useState<"waiting" | "theme" | "transition" | "match_win">("waiting");
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("oogiri_player_id");
+  });
+  const [name, setName] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("oogiri_player_name") || "";
+  });
+  const [roomId, setRoomId] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = params.get("room")?.trim();
+    if (roomFromUrl) return roomFromUrl;
+    const newId = generateRoomId();
+    const newUrl = `${window.location.pathname}?room=${encodeURIComponent(newId)}`;
+    window.history.replaceState({}, "", newUrl);
+    return newId;
+  });
+  const [toast, setToast] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   const [players, setPlayers] = useState<Player[]>([]);
@@ -453,6 +480,33 @@ export default function App() {
   const pendingPlayersRef = useRef<Player[] | null>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => {
+      setToast((cur) => (cur === msg ? null : cur));
+    }, 2500);
+  };
+
+  const copyRoomUrl = async (rId?: string) => {
+    const target = (rId || roomId || "").trim();
+    if (!target) return;
+    try {
+      const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(target)}`;
+      await navigator.clipboard.writeText(url);
+      showToast("招待URLをコピーしました！");
+    } catch (e) {
+      console.warn("Copy failed:", e);
+      showToast("URLのコピーに失敗しました");
+    }
+  };
+
+  const regenerateRoomId = () => {
+    const newId = generateRoomId();
+    setRoomId(newId);
+    const newUrl = `${window.location.pathname}?room=${encodeURIComponent(newId)}`;
+    window.history.replaceState({}, "", newUrl);
+  };
+
   const stopSpeaking = () => {
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
@@ -470,6 +524,13 @@ export default function App() {
 
     stopSpeaking();
 
+    let fallbackCalled = false;
+    const triggerFallback = () => {
+      if (fallbackCalled) return;
+      fallbackCalled = true;
+      fallbackWebSpeech(targetText);
+    };
+
     try {
       // 1. まず Gemini 3.1 Flash TTS (音声プリセット 'Algieba') のAPIを試行
       const audioUrl = `/api/tts/theme?text=${encodeURIComponent(targetText)}&voice=Algieba`;
@@ -482,13 +543,13 @@ export default function App() {
 
       audioObj.onerror = () => {
         console.warn("[TTS] Gemini TTS playback failed, falling back to Web Speech API");
-        fallbackWebSpeech(targetText);
+        triggerFallback();
       };
 
       await audioObj.play();
     } catch (err) {
       console.warn("[TTS] Failed to play Gemini TTS audio:", err);
-      fallbackWebSpeech(targetText);
+      triggerFallback();
     }
   };
 
@@ -496,6 +557,8 @@ export default function App() {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       return;
     }
+
+    window.speechSynthesis.cancel();
 
     const u = new SpeechSynthesisUtterance(targetText);
     u.lang = "ja-JP";
@@ -624,24 +687,19 @@ export default function App() {
     setJudging((prev) => (prev?.player === judgement.player ? null : prev));
   }
 
-  // カウントダウン
-  useEffect(() => {
-    isTimerPausedRef.current = isTimerPaused;
-  }, [isTimerPaused]);
+  const connect = (targetRoomId?: string, targetName?: string, targetPid?: string) => {
+    const rId = (targetRoomId || roomId || "").trim();
+    const pName = (targetName || name || "").trim();
+    if (!pName || !rId) return;
 
-  useEffect(() => {
-    const t = setInterval(() => {
-      if (!isTimerPausedRef.current && deadlineRef.current) {
-        setRemaining(Math.max(0, Math.ceil(deadlineRef.current - Date.now() / 1000)));
-      }
-    }, 500);
-    return () => clearInterval(t);
-  }, []);
+    // URLのパラメータを更新
+    const newUrl = `${window.location.pathname}?room=${encodeURIComponent(rId)}`;
+    window.history.replaceState({}, "", newUrl);
 
-  const connect = () => {
-    if (!name.trim()) return;
+    const pidToUse = targetPid || myPlayerId || localStorage.getItem("oogiri_player_id");
     const proto = location.protocol === "https:" ? "wss" : "ws";
-    const ws = new WebSocket(`${proto}://${location.host}/ws/${roomId}/${encodeURIComponent(name.trim())}`);
+    const queryParam = pidToUse ? `?player_id=${encodeURIComponent(pidToUse)}` : "";
+    const ws = new WebSocket(`${proto}://${location.host}/ws/${encodeURIComponent(rId)}/${encodeURIComponent(pName)}${queryParam}`);
     wsRef.current = ws;
 
     ws.onmessage = (ev) => {
@@ -649,6 +707,11 @@ export default function App() {
       switch (m.type) {
         case "JOINED":
           setScreen("game");
+          setRoomPhase(m.phase || "waiting");
+          setMyPlayerId(m.player_id);
+          localStorage.setItem("oogiri_room_id", m.room);
+          localStorage.setItem("oogiri_player_id", m.player_id);
+          localStorage.setItem("oogiri_player_name", pName);
           setPlayers(m.players);
           if (m.theme) setTheme(m.theme);
           if (m.question_number) setQuestionNumber(m.question_number);
@@ -667,6 +730,14 @@ export default function App() {
         case "PLAYER_LEFT":
           setPlayers(m.players);
           break;
+        case "WAITING_LOBBY":
+          setRoomPhase("waiting");
+          setPlayers(m.players);
+          setTheme("");
+          setWinner(null);
+          setJudging(null);
+          setStageMode("theme");
+          break;
         case "ROUND_RESULT":
           // 採点アニメーション中（まだdoneになっていない場合）は、IPPON演出が出る前に得点が加算されて先ばれするのを防ぐ
           if (judgingRef.current && !judgingRef.current.done) {
@@ -677,6 +748,7 @@ export default function App() {
           }
           break;
         case "THEME_STARTED":
+          setRoomPhase("theme");
           setStageMode("theme");
           judgingRef.current = null;
           pendingPlayersRef.current = null;
@@ -761,6 +833,32 @@ export default function App() {
     };
   };
 
+  // URLパラメータと自動再接続（リロード対策）
+  useEffect(() => {
+    const savedRoom = localStorage.getItem("oogiri_room_id");
+    const savedName = localStorage.getItem("oogiri_player_name");
+    const savedPid = localStorage.getItem("oogiri_player_id");
+
+    if (savedRoom === roomId && savedName && savedPid) {
+      connect(roomId, savedName, savedPid);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // カウントダウン
+  useEffect(() => {
+    isTimerPausedRef.current = isTimerPaused;
+  }, [isTimerPaused]);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (!isTimerPausedRef.current && deadlineRef.current) {
+        setRemaining(Math.max(0, Math.ceil(deadlineRef.current - Date.now() / 1000)));
+      }
+    }, 500);
+    return () => clearInterval(t);
+  }, []);
+
   const submit = () => {
     if (!input.trim() || !wsRef.current) return;
     wsRef.current.send(JSON.stringify({ type: "SUBMIT", answer: input }));
@@ -769,12 +867,32 @@ export default function App() {
     wsRef.current?.send(JSON.stringify({ type: "TOGGLE_TIMER" }));
   };
   const skip = () => wsRef.current?.send(JSON.stringify({ type: "SKIP" }));
+  const startGame = () => {
+    wsRef.current?.send(JSON.stringify({ type: "START_GAME" }));
+  };
   const restart = () => {
     setStageMode("theme");
     setJudging(null);
     setWinner(null);
     setQuestionNumber(1);
     wsRef.current?.send(JSON.stringify({ type: "RESTART" }));
+  };
+
+  const leaveRoom = () => {
+    if (!window.confirm("対戦ルームから退出しますか？")) return;
+    try {
+      wsRef.current?.send(JSON.stringify({ type: "LEAVE" }));
+      wsRef.current?.close();
+    } catch {}
+    wsRef.current = null;
+    localStorage.removeItem("oogiri_player_id");
+    setScreen("join");
+    setRoomPhase("waiting");
+    setPlayers([]);
+    setTheme("");
+    setJudging(null);
+    setWinner(null);
+    stopSpeaking();
   };
 
   // --------------------------------------------------------------------------
@@ -914,36 +1032,70 @@ export default function App() {
                   <span className="label-en">ROOM ID</span>
                   <span className="label-jp">対戦ルーム</span>
                 </label>
-                <input
-                  id="room-id"
-                  className="join-input"
-                  placeholder="例: arena"
-                  value={roomId}
-                  onChange={(e) => setRoomId(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && connect()}
-                  aria-label="ルームID"
-                  autoComplete="off"
-                />
+                <div className="room-input-group">
+                  <input
+                    id="room-id"
+                    className="join-input"
+                    placeholder="例: ABC123"
+                    value={roomId}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setRoomId(val);
+                      const newUrl = `${window.location.pathname}?room=${encodeURIComponent(val)}`;
+                      window.history.replaceState({}, "", newUrl);
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && connect()}
+                    aria-label="ルームID"
+                    autoComplete="off"
+                  />
+                  <button
+                    type="button"
+                    className="btn-random-room"
+                    onClick={regenerateRoomId}
+                    title="ランダムな部屋IDを再生成"
+                  >
+                    🎲 再生成
+                  </button>
+                </div>
               </div>
 
-              <button
-                type="button"
-                className="join-submit-btn"
-                onClick={connect}
-                disabled={!name.trim()}
-                aria-label="大会に入場する"
-              >
-                <span className="join-btn-sheen" aria-hidden="true" />
-                <span className="join-btn-sub">ENTER ARENA</span>
-                <span className="join-btn-main">入場する</span>
-              </button>
+              <div style={{ display: "flex", gap: "10px", width: "100%" }}>
+                <button
+                  type="button"
+                  className="join-submit-btn"
+                  style={{ flex: 1 }}
+                  onClick={() => connect()}
+                  disabled={!name.trim()}
+                  aria-label="大会に入場する"
+                >
+                  <span className="join-btn-sheen" aria-hidden="true" />
+                  <span className="join-btn-sub">ENTER ARENA</span>
+                  <span className="join-btn-main">入場する</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn-copy-url"
+                  onClick={() => copyRoomUrl()}
+                  title="友達に共有するURLをコピー"
+                  style={{ padding: "0 14px", height: "auto" }}
+                >
+                  📋 URLコピー
+                </button>
+              </div>
             </div>
 
             <div className="join-card-footer">
-              <span className="join-footer-hint">名前を入力してEnterキーでも入場できます</span>
+              <span className="join-footer-hint">URLを共有すると同じ部屋に対戦相手を招待できます</span>
             </div>
           </div>
         </div>
+        {toast && (
+          <div className="toast-container">
+            <div className="toast-message">
+              <span>✔</span> {toast}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -953,149 +1105,226 @@ export default function App() {
   // --------------------------------------------------------------------------
   return (
     <div className="arena-container">
-      {/* 1. Upper Theme & Judgment Stage (RESULT_ANNOUNCEMENT_SPEC v2.0) */}
-      <section className={`themeStage themeStage--${stageMode}`} aria-label="大喜利ステージ">
-        {/* Layer 1: 常時表示デフォルトフレーム */}
-        <DefaultArenaFrame variant={stageMode === "theme" ? "theme" : "judgment"} />
+      {roomPhase === "waiting" ? (
+        <div className="waiting-room-container">
+          <div className="waiting-card">
+            <div className="waiting-badge">
+              <span className="waiting-pulse-dot" />
+              <span>ENTRY OPEN</span>
+            </div>
+            <h1 className="waiting-title">参加者を待っています</h1>
+            <p className="waiting-desc">参加メンバーが集まったら「ゲームを開始する」を押してください。</p>
 
-        {/* Phase 0: 通常のお題表示 */}
-        {stageMode === "theme" && (
-          <>
-            <div className="themeStage__hud">
-              <div className="themeStage__roundBadge" aria-label={`第${questionNumber}問`}>
-                第 {questionNumber} 問
+            <div className="room-share-bar">
+              <div className="room-share-info">
+                <span className="room-share-label">ROOM:</span>
+                <span className="room-share-id">{roomId}</span>
               </div>
-
-              <div className="themeStage__controls">
-                <div
-                  className={`themeStage__timer ${isTimerPaused ? "themeStage__timer--paused" : ""}`}
-                  aria-label={`残り時間 ${formatTime(remaining)} ${isTimerPaused ? "（停止中）" : ""}`}
-                >
-                  <span className="themeStage__timerIcon" aria-hidden="true">
-                    {isTimerPaused ? "⏸" : "◷"}
-                  </span>
-                  <span>{formatTime(remaining)}</span>
-                  {isTimerPaused && <span className="themeStage__timerPausedTag">停止中</span>}
-                </div>
-
-                <button
-                  type="button"
-                  className={`themeStage__timerButton ${isTimerPaused ? "themeStage__timerButton--paused" : ""}`}
-                  onClick={toggleTimer}
-                  title={isTimerPaused ? "タイマーを再開" : "タイマーを停止"}
-                >
-                  {isTimerPaused ? "▶ 再開" : "⏸ 停止"}
-                </button>
-
-                <button
-                  type="button"
-                  className="themeStage__skipButton"
-                  onClick={skip}
-                >
-                  スキップ
-                </button>
-              </div>
+              <button type="button" className="btn-copy-url" onClick={() => copyRoomUrl()}>
+                📋 招待URLをコピー
+              </button>
             </div>
 
-            <div className="themeStage__question">
-              <p className="themeStage__eyebrow">お 題</p>
-              <div className="themeStage__titleWrapper">
-                <h1 className={`themeStage__title ${getThemeSizeClass(theme || "")}`}>
-                  {theme || "お題を読み込んでいます..."}
-                </h1>
+            <div className="waiting-players-section">
+              <div className="waiting-players-header">
+                <span className="waiting-players-count">
+                  参加人数: <span>{players.length}</span> 名
+                </span>
               </div>
-            </div>
-          </>
-        )}
-
-        {/* Phase 1: 回答受信・判定待機（テキストなし・採点背景のみ） */}
-        {stageMode === "answerWaiting" && null}
-
-        {/* Phase 2, 3, 4: 白フリップ・採点フレーム点灯・結果発表 */}
-        {stageMode === "answerShown" && judging && (
-          <>
-            {/* 採点フレーム (0〜10本、デフォルトフレームの内側・白フリップの外側) */}
-            <JudgmentFrameMeter
-              litFrames={judging.litFrames}
-              totalFrames={10}
-              isIppon={judging.done && judging.isIppon}
-            />
-
-            <div className="answerArea">
-              <div className="answerArea__player">{judging.player} の回答</div>
-
-              {/* 白フリップ */}
-              <div className={`answerFlip ${judging.done && judging.isIppon ? "answerFlip--ippon" : ""}`}>
-                <p className={`answerFlip__text ${getAnswerSizeClass(judging.answer)}`}>
-                  「{judging.answer}」
-                </p>
-              </div>
-            </div>
-
-            {/* IPPON特大バナー */}
-            {judging.done && judging.isIppon && (
-              <div className="ipponBanner">IPPON!</div>
-            )}
-
-            {/* 未IPPON時の点数丸バッジ */}
-            {judging.done && !judging.isIppon && (
-              <div className="scoreBadge" aria-label={`得点: ${judging.totalScore}点`}>
-                <span className="scoreBadge__number">{judging.totalScore}</span>
-              </div>
-            )}
-
-            {/* アクセシビリティ用通知（視覚的には非表示） */}
-            <div className="srOnly" aria-live="polite">
-              {!judging.done && `採点中: ${judging.litFrames} / 10`}
-              {judging.done && (
-                judging.isIppon ? "IPPON、10点満点" : `今回の得点は ${judging.totalScore} 点`
-              )}
-            </div>
-          </>
-        )}
-      </section>
-
-      {/* 2. Lower Area: Scoreboard + Feed + Input */}
-      <div className="arena-bottom">
-        {/* Player Scoreboard */}
-        <section className="player-scoreboard" aria-label="出場者一覧と得点">
-          {players.map((p) => (
-            <div key={p.id} className="player-score-card" aria-label={`${p.name}: ${p.ippons} IPPON`}>
-              <span className="player-name">{p.name}</span>
-              <div className="ippon-bars-container" title={`${p.ippons} IPPON`}>
-                {[0, 1, 2].map((idx) => (
-                  <div key={idx} className={`ippon-bar ${idx < p.ippons ? "active" : ""}`} />
+              <div className="waiting-players-grid">
+                {players.map((p) => (
+                  <div
+                    key={p.id}
+                    className={`waiting-player-chip ${p.id === myPlayerId ? "is-me" : ""}`}
+                  >
+                    <div className="waiting-player-avatar">
+                      {p.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="waiting-player-name">
+                      {p.name} {p.id === myPlayerId ? " (あなた)" : ""}
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>
-          ))}
-        </section>
 
-        {/* Feed & Input */}
-        <section className="feed-section">
-          <div className="feed-list" role="log" aria-live="polite">
-            {feed.map((f) => (
-              <div key={f.key} className={`feed-bubble ${f.kind}`}>
-                {f.text}
+            <div className="waiting-actions">
+              <button type="button" className="btn-start-game" onClick={startGame}>
+                ▶ ゲームを開始する
+              </button>
+              <button type="button" className="btn-leave-room" onClick={leaveRoom}>
+                🚪 退出する
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* 1. Upper Theme & Judgment Stage (RESULT_ANNOUNCEMENT_SPEC v2.0) */}
+          <section className={`themeStage themeStage--${stageMode}`} aria-label="大喜利ステージ">
+            {/* Layer 1: 常時表示デフォルトフレーム */}
+            <DefaultArenaFrame variant={stageMode === "theme" ? "theme" : "judgment"} />
+
+            {/* Phase 0: 通常のお題表示 */}
+            {stageMode === "theme" && (
+              <>
+                <div className="themeStage__hud">
+                  <div className="themeStage__roundBadge" aria-label={`第${questionNumber}問`}>
+                    第 {questionNumber} 問
+                  </div>
+
+                  <div className="themeStage__controls">
+                    <div className="themeStage__roomMeta">
+                      <span className="themeStage__roomIdTag">{roomId}</span>
+                      <button
+                        type="button"
+                        className="themeStage__copyBtn"
+                        onClick={() => copyRoomUrl()}
+                        title="部屋URLをコピー"
+                      >
+                        📋 コピー
+                      </button>
+                      <button
+                        type="button"
+                        className="themeStage__leaveBtn"
+                        onClick={leaveRoom}
+                        title="部屋から退出"
+                      >
+                        🚪 退出
+                      </button>
+                    </div>
+
+                    <div
+                      className={`themeStage__timer ${isTimerPaused ? "themeStage__timer--paused" : ""}`}
+                      aria-label={`残り時間 ${formatTime(remaining)} ${isTimerPaused ? "（停止中）" : ""}`}
+                    >
+                      <span className="themeStage__timerIcon" aria-hidden="true">
+                        {isTimerPaused ? "⏸" : "◷"}
+                      </span>
+                      <span>{formatTime(remaining)}</span>
+                      {isTimerPaused && <span className="themeStage__timerPausedTag">停止中</span>}
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`themeStage__timerButton ${isTimerPaused ? "themeStage__timerButton--paused" : ""}`}
+                      onClick={toggleTimer}
+                      title={isTimerPaused ? "タイマーを再開" : "タイマーを停止"}
+                    >
+                      {isTimerPaused ? "▶ 再開" : "⏸ 停止"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="themeStage__skipButton"
+                      onClick={skip}
+                    >
+                      スキップ
+                    </button>
+                  </div>
+                </div>
+
+                <div className="themeStage__question">
+                  <p className="themeStage__eyebrow">お 題</p>
+                  <div className="themeStage__titleWrapper">
+                    <h1 className={`themeStage__title ${getThemeSizeClass(theme || "")}`}>
+                      {theme || "お題を読み込んでいます..."}
+                    </h1>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Phase 1: 回答受信・判定待機（テキストなし・採点背景のみ） */}
+            {stageMode === "answerWaiting" && null}
+
+            {/* Phase 2, 3, 4: 白フリップ・採点フレーム点灯・結果発表 */}
+            {stageMode === "answerShown" && judging && (
+              <>
+                {/* 採点フレーム (0〜10本、デフォルトフレームの内側・白フリップの外側) */}
+                <JudgmentFrameMeter
+                  litFrames={judging.litFrames}
+                  totalFrames={10}
+                  isIppon={judging.done && judging.isIppon}
+                />
+
+                <div className="answerArea">
+                  <div className="answerArea__player">{judging.player} の回答</div>
+
+                  {/* 白フリップ */}
+                  <div className={`answerFlip ${judging.done && judging.isIppon ? "answerFlip--ippon" : ""}`}>
+                    <p className={`answerFlip__text ${getAnswerSizeClass(judging.answer)}`}>
+                      「{judging.answer}」
+                    </p>
+                  </div>
+                </div>
+
+                {/* IPPON特大バナー */}
+                {judging.done && judging.isIppon && (
+                  <div className="ipponBanner">IPPON!</div>
+                )}
+
+                {/* 未IPPON時の点数丸バッジ */}
+                {judging.done && !judging.isIppon && (
+                  <div className="scoreBadge" aria-label={`得点: ${judging.totalScore}点`}>
+                    <span className="scoreBadge__number">{judging.totalScore}</span>
+                  </div>
+                )}
+
+                {/* アクセシビリティ用通知（視覚的には非表示） */}
+                <div className="srOnly" aria-live="polite">
+                  {!judging.done && `採点中: ${judging.litFrames} / 10`}
+                  {judging.done && (
+                    judging.isIppon ? "IPPON、10点満点" : `今回の得点は ${judging.totalScore} 点`
+                  )}
+                </div>
+              </>
+            )}
+          </section>
+
+          {/* 2. Lower Area: Scoreboard + Feed + Input */}
+          <div className="arena-bottom">
+            {/* Player Scoreboard */}
+            <section className="player-scoreboard" aria-label="出場者一覧と得点">
+              {players.map((p) => (
+                <div key={p.id} className="player-score-card" aria-label={`${p.name}: ${p.ippons} IPPON`}>
+                  <span className="player-name">{p.name}</span>
+                  <div className="ippon-bars-container" title={`${p.ippons} IPPON`}>
+                    {[0, 1, 2].map((idx) => (
+                      <div key={idx} className={`ippon-bar ${idx < p.ippons ? "active" : ""}`} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </section>
+
+            {/* Feed & Input */}
+            <section className="feed-section">
+              <div className="feed-list" role="log" aria-live="polite">
+                {feed.map((f) => (
+                  <div key={f.key} className={`feed-bubble ${f.kind}`}>
+                    {f.text}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <div className="input-bar">
-            <input
-              className="answer-input"
-              placeholder="回答を入力してEnter (例: ○○○○○)"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submit()}
-              aria-label="大喜利回答の入力"
-            />
-            <button className="submit-btn" onClick={submit}>
-              送信
-            </button>
+              <div className="input-bar">
+                <input
+                  className="answer-input"
+                  placeholder="回答を入力してEnter (例: ○○○○○)"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && submit()}
+                  aria-label="大喜利回答の入力"
+                />
+                <button className="submit-btn" onClick={submit}>
+                  送信
+                </button>
+              </div>
+            </section>
           </div>
-        </section>
-      </div>
+        </>
+      )}
 
       {/* 3. Match Winner Overlay */}
       {winner && (
@@ -1108,6 +1337,15 @@ export default function App() {
             <button className="submit-btn" onClick={restart}>
               もう一度遊ぶ
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* トースト通知 */}
+      {toast && (
+        <div className="toast-container">
+          <div className="toast-message">
+            <span>✔</span> {toast}
           </div>
         </div>
       )}

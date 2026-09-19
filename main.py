@@ -58,8 +58,8 @@ TARGET_IPPON = int(os.environ.get("TARGET_IPPON", "3"))             # 勝利IPPO
 class Room:
     def __init__(self, room_id: str):
         self.id = room_id
-        self.players: dict[str, dict] = {}  # pid -> {"name", "ws", "ippons"}
-        self.phase = "lobby"                # lobby | theme
+        self.players: dict[str, dict] = {}  # pid -> {"name", "ws", "ippons", "connected", "disconnect_task"}
+        self.phase = "waiting"              # waiting | theme | transition
         self.theme = None
         self.theme_index = -1
         self.round_number = 0
@@ -85,14 +85,16 @@ class Room:
 
     def broadcast(self, msg: dict):
         for p in list(self.players.values()):
-            try:
-                asyncio.ensure_future(p["ws"].send_json(msg))
-            except Exception:
-                pass
+            ws = p.get("ws")
+            if ws:
+                try:
+                    asyncio.ensure_future(ws.send_json(msg))
+                except Exception:
+                    pass
 
     def send(self, pid: str, msg: dict):
         p = self.players.get(pid)
-        if p:
+        if p and p.get("ws"):
             try:
                 asyncio.ensure_future(p["ws"].send_json(msg))
             except Exception:
@@ -203,15 +205,39 @@ class Room:
                 "remaining": int(self.paused_remaining),
             })
 
-    def reset(self):
+    def reset_to_waiting(self):
         for p in self.players.values():
             p["ippons"] = 0
         self.theme_index = -1
         self.round_number = 0
         self.is_timer_paused = False
         self.paused_remaining = 0.0
-        self.phase = "transition"
-        self.start_theme()
+        self.phase = "waiting"
+        self.theme = None
+        self.deadline = None
+        self.queue.clear()
+        self.draining = False
+        self.broadcast({
+            "type": "WAITING_LOBBY",
+            "phase": "waiting",
+            "players": self.roster()
+        })
+
+    def reset_room_state(self):
+        self.phase = "waiting"
+        self.theme = None
+        self.theme_index = -1
+        self.round_number = 0
+        self.deadline = None
+        self.is_timer_paused = False
+        self.paused_remaining = 0.0
+        self.queue.clear()
+        self.draining = False
+        self.recent_answers.clear()
+        self.recent_themes.clear()
+        self.next_theme_buffer = None
+        if self._pregen_task and not self._pregen_task.done():
+            self._pregen_task.cancel()
 
     def enqueue(self, pid: str, answer: str):
         if self.phase != "theme":
@@ -309,8 +335,8 @@ class Room:
                             "players": self.roster(),
                         })
                         if self.players[pid]["ippons"] >= TARGET_IPPON:
+                            self.phase = "match_win"
                             self.broadcast({"type": "MATCH_WIN", "winner": name, "players": self.roster()})
-                            self.reset()
                             return
                         await asyncio.sleep(2.5)
                         self.next_theme(f"{name} のIPPON! 次のお題へ")
@@ -339,11 +365,31 @@ ROOMS: dict[str, Room] = {}
 
 
 @app.websocket("/ws/{room_id}/{player_name}")
-async def ws_endpoint(ws: WebSocket, room_id: str, player_name: str):
+async def ws_endpoint(ws: WebSocket, room_id: str, player_name: str, player_id: str | None = None):
     await ws.accept()
     room = ROOMS.setdefault(room_id, Room(room_id))
-    pid = uuid.uuid4().hex[:8]
-    room.players[pid] = {"name": player_name or "名無し", "ws": ws, "ippons": 0}
+
+    # player_id が渡され、かつ既存のプレイヤー一覧にあればセッション復帰
+    pid = player_id if (player_id and player_id in room.players) else (player_id or uuid.uuid4().hex[:8])
+
+    if pid in room.players:
+        p = room.players[pid]
+        task = p.get("disconnect_task")
+        if task and not task.done():
+            task.cancel()
+        p["disconnect_task"] = None
+        p["ws"] = ws
+        if player_name:
+            p["name"] = player_name
+        p["connected"] = True
+    else:
+        room.players[pid] = {
+            "name": player_name or "名無し",
+            "ws": ws,
+            "ippons": 0,
+            "connected": True,
+            "disconnect_task": None,
+        }
 
     await ws.send_json({
         "type": "JOINED",
@@ -360,9 +406,6 @@ async def ws_endpoint(ws: WebSocket, room_id: str, player_name: str):
     })
     room.broadcast({"type": "PLAYER_JOINED", "players": room.roster()})
 
-    if room.phase == "lobby":
-        room.start_theme()
-
     try:
         while True:
             data = await ws.receive_json()
@@ -373,20 +416,39 @@ async def ws_endpoint(ws: WebSocket, room_id: str, player_name: str):
                 room.toggle_timer()
             elif t == "SKIP" and room.phase == "theme" and not room.queue:
                 room.next_theme("スキップされました")
+            elif t == "START_GAME" and room.phase == "waiting":
+                room.start_theme()
             elif t == "RESTART":
-                room.reset()
+                room.reset_to_waiting()
+            elif t == "LEAVE":
+                # 明示的な退出: 猶予なしで即時削除
+                task = room.players.get(pid, {}).get("disconnect_task")
+                if task and not task.done():
+                    task.cancel()
+                room.players.pop(pid, None)
+                room.broadcast({"type": "PLAYER_LEFT", "players": room.roster()})
+                if not room.players:
+                    room.reset_room_state()
+                break
     except WebSocketDisconnect:
-        room.players.pop(pid, None)
-        room.broadcast({"type": "PLAYER_LEFT", "players": room.roster()})
-        if not room.players:
-            # 部屋のプレイヤーが全員退出したらロビー状態に戻し、次回入場時に新しいお題を即時生成
-            room.phase = "lobby"
-            room.theme = None
-            room.deadline = None
-            room.is_timer_paused = False
-            room.paused_remaining = 0.0
-            room.queue.clear()
-            room.draining = False
+        p = room.players.get(pid)
+        if p:
+            p["connected"] = False
+            p["ws"] = None
+
+            async def _remove_after_timeout(target_pid: str):
+                try:
+                    await asyncio.sleep(15)
+                    target_p = room.players.get(target_pid)
+                    if target_p and not target_p.get("connected"):
+                        room.players.pop(target_pid, None)
+                        room.broadcast({"type": "PLAYER_LEFT", "players": room.roster()})
+                        if not any(pl.get("connected") for pl in room.players.values()):
+                            room.reset_room_state()
+                except asyncio.CancelledError:
+                    pass
+
+            p["disconnect_task"] = asyncio.create_task(_remove_after_timeout(pid))
 
 
 # frontend をビルドした場合は配信する (ローカル実行 / コンテナ実行の両方に対応)

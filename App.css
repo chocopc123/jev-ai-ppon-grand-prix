@@ -1699,3 +1699,393 @@ body {
   }
 }
 
+/* ==========================================================================
+   待機室 (Waiting Room) & コントロール
+   ========================================================================== */
+.waiting-room-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.waiting-card {
+  background: rgba(20, 20, 24, 0.95);
+  border: 1px solid rgba(255, 208, 0, 0.35);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 208, 0, 0.15);
+  border-radius: 12px;
+  padding: 32px;
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  animation: waitingCardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes waitingCardEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.waiting-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 208, 0, 0.12);
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold);
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.waiting-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-gold);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-gold);
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0.6; }
+}
+
+.waiting-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--color-text-white);
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.waiting-desc {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* 部屋共有バー */
+.room-share-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: #111115;
+  border: 1px solid #33333f;
+  border-radius: 8px;
+  padding: 8px 14px;
+  gap: 12px;
+}
+
+.room-share-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.room-share-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #8e8e9f;
+  letter-spacing: 1px;
+}
+
+.room-share-id {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--color-gold);
+  font-family: var(--font-mono);
+  letter-spacing: 1.5px;
+}
+
+.btn-copy-url {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #2a2a36 0%, #1c1c24 100%);
+  border: 1px solid rgba(255, 208, 0, 0.4);
+  color: var(--color-gold);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-copy-url:hover {
+  background: linear-gradient(180deg, #38384a 0%, #252532 100%);
+  border-color: var(--color-gold);
+  box-shadow: 0 0 10px rgba(255, 208, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-copy-url:active {
+  transform: translateY(0);
+}
+
+/* 待機参加者リスト */
+.waiting-players-section {
+  width: 100%;
+  text-align: left;
+}
+
+.waiting-players-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.waiting-players-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.waiting-players-count span {
+  color: var(--color-gold);
+  font-size: 15px;
+}
+
+.waiting-players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.waiting-player-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-white);
+  transition: border-color 0.2s;
+}
+
+.waiting-player-chip.is-me {
+  border-color: var(--color-gold);
+  background: rgba(255, 208, 0, 0.08);
+}
+
+.waiting-player-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.waiting-player-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 待機室のアクションボタン群 */
+.waiting-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.btn-start-game {
+  flex: 2;
+  position: relative;
+  background: linear-gradient(180deg, #ffd700 0%, #ffaa00 100%);
+  border: 1px solid #ffffff;
+  color: #0d0d0d;
+  font-family: var(--font-heavy);
+  font-size: 17px;
+  font-weight: 900;
+  padding: 14px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255, 170, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-start-game:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(255, 170, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  filter: brightness(1.05);
+}
+
+.btn-start-game:active {
+  transform: translateY(1px);
+}
+
+.btn-leave-room {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #c0c0cf;
+  font-family: var(--font-heavy);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-leave-room:hover {
+  background: rgba(255, 59, 48, 0.15);
+  border-color: rgba(255, 59, 48, 0.4);
+  color: #ff453a;
+}
+
+/* ゲーム内HUD追加ボタン (部屋共有・退出) */
+.themeStage__roomMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 6px;
+}
+
+.themeStage__roomIdTag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--color-gold);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 208, 0, 0.25);
+  letter-spacing: 0.5px;
+}
+
+.themeStage__copyBtn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 208, 0, 0.4);
+  color: var(--color-gold);
+  padding: 4px 9px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.themeStage__copyBtn:hover {
+  background: rgba(255, 208, 0, 0.2);
+  border-color: var(--color-gold);
+}
+
+.themeStage__leaveBtn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e0e0e0;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.themeStage__leaveBtn:hover {
+  background: rgba(255, 59, 48, 0.25);
+  border-color: rgba(255, 59, 48, 0.6);
+  color: #ff6b6b;
+}
+
+/* トースト通知 */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast-message {
+  background: rgba(18, 18, 22, 0.95);
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 208, 0, 0.35);
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  animation: toastPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@keyframes toastPop {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* エントリー画面のランダムボタン */
+.room-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-random-room {
+  background: #252530;
+  border: 1px solid #444455;
+  color: var(--color-gold);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-random-room:hover {
+  background: #323242;
+  border-color: var(--color-gold);
+}
+
+
