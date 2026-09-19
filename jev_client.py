@@ -521,8 +521,11 @@ async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> 
         print("[WARN] GEMINI_API_KEY is not set. Cannot generate TTS audio.")
         return None
 
-    # 短く明確にすることでモデルの音声生成レイテンシを大幅に短縮（約6秒→約3秒）
-    prompt = f"お題。{clean_text}"
+    prompt = (
+        "あなたはテレビ番組「IPPONグランプリ」のナレーターです。\n"
+        "低く落ち着きのある重厚な男性の声で、次の大喜利のお題をはっきりと威厳を持って読み上げてください：\n"
+        f"「{clean_text}」"
+    )
 
     url = f"{GEMINI_API_BASE_URL}/models/{TTS_MODEL}:generateContent?key={api_key}"
     payload = {

@@ -72,6 +72,8 @@ class Room:
         self._order = []
         self.is_timer_paused = False
         self.paused_remaining = 0.0
+        self.next_theme_buffer: str | None = None
+        self._pregen_task: asyncio.Task | None = None
 
     # ---------------- 基礎 ----------------
 
@@ -112,14 +114,41 @@ class Room:
         self.theme_index = (self.theme_index + 1) % len(self._order)
         return THEMES[self._order[self.theme_index]]
 
+    async def _pregenerate_next_theme_and_audio(self):
+        """次のお題のテキストとGemini TTS音声をバックグラウンドで完全事前生成して待機させる。"""
+        try:
+            next_t = await self._resolve_theme()
+            self.next_theme_buffer = next_t
+            print(f"[PREGEN] Next theme prepared: 「{next_t}」. Starting TTS generation...")
+            await generate_theme_audio(next_t)
+            print(f"[PREGEN] Next theme TTS completely ready in cache for: 「{next_t}」")
+        except Exception as e:
+            print(f"[PREGEN] Failed to pregenerate next theme or audio: {e}")
+
+    def schedule_next_pregeneration(self):
+        if self._pregen_task and not self._pregen_task.done():
+            self._pregen_task.cancel()
+        self._pregen_task = asyncio.create_task(self._pregenerate_next_theme_and_audio())
+
     async def _async_start_theme(self):
         if not self.players:
             return
-        self.theme = await self._resolve_theme()
+
+        # 1) 事前生成バッファがあれば即座に採用（待ち時間 0秒）
+        if self.next_theme_buffer:
+            self.theme = self.next_theme_buffer
+            self.next_theme_buffer = None
+            print(f"[THEME] Using pregenerated theme & audio: 「{self.theme}」")
+        else:
+            # 初回などバッファがない場合は即座に生成
+            self.theme = await self._resolve_theme()
+            if self.theme:
+                asyncio.create_task(generate_theme_audio(self.theme))
+
         self.recent_themes.append(self.theme)
-        # クライアントがリクエストする前にサーバー側で先行してTTS音声を生成・キャッシュ
-        if self.theme:
-            asyncio.create_task(generate_theme_audio(self.theme))
+
+        # 2) 現在のお題が始まった瞬間、直ちに「次のお題とその音声」の事前生成を開始
+        self.schedule_next_pregeneration()
 
         self.round_number += 1
         self.phase = "theme"
