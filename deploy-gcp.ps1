@@ -1,8 +1,8 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$Host.UI.RawUI.WindowTitle = "IPPON GP Web - GCP Cloud Run Deploy"
+$Host.UI.RawUI.WindowTitle = "OOGIRI GRAND PRIX - GCP Cloud Run Deploy"
 
 Write-Host "========================================================" -ForegroundColor Cyan
-Write-Host "  IPPON GP Web - Google Cloud Run デプロイスクリプト" -ForegroundColor Cyan
+Write-Host "  OOGIRI GRAND PRIX - Google Cloud Run デプロイスクリプト" -ForegroundColor Cyan
 Write-Host "========================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -44,7 +44,7 @@ Write-Host "[2/2] Cloud Run へソースデプロイ中 (東京リージョン: 
 
 $envVars = "OPENROUTER_API_KEY=$apiKey,THEME_TIME_LIMIT=150,TARGET_IPPON=3"
 
-gcloud run deploy ippon-gp `
+gcloud run deploy oogiri-grand-prix `
   --source . `
   --region asia-northeast1 `
   --platform managed `

@@ -2,7 +2,7 @@
 set -e
 
 echo "========================================================"
-echo "  IPPON GP Web - Google Cloud Run デプロイスクリプト"
+echo "  OOGIRI GRAND PRIX - Google Cloud Run デプロイスクリプト"
 echo "========================================================"
 echo ""
 
@@ -38,7 +38,7 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 echo ""
 echo -e "\033[36m[2/2] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)...\033[0m"
 
-gcloud run deploy ippon-gp \
+gcloud run deploy oogiri-grand-prix \
   --source . \
   --region asia-northeast1 \
   --platform managed \

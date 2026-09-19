@@ -1,5 +1,5 @@
 """
-IPPON GRAND PRIX Web — Jev (TypeSafe) 判定クライアント
+OOGIRI GRAND PRIX Web — Jev (TypeSafe) 判定クライアント
 
 OpenRouter 経由で Jev を呼び出す。
 重要: Jev は chat/completions 非対応。専用の /api/alpha/decisions を使う。
@@ -454,7 +454,7 @@ async def generate_theme(recent_themes: list[str] | None = None) -> str | None:
         )
 
     system_prompt = (
-        "あなたはテレビ番組「IPPONグランプリ」のお題作成作家です。\n"
+        "あなたは大喜利グランプリ（OOGIRI GRAND PRIX）のお題作成作家です。\n"
         "回答者が思わずボケたくなる、フリが効いていて意外性のある秀逸な大喜利のお題を日本語で1つ作成してください。\n\n"
         "【ルール】\n"
         "1. 出力はお題の文章1行のみ。\n"
@@ -522,7 +522,7 @@ async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> 
         return None
 
     prompt = (
-        "あなたはテレビ番組「IPPONグランプリ」のナレーターです。\n"
+        "あなたは大喜利グランプリ（OOGIRI GRAND PRIX）のナレーターです。\n"
         "低く落ち着きのある重厚な男性の声で、次の大喜利のお題をはっきりと威厳を持って読み上げてください：\n"
         f"「{clean_text}」"
     )

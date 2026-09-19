@@ -1,6 +1,6 @@
 @echo off
 echo ========================================================
-echo   IPPON GP Web - Simultaneous Launch (FastAPI + Vite)
+echo   OOGIRI GRAND PRIX - Simultaneous Launch (FastAPI + Vite)
 echo ========================================================
 echo.
 echo Starting FastAPI Backend (Port 8080)...

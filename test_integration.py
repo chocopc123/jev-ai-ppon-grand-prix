@@ -1,5 +1,5 @@
 """
-IPPON GP Web の統合テスト (HTTP 静的配信 + WebSocket 対戦フロー)
+OOGIRI GRAND PRIX Web の統合テスト (HTTP 静的配信 + WebSocket 対戦フロー)
 """
 import asyncio
 from fastapi.testclient import TestClient

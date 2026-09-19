@@ -1,5 +1,5 @@
 """
-IPPON GRAND PRIX Web — FastAPI / WebSocket サーバー
+OOGIRI GRAND PRIX Web — FastAPI / WebSocket サーバー
 
 フロー:
   お題出題 → プレイヤーがチャット送信 → ピンポン & 解答発表 (全員へ)
@@ -36,7 +36,7 @@ def log_answer(room_id: str, theme: str, player: str, answer: str, gatekeep_ok: 
         print(f"[{now}] [ROOM: {room_id}] [{ippon_mark}] プレイヤー: {player} | お題: {theme} | 回答: 「{answer}」")
 
 
-app = FastAPI(title="IPPON GP Web")
+app = FastAPI(title="OOGIRI GRAND PRIX Web")
 
 @app.get("/api/tts/theme")
 async def get_theme_audio(text: str, voice: str = "Algieba"):

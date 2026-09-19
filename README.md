@@ -1,6 +1,6 @@
-# IPPON GP Web — Jev × 大喜利マルチ対戦
+# OOGIRI GRAND PRIX Web — Jev × 大喜利マルチ対戦
 
-TypeSafe の Jev (System One モデル) を OpenRouter 経由で使った、テレビの大喜利番組「IPPONグランプリ」風マルチ対戦 Web アプリケーション。
+TypeSafe の Jev (System One モデル) を OpenRouter 経由で使った、大喜利グランプリ（OOGIRI GRAND PRIX）風マルチ対戦 Web アプリケーション。
 
 ## 特徴 (Jev の強みを生かした設計)
 
@@ -102,7 +102,7 @@ cmd /c deploy-gcp.bat
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
 
 # 2. Cloud Run へデプロイ
-gcloud run deploy ippon-gp \
+gcloud run deploy oogiri-grand-prix \
   --source . \
   --region asia-northeast1 \
   --platform managed \
