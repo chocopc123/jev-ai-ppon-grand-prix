@@ -80,7 +80,7 @@ function getIpponAudioPipeline() {
 
     // 3. メインゲイン
     const mainGain = a.createGain();
-    mainGain.gain.setValueAtTime(0.792, a.currentTime);
+    mainGain.gain.setValueAtTime(0.85, a.currentTime);
 
     // 4. アリーナ風ディレイ（空間エコー）
     const delay = a.createDelay();

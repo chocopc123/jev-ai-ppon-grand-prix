@@ -80,7 +80,7 @@ function getIpponAudioPipeline() {
 
     // 3. メインゲイン
     const mainGain = a.createGain();
-    mainGain.gain.setValueAtTime(0.792, a.currentTime);
+    mainGain.gain.setValueAtTime(0.85, a.currentTime);
 
     // 4. アリーナ風ディレイ（空間エコー）
     const delay = a.createDelay();
@@ -409,6 +409,24 @@ export function JudgmentFrameMeter({ litFrames, totalFrames = 10, isIppon = fals
       </svg>
     </div>
   );
+}
+
+function getThemeSizeClass(text: string): string {
+  const len = text.trim().length;
+  if (len <= 20) return "themeStage__title--short";
+  if (len <= 40) return "themeStage__title--medium";
+  if (len <= 70) return "themeStage__title--long";
+  if (len <= 110) return "themeStage__title--xlarge";
+  return "themeStage__title--xxlarge";
+}
+
+function getAnswerSizeClass(text: string): string {
+  const len = text.trim().length;
+  if (len <= 14) return "answerFlip__text--short";
+  if (len <= 28) return "answerFlip__text--medium";
+  if (len <= 50) return "answerFlip__text--long";
+  if (len <= 80) return "answerFlip__text--xlarge";
+  return "answerFlip__text--xxlarge";
 }
 
 export default function App() {
