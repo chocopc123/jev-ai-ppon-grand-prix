@@ -524,15 +524,8 @@ export default function App() {
 
     stopSpeaking();
 
-    let fallbackCalled = false;
-    const triggerFallback = () => {
-      if (fallbackCalled) return;
-      fallbackCalled = true;
-      fallbackWebSpeech(targetText);
-    };
-
     try {
-      // 1. まず Gemini 3.1 Flash TTS (音声プリセット 'Algieba') のAPIを試行
+      // Gemini 3.1 Flash TTS (音声プリセット 'Algieba') のAPIを試行
       const audioUrl = `/api/tts/theme?text=${encodeURIComponent(targetText)}&voice=Algieba`;
       const audioObj = new Audio(audioUrl);
       currentAudioRef.current = audioObj;
@@ -542,39 +535,15 @@ export default function App() {
       };
 
       audioObj.onerror = () => {
-        console.warn("[TTS] Gemini TTS playback failed, falling back to Web Speech API");
-        triggerFallback();
+        console.warn("[TTS] Gemini TTS playback failed");
+        currentAudioRef.current = null;
       };
 
       await audioObj.play();
     } catch (err) {
       console.warn("[TTS] Failed to play Gemini TTS audio:", err);
-      triggerFallback();
+      currentAudioRef.current = null;
     }
-  };
-
-  const fallbackWebSpeech = (targetText: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const u = new SpeechSynthesisUtterance(targetText);
-    u.lang = "ja-JP";
-    u.pitch = 0.72; // 男性低音化
-    u.rate = 0.90;
-
-    const voices = window.speechSynthesis.getVoices();
-    const jaVoices = voices.filter((v) => v.lang.startsWith("ja"));
-    const preferredVoice =
-      jaVoices.find((v) => v.name.includes("Keita") || v.name.includes("Ichiro") || v.name.includes("Natural")) ||
-      jaVoices[0];
-    if (preferredVoice) {
-      u.voice = preferredVoice;
-    }
-
-    window.speechSynthesis.speak(u);
   };
 
   // 回答テキストの読み上げ: Web Speech API のみ使用
