@@ -1,4 +1,4 @@
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+﻿[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $Host.UI.RawUI.WindowTitle = "OOGIRI GRAND PRIX - GCP Cloud Run Deploy"
 
 Write-Host "========================================================" -ForegroundColor Cyan
@@ -7,7 +7,8 @@ Write-Host "========================================================" -Foregroun
 Write-Host ""
 
 # 1. GCP プロジェクトの確認
-$currentProject = (gcloud config get-value project 2>$null).Trim()
+$rawProject = (gcloud config get-value project 2>$null)
+$currentProject = if ($rawProject) { $rawProject.Trim() } else { "" }
 if ([string]::IsNullOrWhiteSpace($currentProject) -or $currentProject -like "*unset*") {
     Write-Host "[ERROR] gcloud のプロジェクトが設定されていません。" -ForegroundColor Red
     Write-Host "先に 'gcloud config set project <PROJECT_ID>' を実行してください。" -ForegroundColor Yellow
