@@ -6,13 +6,6 @@ type TimelineItem = { judge: string; score: number; delay_ms: number };
 
 type FeedItem = { key: number; text: string; kind: "info" | "miss" | "reject" | "ippon" };
 
-const CRITERIA_LABELS: Record<string, string> = {
-  on_topic: "お題に答える",
-  has_punchline: "オチを作る",
-  comprehensible: "意味を通す",
-  novelty: "ひねりを足す",
-  conciseness: "テンポを良くする",
-};
 
 let ac: AudioContext | null = null;
 function audio(): AudioContext {
@@ -568,15 +561,8 @@ export default function App() {
 
     // 10点未満（不成立）の場合の結果処理
     sfx.shakin();
-    const breakdown = judgement.timeline
-      .map((t) => `${t.judge}${t.score}`)
-      .join("・");
-    const adviceStr =
-      judgement.failed.length > 0
-        ? `（次は「${judgement.failed.map((f) => CRITERIA_LABELS[f] ?? f).join("・")}」）`
-        : "";
     pushFeed(
-      `${judgement.player} ${judgement.totalScore}点…（${breakdown}）${adviceStr}`,
+      `${judgement.player} ${judgement.totalScore}点… 「${judgement.answer}」`,
       "miss"
     );
 
