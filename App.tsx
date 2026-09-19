@@ -743,59 +743,25 @@ export default function App() {
       <div className="join-container">
         <div className="join-inner">
           {/* 画像の色合い・質感を完全再現したベクタータイトルロゴ */}
-          <div className="join-logo-wrapper" aria-label="IPPON GRAND PRIX">
+          <div className="join-logo-wrapper" aria-label="OOGIRI GRAND PRIX">
             <svg
               className="join-logo-svg"
               viewBox="0 0 520 250"
               xmlns="http://www.w3.org/2000/svg"
               role="img"
-              aria-label="IPPON GRAND PRIX"
+              aria-label="OOGIRI GRAND PRIX"
             >
               <defs>
-                {/* 1. 3D立体シルバー柱「I」の面別メタリックグラデーション */}
-                <linearGradient id="silverTopLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="chromeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="40%" stopColor="#f0f2f5" />
-                  <stop offset="80%" stopColor="#b8bcc4" />
-                  <stop offset="100%" stopColor="#8a8e98" />
-                </linearGradient>
-                <linearGradient id="silverTopRight" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#a8acb6" />
-                  <stop offset="40%" stopColor="#60646e" />
-                  <stop offset="100%" stopColor="#32353c" />
-                </linearGradient>
-                <linearGradient id="silverLeft" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="18%" stopColor="#f4f6f9" />
-                  <stop offset="55%" stopColor="#c2c6ce" />
-                  <stop offset="85%" stopColor="#969aa4" />
-                  <stop offset="100%" stopColor="#7a7e88" />
-                </linearGradient>
-                <linearGradient id="silverRight" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#363940" />
-                  <stop offset="25%" stopColor="#50545e" />
-                  <stop offset="60%" stopColor="#2c2e34" />
-                  <stop offset="90%" stopColor="#181a1e" />
-                  <stop offset="100%" stopColor="#0e1012" />
-                </linearGradient>
-                <linearGradient id="silverBotLeft" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#9da1aa" />
-                  <stop offset="50%" stopColor="#6b6f78" />
-                  <stop offset="100%" stopColor="#44474e" />
-                </linearGradient>
-                <linearGradient id="silverBotRight" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#2a2c32" />
-                  <stop offset="60%" stopColor="#141619" />
-                  <stop offset="100%" stopColor="#08090a" />
-                </linearGradient>
-                <linearGradient id="ridgeHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-                  <stop offset="15%" stopColor="#ffffff" stopOpacity="0.95" />
-                  <stop offset="70%" stopColor="#e2e5eb" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#8a8e98" stopOpacity="0.5" />
+                  <stop offset="35%" stopColor="#e2e8f0" />
+                  <stop offset="48%" stopColor="#818ea3" />
+                  <stop offset="50%" stopColor="#1e293b" />
+                  <stop offset="53%" stopColor="#475569" />
+                  <stop offset="85%" stopColor="#cbd5e1" />
+                  <stop offset="100%" stopColor="#ffffff" />
                 </linearGradient>
 
-                {/* 2. 下部ブラック光沢バーの質感グラデーション */}
                 <linearGradient id="barGloss" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
                   <stop offset="5%" stopColor="#48382d" />
@@ -815,65 +781,52 @@ export default function App() {
                 <linearGradient id="sheenGlow" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#ffffff" stopOpacity="0.32" />
                   <stop offset="35%" stopColor="#ffffff" stopOpacity="0.12" />
-                  <stop offset="50%" stopColor="#ffffff" stopOpacity="0.08" />
+                  <stop offset="50%" stopColor="#ffffff" stopOpacity="0" />
                   <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
                 </linearGradient>
 
-                {/* 3. 影・フィルター */}
                 <filter id="logoShadow" x="-10%" y="-10%" width="120%" height="125%">
                   <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#000000" floodOpacity="0.22" />
                 </filter>
               </defs>
 
               <g filter="url(#logoShadow)">
-                {/* === 1. 3D立体シルバー柱「I」 === */}
-                <g id="letter-I">
-                  {/* 左上ファセット */}
-                  <polygon points="44,4 4,28 44,28" fill="url(#silverTopLeft)" />
-                  {/* 右上ファセット */}
-                  <polygon points="44,4 84,28 44,28" fill="url(#silverTopRight)" />
-                  {/* 左前面メイン柱 */}
-                  <polygon points="4,28 44,28 44,158 4,158" fill="url(#silverLeft)" />
-                  {/* 右前面メイン柱 */}
-                  <polygon points="44,28 84,28 84,158 44,158" fill="url(#silverRight)" />
-                  {/* 左下ファセット */}
-                  <polygon points="4,158 44,158 44,182" fill="url(#silverBotLeft)" />
-                  {/* 右下ファセット */}
-                  <polygon points="44,158 84,158 44,182" fill="url(#silverBotRight)" />
-                  {/* 中央稜線ハイライト */}
-                  <line x1="44" y1="4" x2="44" y2="182" stroke="url(#ridgeHighlight)" strokeWidth="1.8" />
-                  {/* 輪郭シャープエッジ */}
-                  <polygon
-                    points="44,4 84,28 84,158 44,182 4,158 4,28"
-                    fill="none"
-                    stroke="#1a1c20"
-                    strokeWidth="1.2"
-                    strokeLinejoin="round"
-                  />
-                </g>
-
-                {/* === 2. 極太ブラック「PPON」 === */}
+                {/* === 1. メタリックシルバー「O」 === */}
                 <text
-                  x="96"
-                  y="118"
+                  x="4"
+                  y="125"
                   fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
-                  fontSize="128"
+                  fontSize="136"
+                  fontWeight="900"
+                  fill="url(#chromeGradient)"
+                  stroke="#1a1c20"
+                  strokeWidth="2.5"
+                >
+                  O
+                </text>
+
+                {/* === 2. 極太ブラック「OGIRI」 === */}
+                <text
+                  x="98"
+                  y="125"
+                  fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
+                  fontSize="136"
                   fontWeight="900"
                   letterSpacing="2"
                   fill="#000000"
                 >
-                  PPON
+                  OGIRI
                 </text>
 
                 {/* === 3. 極太ブラック「GRAND PRIX」 === */}
                 <text
-                  x="96"
-                  y="178"
+                  x="8"
+                  y="184"
                   fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
-                  fontSize="64"
+                  fontSize="62"
                   fontWeight="900"
-                  letterSpacing="1"
-                  textLength="420"
+                  letterSpacing="2"
+                  textLength="500"
                   lengthAdjust="spacingAndGlyphs"
                   fill="#000000"
                 >
