@@ -78,9 +78,9 @@ function getIpponAudioPipeline() {
     comp.knee.setValueAtTime(20, a.currentTime);
     comp.ratio.setValueAtTime(6, a.currentTime);
 
-    // 3. メインゲイン（音量2/3）
+    // 3. メインゲイン
     const mainGain = a.createGain();
-    mainGain.gain.setValueAtTime(0.72, a.currentTime);
+    mainGain.gain.setValueAtTime(0.792, a.currentTime);
 
     // 4. アリーナ風ディレイ（空間エコー）
     const delay = a.createDelay();
@@ -496,6 +496,29 @@ export default function App() {
     window.speechSynthesis.speak(u);
   };
 
+  // 回答テキストの読み上げ: Web Speech API のみ使用
+  const speakAnswer = (answerText: string) => {
+    const text = answerText.trim();
+    if (!text || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ja-JP";
+    u.pitch = 1.0;
+    u.rate = 0.92;
+
+    const voices = window.speechSynthesis.getVoices();
+    const jaVoices = voices.filter((v) => v.lang.startsWith("ja"));
+    const preferredVoice =
+      jaVoices.find((v) => v.name.includes("Keita") || v.name.includes("Ichiro") || v.name.includes("Natural")) ||
+      jaVoices[0];
+    if (preferredVoice) {
+      u.voice = preferredVoice;
+    }
+
+    window.speechSynthesis.speak(u);
+  };
+
   const formatTime = (sec: number) =>
     `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
 
@@ -705,6 +728,7 @@ export default function App() {
           setTimeout(() => {
             setStageMode("answerShown");
             runJudgmentAnimation(newJudging);
+            speakAnswer(m.answer);
           }, 350);
           break;
         }
@@ -791,16 +815,15 @@ export default function App() {
               </defs>
 
               <g filter="url(#logoShadow)">
-                {/* === 1. メタリックシルバー「O」 === */}
+                {/* === 1. 極太ブラック「O」 === */}
                 <text
                   x="4"
                   y="125"
                   fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
                   fontSize="136"
                   fontWeight="900"
-                  fill="url(#chromeGradient)"
-                  stroke="#1a1c20"
-                  strokeWidth="2.5"
+                  letterSpacing="2"
+                  fill="#000000"
                 >
                   O
                 </text>
