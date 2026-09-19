@@ -815,7 +815,7 @@ export default function App() {
               </defs>
 
               <g filter="url(#logoShadow)">
-                {/* === 1. 極太ブラック「O」 === */}
+                {/* === 1. 極太ブラック「OOGIRI」 === */}
                 <text
                   x="4"
                   y="125"
@@ -825,20 +825,7 @@ export default function App() {
                   letterSpacing="2"
                   fill="#000000"
                 >
-                  O
-                </text>
-
-                {/* === 2. 極太ブラック「OGIRI」 === */}
-                <text
-                  x="98"
-                  y="125"
-                  fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
-                  fontSize="136"
-                  fontWeight="900"
-                  letterSpacing="2"
-                  fill="#000000"
-                >
-                  OGIRI
+                  OOGIRI
                 </text>
 
                 {/* === 3. 極太ブラック「GRAND PRIX」 === */}
