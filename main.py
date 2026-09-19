@@ -217,11 +217,14 @@ class Room:
         self.deadline = None
         self.queue.clear()
         self.draining = False
+        self.next_theme_buffer = None
         self.broadcast({
             "type": "WAITING_LOBBY",
             "phase": "waiting",
             "players": self.roster()
         })
+        # 待機中（次の1問目）のお題およびTTS音声を事前生成
+        self.schedule_next_pregeneration()
 
     def reset_room_state(self):
         self.phase = "waiting"
@@ -405,6 +408,8 @@ async def ws_endpoint(ws: WebSocket, room_id: str, player_name: str, player_id: 
         "target_ippon": TARGET_IPPON,
     })
     room.broadcast({"type": "PLAYER_JOINED", "players": room.roster()})
+    if room.phase == "waiting" and not room.next_theme_buffer and (not room._pregen_task or room._pregen_task.done()):
+        room.schedule_next_pregeneration()
 
     try:
         while True:
