@@ -1,0 +1,1676 @@
+/* ==========================================================================
+   OOGIRI GRAND PRIX - Stylesheet
+   ========================================================================== */
+
+:root {
+  --color-stage-bg: #ffd000;
+  --color-stage-bg-subtle: #f5c400;
+  --color-stage-text: #111111;
+  --color-orange-card: #ff5500;
+  --color-orange-card-gradient: linear-gradient(135deg, #ff6a00 0%, #ee3a00 100%);
+  --color-brand-bar: #0d0d0d;
+  --color-brand-text: #ffd000;
+  --color-dark-bg: #141418;
+  --color-dark-surface: #1d1d24;
+  --color-dark-border: #2c2c38;
+  --color-gold: #ffd000;
+  --color-gold-glow: rgba(255, 208, 0, 0.4);
+  --color-text-white: #f5f5f7;
+  --color-text-muted: #8e8e9f;
+  --color-ippon-red: #ff2d55;
+  --font-heavy: "Hiragino Kaku Gothic ProN", "Meiryo", "Arial Black", sans-serif;
+  --font-mono: "SF Mono", "Consolas", "Courier New", monospace;
+}
+
+/* Reset & Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-dark-bg);
+  color: var(--color-text-white);
+  font-family: var(--font-heavy);
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   Layout & Join Screen
+   -------------------------------------------------------------------------- */
+.arena-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--color-dark-bg);
+  overflow: hidden;
+}
+
+.join-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 16px;
+  background-color: #ffdc00;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.join-inner {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* メインロゴ表示 */
+.join-logo-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: joinLogoEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.join-logo-svg {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  display: block;
+}
+
+@keyframes joinLogoEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 漆黒×クローム光沢のエントリーコンソール（画像のブラック光沢バーの質感を継承） */
+.join-card {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(180deg, #28201a 0%, #15100d 25%, #080605 100%);
+  border: 2px solid #584c42;
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25), 0 20px 48px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  animation: joinCardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+}
+
+/* カード表面のガラス光沢リフレクション */
+.join-card-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120%;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 60%);
+  pointer-events: none;
+}
+
+@keyframes joinCardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.join-card-header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 22px;
+}
+
+.join-card-tag {
+  font-size: 0.72rem;
+  letter-spacing: 3px;
+  font-weight: 900;
+  color: #ffdc00;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(255, 220, 0, 0.4);
+}
+
+.join-card-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.join-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+.join-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.join-field-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.join-field-label .label-en {
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffdc00;
+}
+
+.join-field-label .label-jp {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #c4c6ce;
+}
+
+.join-input {
+  width: 100%;
+  padding: 13px 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 10px;
+  background: #060505;
+  border: 2px solid #38302a;
+  color: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.join-input:focus {
+  border-color: #ffdc00;
+  box-shadow: 0 0 14px rgba(255, 220, 0, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.9);
+  background: #000000;
+}
+
+.join-input::placeholder {
+  color: #6a645e;
+  font-weight: 500;
+}
+
+/* アンサーボタン風の「入場する」立体ボタン */
+.join-submit-btn {
+  position: relative;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ff3b4e 0%, #d8001e 50%, #aa0016 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-shadow: 0 6px 0 #73000e, 0 12px 24px rgba(170, 0, 22, 0.5);
+  transition: all 0.12s ease;
+  margin-top: 8px;
+  user-select: none;
+  overflow: hidden;
+}
+
+.join-btn-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.join-submit-btn .join-btn-sub {
+  position: relative;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.join-submit-btn .join-btn-main {
+  position: relative;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.join-submit-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #73000e, 0 16px 28px rgba(170, 0, 22, 0.6);
+}
+
+.join-submit-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #73000e, 0 6px 12px rgba(170, 0, 22, 0.4);
+}
+
+.join-submit-btn:disabled {
+  background: #332b26;
+  box-shadow: 0 4px 0 #1e1916;
+  border-color: transparent;
+  color: #7a7068;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.join-card-footer {
+  position: relative;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.join-footer-hint {
+  font-size: 0.78rem;
+  color: #948b82;
+  font-weight: 600;
+}
+
+
+/* ==========================================================================
+   1. Theme Stage (お題ステージUI 修正指示書 v1.0)
+   ========================================================================== */
+.themeStage {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(360px, 50vh, 560px);
+  overflow: hidden;
+  color: #111;
+  background:
+    radial-gradient(
+      ellipse at 50% 42%,
+      #ffe65e 0%,
+      #ffdc13 52%,
+      #e9bb00 100%
+    );
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.themeStage .defaultArenaFrame {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+}
+
+.themeStage .defaultArenaFrame__outer {
+  stroke: #8d7600;
+  stroke-width: 10;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.4));
+}
+
+.themeStage .defaultArenaFrame__inner {
+  stroke: #4b3f00;
+  stroke-width: 7;
+}
+
+/* 6.3 HUD安全領域 */
+.themeStage__hud {
+  position: absolute;
+  z-index: 3;
+
+  /* フレームの上辺・斜辺を避ける安全余白 */
+  top: clamp(30px, 4.2vw, 54px);
+  right: clamp(34px, 5vw, 78px);
+  left: clamp(34px, 5vw, 78px);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  pointer-events: none;
+}
+
+.themeStage__roundBadge,
+.themeStage__controls {
+  pointer-events: auto;
+}
+
+/* 6.4 ラウンド番号バッジ */
+.themeStage__roundBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 14px;
+
+  color: #ffdf16;
+  background: #111;
+  border: 2px solid #352d00;
+  border-radius: 999px;
+
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+
+  font-size: clamp(12px, 1.2vw, 16px);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* 6.5 タイマー＋スキップの統合グループ */
+.themeStage__controls {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.themeStage__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+
+  color: #fff;
+  background: #111;
+  border: 2px solid #352d00;
+  border-radius: 8px;
+
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: clamp(16px, 1.7vw, 22px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.themeStage__timerIcon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.themeStage__timer--paused {
+  color: #ffb74d;
+  background: #1f1406;
+  border-color: #ff9800;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.35),
+    0 0 10px rgba(255, 152, 0, 0.2),
+    inset 0 1px 0 rgba(255, 200, 100, 0.2);
+}
+
+.themeStage__timerPausedTag {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fff;
+  background: #e65100;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  animation: timerPausedPulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes timerPausedPulse {
+  0% { opacity: 0.65; }
+  100% { opacity: 1; }
+}
+
+.themeStage__timerButton {
+  min-height: 38px;
+  padding: 0 14px;
+
+  color: #f0e6d2;
+  background: #1e1a0d;
+  border: 2px solid #5a4b16;
+  border-radius: 8px;
+
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  cursor: pointer;
+  font-size: clamp(12px, 1.15vw, 14px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  transition: filter 0.15s ease, transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.themeStage__timerButton:hover {
+  filter: brightness(1.18);
+  transform: translateY(-1px);
+}
+
+.themeStage__timerButton:active {
+  box-shadow: none;
+  transform: translateY(2px);
+}
+
+.themeStage__timerButton--paused {
+  color: #1a0a00;
+  background: #ff9800;
+  border-color: #b25300;
+  box-shadow:
+    0 3px 0 rgba(110, 45, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.themeStage__skipButton {
+  min-height: 38px;
+  padding: 0 16px;
+
+  color: #171300;
+  background: #ffdb16;
+  border: 2px solid #6c5900;
+  border-radius: 8px;
+
+  box-shadow:
+    0 3px 0 rgba(83, 65, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+
+  cursor: pointer;
+  font-size: clamp(12px, 1.15vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.themeStage__skipButton:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.themeStage__skipButton:active {
+  box-shadow: none;
+  transform: translateY(2px);
+}
+
+/* 6.6 お題本文の安全余白 */
+.themeStage__question {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+  padding:
+    clamp(90px, 13vw, 140px)
+    clamp(64px, 12vw, 200px)
+    clamp(72px, 10vw, 120px);
+
+  text-align: center;
+  pointer-events: none;
+}
+
+.themeStage__eyebrow {
+  margin: 0 0 14px;
+  color: #6f5800;
+  font-size: clamp(11px, 1.1vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.38em;
+}
+
+.themeStage__title {
+  max-width: 1100px;
+  margin: 0;
+
+  color: #101010;
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  font-size: clamp(28px, 4vw, 64px);
+  font-weight: 950;
+  line-height: 1.35;
+  letter-spacing: 0.015em;
+  text-wrap: balance;
+  word-break: break-word;
+}
+
+/* ==========================================================================
+   Phase 1: 回答待機ステージ (RESULT_ANNOUNCEMENT_SPEC v2.0)
+   ========================================================================== */
+.themeStage--answerWaiting {
+  background:
+    radial-gradient(
+      ellipse at center,
+      #332c00 0%,
+      #1d1900 48%,
+      #0e0e0e 100%
+    );
+}
+
+.answerWaiting {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffdf16;
+  animation: overlay-fade 0.25s ease;
+}
+
+.answerWaiting__label {
+  margin-bottom: 10px;
+  padding: 6px 16px;
+  color: #141000;
+  background: #ffdf16;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+}
+
+.answerWaiting__text {
+  font-size: clamp(18px, 2.4vw, 28px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/* ==========================================================================
+   Phase 2, 3, 4: 白フリップ・採点・結果 (RESULT_ANNOUNCEMENT_SPEC v2.0)
+   ========================================================================== */
+.themeStage--answerShown {
+  background:
+    radial-gradient(
+      ellipse at center,
+      #392f00 0%,
+      #1d1900 52%,
+      #0c0c0c 100%
+    );
+}
+
+.answerArea {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 2.5vw, 32px) clamp(20px, 3.5vw, 48px);
+  pointer-events: none;
+}
+
+.answerArea__player {
+  margin-bottom: 8px;
+  color: #ffdf16;
+  font-size: clamp(14px, 1.6vw, 20px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.answerFlip {
+  width: min(88vw, 1040px);
+  min-height: clamp(140px, 26vh, 280px);
+  max-height: 75%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+
+  padding: clamp(16px, 2.4vw, 30px) clamp(20px, 3.6vw, 48px);
+
+  color: #111;
+  background: #fff;
+  border: 2px solid #111;
+  box-shadow:
+    0 8px 0 #1b1b1b,
+    0 16px 32px rgba(0, 0, 0, 0.7);
+
+  border-radius: 8px;
+  animation: answerFlipIn 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.answerFlip::-webkit-scrollbar {
+  width: 6px;
+}
+.answerFlip::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+}
+
+.answerFlip--ippon {
+  animation: answerFlipIpponPop 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.answerFlip__text {
+  margin: 0;
+  width: 100%;
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  font-size: clamp(22px, 3.4vw, 44px);
+  font-weight: 950;
+  line-height: 1.28;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-wrap: balance;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 文字数に応じたフォントサイズ調整 */
+.answerFlip__text--short {
+  font-size: clamp(26px, 4.5vw, 56px);
+  line-height: 1.24;
+}
+
+.answerFlip__text--medium {
+  font-size: clamp(20px, 3.2vw, 40px);
+  line-height: 1.28;
+}
+
+.answerFlip__text--long {
+  font-size: clamp(17px, 2.4vw, 28px);
+  line-height: 1.32;
+}
+
+.answerFlip__text--xlarge {
+  font-size: clamp(14px, 1.8vw, 22px);
+  line-height: 1.34;
+}
+
+/* 視覚的に非表示（スクリーンリーダー対応） */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.ipponBanner {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffdf16;
+  font-size: clamp(60px, 11vw, 150px);
+  font-weight: 1000;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  text-shadow:
+    6px 6px 0 #000,
+    0 0 46px rgba(255, 226, 0, 0.95);
+  pointer-events: none;
+  animation: ipponBannerPop 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 未IPPON時の得点丸バッジ（本家テレビ演出再現） */
+.scoreBadge {
+  position: absolute;
+  z-index: 6;
+  left: clamp(24px, 11vw, 150px);
+  bottom: clamp(24px, 8vh, 64px);
+  width: clamp(88px, 14vw, 150px);
+  height: clamp(88px, 14vw, 150px);
+  border-radius: 50%;
+  background: #ffd200;
+  border: clamp(6px, 1vw, 10px) solid #111111;
+  box-shadow:
+    0 0 0 clamp(2px, 0.3vw, 4px) #ffd200,
+    0 12px 30px rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: scoreBadgeSlash 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.scoreBadge__number {
+  color: #111111;
+  font-family: var(--font-heavy);
+  font-size: clamp(52px, 8.5vw, 98px);
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  transform: translateY(-2%);
+}
+
+@keyframes scoreBadgeSlash {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(-12deg);
+  }
+  65% {
+    transform: scale(1.08) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes answerFlipIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes answerFlipIpponPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes ipponBannerPop {
+  from {
+    opacity: 0;
+    transform: scale(0.58) rotate(-3deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Brand Bar (Middle Divider)
+   -------------------------------------------------------------------------- */
+.brand-bar {
+  height: 42px;
+  background: var(--color-brand-bar);
+  color: var(--color-brand-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-top: 2px solid #222222;
+  border-bottom: 2px solid #333333;
+}
+
+.brand-title {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: #ffd000;
+  text-shadow: 0 0 12px rgba(255, 208, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-title::before,
+.brand-title::after {
+  content: "◆";
+  font-size: 10px;
+  color: #ff5500;
+}
+
+/* ==========================================================================
+   2. Scoreboard & Lower Area (Lower 40-45vh)
+   ========================================================================== */
+.arena-bottom {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background-color: var(--color-dark-bg);
+}
+
+/* Player Scoreboard Bar */
+.player-scoreboard {
+  display: flex;
+  gap: 16px;
+  padding: 12px 24px;
+  background: var(--color-dark-surface);
+  border-bottom: 1px solid var(--color-dark-border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.player-score-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #111116;
+  border: 1px solid var(--color-dark-border);
+  padding: 8px 16px;
+  border-radius: 10px;
+  min-width: 150px;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+
+.player-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+/* IPPON Vertical Bars */
+.ippon-bars-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.ippon-bar {
+  width: 8px;
+  height: 22px;
+  background: #333340;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.ippon-bar.active {
+  background: var(--color-gold);
+  box-shadow: 0 0 8px rgba(255, 208, 0, 0.8);
+  transform: scaleY(1.1);
+}
+
+/* Game Log & Feed Area */
+.feed-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 12px 24px;
+  gap: 10px;
+}
+
+.feed-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 6px;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.feed-bubble {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  background: #1a1a22;
+  border-left: 4px solid #444455;
+  color: #dddddd;
+  word-break: break-word;
+  animation: feed-appear 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.feed-bubble.info {
+  border-left-color: #66aaff;
+  color: #bbddff;
+}
+
+.feed-bubble.miss {
+  border-left-color: #ff5588;
+  color: #ff99bb;
+}
+
+.feed-bubble.reject {
+  border-left-color: #ff4444;
+  color: #ff8888;
+}
+
+.feed-bubble.ippon {
+  border-left-color: var(--color-gold);
+  background: #282410;
+  color: var(--color-gold);
+  font-weight: 800;
+}
+
+/* Input Bar */
+.input-bar {
+  display: flex;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.answer-input {
+  flex: 1;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  background: #202028;
+  color: #ffffff;
+  border: 2px solid #3a3a4c;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.answer-input:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 10px rgba(255, 208, 0, 0.2);
+}
+
+.submit-btn {
+  background: var(--color-gold);
+  color: #111111;
+  font-size: 16px;
+  font-weight: 900;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(255, 208, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover {
+  background: #ffe044;
+  transform: translateY(-1px);
+}
+
+.submit-btn:active {
+  transform: translateY(1px);
+}
+
+/* ==========================================================================
+   3. Modals & Overlays (Presentation & Scoring)
+   ========================================================================== */
+
+/* Full Screen Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 14, 0.9);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+  animation: overlay-fade 0.2s ease;
+}
+
+/* ==========================================================================
+   Judgment Stage & Frames (RESULT_ANNOUNCEMENT_SPEC v1.1)
+   ========================================================================== */
+
+.judgmentStage {
+  position: relative;
+  width: min(96vw, 1040px);
+  aspect-ratio: 1000 / 620;
+  max-height: 88vh;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #3a3100 0%, #1d1900 48%, #0e0e0e 100%);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 36px 36px;
+  box-sizing: border-box;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.9), 0 0 40px rgba(141, 118, 0, 0.3);
+}
+
+/* Layer 2: Constant Default Arena Frame (常時表示・非発光) */
+.defaultArenaFrame {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.defaultArenaFrame svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.defaultArenaFrame__outer {
+  fill: transparent;
+  stroke: #8d7600;
+  stroke-width: 10;
+  stroke-linejoin: miter;
+  opacity: 1;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.9));
+}
+
+.defaultArenaFrame__inner {
+  fill: transparent;
+  stroke: #4b3f00;
+  stroke-width: 7;
+  stroke-linejoin: miter;
+  opacity: 1;
+}
+
+.defaultArenaFrame__brand {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 10;
+  min-width: 38%;
+  padding: 7px 22px 8px;
+  color: #ffde17;
+  background: #090909;
+  border: 1px solid #6d5a00;
+  font-size: clamp(10px, 1.3vw, 16px);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-align: center;
+  transform: translateX(-50%);
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.7);
+}
+
+/* Theme stage variant for default frame */
+.defaultArenaFrame--theme {
+  inset: 10px 18px 46px;
+}
+
+.defaultArenaFrame--theme .defaultArenaFrame__outer {
+  stroke: #a08200;
+  stroke-width: 8;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+.defaultArenaFrame--theme .defaultArenaFrame__inner {
+  stroke: #735d00;
+  stroke-width: 5;
+}
+
+.defaultArenaFrame--theme .defaultArenaFrame__brand {
+  display: none; /* お題ステージでは下部のbrand-barと一体化 */
+}
+
+/* Layer 3: Judgment Frame Meter (0〜10本・点灯分だけ発光表示) */
+.frameMeter {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+}
+
+.frameMeter svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.frameMeter__frame--off {
+  opacity: 0;
+  stroke: transparent;
+  fill: transparent;
+}
+
+.frameMeter__frame--on {
+  opacity: 1;
+  fill: transparent;
+  stroke: #ffde17;
+  stroke-width: 5;
+  stroke-linejoin: miter;
+  filter: drop-shadow(0 0 8px rgba(255, 222, 23, 0.85));
+  transition: opacity 0.18s ease, stroke 0.18s ease;
+}
+
+.frameMeter__frame--high {
+  stroke: #ff9500;
+  filter: drop-shadow(0 0 12px rgba(255, 149, 0, 0.95));
+}
+
+.frameMeter--ippon .frameMeter__frame--on {
+  stroke: #ffe033;
+  filter: drop-shadow(0 0 16px #ffea79) drop-shadow(0 0 32px #ffd000);
+  animation: ippon-frame-glow 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes ippon-frame-glow {
+  0% {
+    filter: drop-shadow(0 0 12px #ffe033);
+  }
+  100% {
+    filter: drop-shadow(0 0 24px #ffd000) drop-shadow(0 0 40px #ff9500);
+  }
+}
+
+/* Layer 4: Content area */
+.judgmentStage__content {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  max-width: 820px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Layer 5: Result Banner Overlay */
+.judgmentStage__banner {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Reveal & Judging Card (fallback / legacy support) */
+.reveal-card {
+  background: #181820;
+  border: 3px solid var(--color-gold);
+  border-radius: 20px;
+  padding: 36px 48px;
+  width: 100%;
+  max-width: 820px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 208, 0, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.reveal-author-tag {
+  display: inline-block;
+  background: #ff5500;
+  color: #ffffff;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
+.reveal-answer-text {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.35;
+  margin-bottom: 32px;
+  word-break: break-word;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* 5 AI Judges Row */
+.judges-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.judge-card {
+  flex: 1;
+  min-width: 100px;
+  max-width: 130px;
+  background: #242430;
+  border: 2px solid #3b3b4d;
+  border-radius: 12px;
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.4;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.judge-card.lit {
+  opacity: 1;
+  background: #2e2810;
+  border-color: var(--color-gold);
+  box-shadow: 0 0 16px rgba(255, 208, 0, 0.35);
+  transform: scale(1.04);
+}
+
+.judge-card.tense {
+  animation: judge-tense-pulse 0.8s infinite alternate;
+  border-color: #ff8800;
+}
+
+.judge-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #333344;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.judge-card.lit .judge-icon-badge {
+  background: var(--color-gold);
+  color: #111111;
+}
+
+.judge-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #cccccc;
+}
+
+.judge-card.lit .judge-name {
+  color: #ffffff;
+}
+
+/* Score Lamps (0, 1, 2) */
+.judge-lamp-group {
+  display: flex;
+  gap: 6px;
+}
+
+.lamp-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #181820;
+  border: 1px solid #444455;
+  transition: all 0.2s ease;
+}
+
+.lamp-dot.lit {
+  background: var(--color-gold);
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 208, 0, 0.9);
+}
+
+/* Score Tally Display */
+.total-tally {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 8px;
+}
+
+.total-tally-number {
+  font-size: 42px;
+  color: var(--color-gold);
+  text-shadow: 0 0 16px rgba(255, 208, 0, 0.6);
+  margin-right: 4px;
+}
+
+/* IPPON Celebration Banner */
+.ippon-celebration {
+  margin-top: 16px;
+  animation: ippon-appear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ippon-banner {
+  background: var(--color-gold);
+  color: #0d0d0d;
+  font-size: clamp(3rem, 7vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 6px;
+  padding: 8px 24px;
+  border-radius: 12px;
+  display: inline-block;
+  box-shadow: 0 10px 30px rgba(255, 208, 0, 0.6);
+}
+
+.miss-banner {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ff5588;
+  margin-top: 16px;
+}
+
+.advice-box {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #88bbff;
+  background: rgba(100, 180, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+/* Join Screen */
+.join-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle, #252532 0%, #101014 100%);
+  gap: 20px;
+  padding: 24px;
+}
+
+.join-title-group {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.join-brand-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  color: var(--color-gold);
+  letter-spacing: 6px;
+  text-shadow: 0 0 20px rgba(255, 208, 0, 0.4);
+}
+
+.join-subtitle {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  letter-spacing: 3px;
+  margin-top: 4px;
+}
+
+.join-card {
+  background: var(--color-dark-surface);
+  border: 1px solid var(--color-dark-border);
+  padding: 32px 28px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   4. Animations
+   ========================================================================== */
+@keyframes feed-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ippon-appear {
+  0% {
+    transform: scale(0.4) rotate(-4deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes judge-tense-pulse {
+  from {
+    box-shadow: 0 0 10px rgba(255, 136, 0, 0.4);
+    transform: scale(1.02);
+  }
+  to {
+    box-shadow: 0 0 22px rgba(255, 136, 0, 0.9);
+    transform: scale(1.08);
+  }
+}
+
+@keyframes pulse-urgent {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* ==========================================================================
+   5. Responsive
+   ========================================================================== */
+@media (max-width: 640px) {
+  .themeStage {
+    min-height: 420px;
+  }
+
+  .themeStage__hud {
+    top: 28px;
+    right: 28px;
+    left: 28px;
+    align-items: flex-start;
+  }
+
+  .themeStage__controls {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .themeStage__timer,
+  .themeStage__skipButton {
+    min-height: 32px;
+  }
+
+  .themeStage__timer {
+    padding: 0 10px;
+    font-size: 15px;
+  }
+
+  .themeStage__skipButton {
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .themeStage__roundBadge {
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .themeStage__question {
+    padding: 110px 48px 84px;
+  }
+
+  .themeStage__title {
+    font-size: clamp(25px, 7vw, 39px);
+    line-height: 1.38;
+  }
+}
+
+@media (max-width: 768px) {
+  .brand-bar {
+    height: 36px;
+  }
+
+  .brand-title {
+    font-size: 15px;
+    letter-spacing: 4px;
+  }
+
+  .player-scoreboard {
+    padding: 8px 16px;
+    gap: 10px;
+  }
+
+  .player-score-card {
+    min-width: 130px;
+    padding: 6px 12px;
+  }
+
+  .feed-section {
+    padding: 10px 16px 16px;
+  }
+
+  .reveal-card {
+    padding: 24px 18px;
+  }
+
+  .reveal-answer-text {
+    font-size: clamp(1.4rem, 6vw, 1.9rem);
+    margin-bottom: 20px;
+  }
+
+  .judges-row {
+    gap: 6px;
+  }
+
+  .judge-card {
+    min-width: 60px;
+    padding: 8px 2px;
+  }
+
+  .judge-icon-badge {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .judge-name {
+    font-size: 10px;
+  }
+
+  .lamp-dot {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* ==========================================================================
+   6. Accessibility & Animations
+   ========================================================================== */
+@keyframes feed-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-urgent {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reveal-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes ippon-stamp {
+  0% {
+    transform: scale(2.2) rotate(-8deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.96) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
