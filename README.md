@@ -89,24 +89,36 @@ python test_integration.py
 
 ## Google Cloud (Cloud Run) へのデプロイ
 
+Dockerfile がマルチステージビルドに対応しているため、ソースコードをアップロードするだけでフロントエンドのビルド・コンテナ化・デプロイが自動実行されます。
+
+### 方法A: ワンクリックバッチスクリプト（Windows）
 ```bash
-# 1. フロントエンドのビルド
-cd frontend && npm run build
-cd ..
+cmd /c deploy-gcp.bat
+```
+
+### 方法B: gcloud CLI による手動デプロイ
+```bash
+# 1. 必要な API を有効化
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
 
 # 2. Cloud Run へデプロイ
 gcloud run deploy ippon-gp \
   --source . \
   --region asia-northeast1 \
+  --platform managed \
   --allow-unauthenticated \
   --min-instances 1 \
+  --max-instances 1 \
+  --cpu 1 \
+  --memory 512Mi \
   --timeout 3600 \
   --concurrency 80 \
-  --set-env-vars OPENROUTER_API_KEY=sk-or-...
+  --set-env-vars OPENROUTER_API_KEY=sk-or-...,THEME_TIME_LIMIT=150,TARGET_IPPON=3
 ```
 
 ### Cloud Run 設定の重要ポイント:
-- `--min-instances 1`: コールドスタートによるWebSocket切断を防止
+- `--min-instances 1`: コールドスタートによる待機時間・WebSocket切断を防止
+- `--max-instances 1`: ルーム状態がインメモリ管理のため必須（単一インスタンス運用）
 - `--timeout 3600`: デフォルト300秒(5分)タイムアウトによるWebSocket強制切断を防止
 - `--concurrency 80`: 1コンテナで多数の同時接続を処理
 - ルーム状態はメモリ管理のためシングルインスタンス運用を想定。マルチインスタンス拡張時は Memorystore (Redis) を併用。
