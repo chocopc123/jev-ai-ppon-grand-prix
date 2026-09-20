@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { DiscordSDK } from "@discord/embedded-app-sdk";
+import { useArenaViewport } from "./useArenaViewport";
 import "./App.css";
 
 type Player = {
@@ -817,6 +818,7 @@ export default function App() {
   const [roomPhase, setRoomPhase] = useState<
     "waiting" | "theme" | "transition" | "match_win"
   >("waiting");
+  const arenaRef = useArenaViewport(screen === "game" && roomPhase !== "waiting");
   const [myPlayerId, setMyPlayerId] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
     return (
@@ -1737,7 +1739,7 @@ export default function App() {
   // Main Arena Screen
   // --------------------------------------------------------------------------
   return (
-    <div className="arena-container">
+    <div className="arena-container" ref={arenaRef}>
       {roomPhase === "waiting" ? (
         <div className="waiting-room-container">
           <div className="waiting-room-inner">

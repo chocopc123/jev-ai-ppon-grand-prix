@@ -49,6 +49,38 @@ body {
   overflow: hidden;
 }
 
+/* 対戦中のみページを固定。参加画面・待機室のスクロールには干渉しない。 */
+html.arena-viewport-active,
+.arena-viewport-active body,
+.arena-viewport-active #root {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.arena-viewport-active body {
+  position: fixed;
+  inset: 0;
+}
+
+.arena-viewport-active .arena-container {
+  position: fixed;
+  top: var(--arena-viewport-top, 0px);
+  left: 0;
+  height: var(--arena-viewport-height, 100dvh);
+}
+
+.arena-viewport-active .themeStage {
+  /* キーボード表示時にも得点欄・回答欄の領域を確保する。 */
+  min-height: min(var(--theme-stage-height), max(0px, calc(var(--arena-viewport-height, 100dvh) - 160px)));
+  flex-shrink: 0;
+}
+
+.arena-viewport-active .player-scoreboard,
+.arena-viewport-active .input-bar {
+  flex-shrink: 0;
+}
+
 /* ==========================================================================
    参加登録画面 (Join Screen) - 洗練されたプロダクトUI
    ========================================================================== */
@@ -396,9 +428,10 @@ body {
    1. Theme Stage (お題ステージUI 修正指示書 v1.0)
    ========================================================================== */
 .themeStage {
+  --theme-stage-height: clamp(360px, 50vh, 560px);
   position: relative;
   isolation: isolate;
-  min-height: clamp(360px, 50vh, 560px);
+  min-height: var(--theme-stage-height);
   overflow: hidden;
   color: #111;
   background:
@@ -1099,6 +1132,7 @@ body {
 
 .answer-input {
   flex: 1;
+  min-width: 0;
   padding: 12px 18px;
   font-size: 16px;
   font-weight: 700;
@@ -1560,7 +1594,7 @@ body {
    ========================================================================== */
 @media (max-width: 640px) {
   .themeStage {
-    min-height: clamp(280px, 44vh, 460px);
+    --theme-stage-height: clamp(280px, 44vh, 460px);
   }
 
   .themeStage__hud {
