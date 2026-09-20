@@ -5,6 +5,16 @@ import {
   sfx,
 } from "./App";
 import "./App.css";
+import scoringConfig from "../../scoring_config.json";
+
+// バックエンド（jev_client.py）と完全同一の遅延計算関数
+export function calcItemDelay(conf: number, pass: boolean): number {
+  if (!pass) {
+    return Number(scoringConfig.fail_delay_ms ?? 300);
+  }
+  const scale = Number(scoringConfig.delay_scale_ms ?? 1000);
+  return Math.max(0, Math.floor((1.0 - conf) * scale));
+}
 
 // ローカル環境かどうかを判定
 export function isLocalEnvironment(): boolean {
@@ -26,18 +36,15 @@ export interface CriterionItem {
   pass: boolean;     // 確信度 >= 閾値 で自動計算
 }
 
-const DEFAULT_CRITERIA: CriterionItem[] = [
-  { id: "on_topic", name: "お題適合", description: "お題のフリや世界観を上手く料理しているか", threshold: 0.50, conf: 1.0, pass: true },
-  { id: "punchline", name: "オチの鮮やかさ", description: "意外性のあるオチや裏切り・ボケどころがあるか", threshold: 0.50, conf: 1.0, pass: true },
-  { id: "novelty", name: "発想の独自性", description: "誰も思いつかない斬新・奇抜・シュールな視点か", threshold: 0.50, conf: 1.0, pass: true },
-  { id: "comprehensible", name: "情景描写・共感", description: "頭に絵がスッと浮かび、「あるある」と共感できるか", threshold: 0.50, conf: 1.0, pass: true },
-  { id: "conciseness", name: "言葉のキレ・語感", description: "無駄がなく短く研ぎ澄まされ、語感が抜群か", threshold: 0.50, conf: 1.0, pass: true },
-  { id: "cliche", name: "脱ベタ・新鮮さ", description: "手垢のついたベタや安易な下ネタではないか", threshold: 0.50, conf: 1.0, pass: true },
-  { id: "gut_funny", name: "直感的な面白さ", description: "理屈抜きで思わず吹き出す破壊力・笑いがあるか", threshold: 0.50, conf: 1.0, pass: true },
-  { id: "peak", name: "突出したキレ味", description: "どれか1つの要素が圧倒的に突出しているか", threshold: 0.65, conf: 1.0, pass: true },
-  { id: "structure", name: "構成・完成度", description: "お題適合・オチ・情景の全体の調和と完成度", threshold: 0.55, conf: 1.0, pass: true },
-  { id: "impact", name: "総合インパクト", description: "会場を揺らす決め手・IPPONの決定打があるか", threshold: 0.60, conf: 1.0, pass: true },
-];
+// scoring_config.json から基準定義を読み込み
+const DEFAULT_CRITERIA: CriterionItem[] = scoringConfig.criteria.map((c) => ({
+  id: c.id,
+  name: c.name,
+  description: c.description,
+  threshold: c.threshold,
+  conf: 1.0,
+  pass: true,
+}));
 
 export const DevTool: React.FC = () => {
   const [litFrames, setLitFrames] = useState<number>(0);
@@ -68,15 +75,15 @@ export const DevTool: React.FC = () => {
   // 合計点数 (自動判定 pass が true の項目数 = 0〜10点)
   const totalScore = criteria.filter((c) => c.pass).length;
 
-  // 本家バックエンド（jev_client.py）と同一ロジック (案2: 電光石火仕様):
+  // 本家バックエンド（jev_client.py）と同一ロジック:
   // 1. 確信度が高い順（降順）にソート
-  // 2. 確信度1.0なら遅延0ms、最低遅延ゼロ: max(0, (1 - conf) * 250)
+  // 2. calcItemDelay で一元計算
   const calculateTimeline = (currentCriteria: CriterionItem[]) => {
     // 確信度が高い順にソート
     const sorted = [...currentCriteria].sort((a, b) => b.conf - a.conf);
 
     const timeline = sorted.map((c) => {
-      const delay = Math.max(0, Math.floor((1.0 - c.conf) * 250));
+      const delay = calcItemDelay(c.conf, c.pass);
       return {
         judge: c.name,
         score: c.pass ? 1 : 0,
@@ -89,9 +96,9 @@ export const DevTool: React.FC = () => {
     return { sorted, timeline };
   };
 
-  // 案2: 電光石火 80ms間隔でタタタタッと点灯
+  // scoring_config.json の frame_step_ms を使用
   const getFrameStepDelay = (_score: number): number => {
-    return 80;
+    return Number(scoringConfig.frame_step_ms ?? 80);
   };
 
   const stopAnimation = () => {
@@ -412,7 +419,7 @@ export const DevTool: React.FC = () => {
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {criteria.map((c, fixedIdx) => {
                 const order = sortedCriteria.findIndex((sc) => sc.id === c.id);
-                const delayMs = Math.max(0, Math.floor((1.0 - c.conf) * 250));
+                const delayMs = calcItemDelay(c.conf, c.pass);
                 const isCurrentlyActive = activeItemName === c.name;
                 const thresholdPercent = c.threshold * 100;
 

@@ -1,0 +1,67 @@
+{
+  "delay_scale_ms": 1000,
+  "fail_delay_ms": 300,
+  "frame_step_ms": 80,
+  "criteria": [
+    {
+      "id": "on_topic",
+      "name": "お題適合",
+      "threshold": 0.5,
+      "description": "お題のフリや世界観を上手く料理しているか"
+    },
+    {
+      "id": "punchline",
+      "name": "オチの鮮やかさ",
+      "threshold": 0.5,
+      "description": "意外性のあるオチや裏切り・ボケどころがあるか"
+    },
+    {
+      "id": "novelty",
+      "name": "発想の独自性",
+      "threshold": 0.5,
+      "description": "誰も思いつかない斬新・奇抜・シュールな視点か"
+    },
+    {
+      "id": "comprehensible",
+      "name": "情景描写・共感",
+      "threshold": 0.5,
+      "description": "頭に絵がスッと浮かび、「あるある」と共感できるか"
+    },
+    {
+      "id": "conciseness",
+      "name": "言葉のキレ・語感",
+      "threshold": 0.5,
+      "description": "無駄がなく短く研ぎ澄まされ、語感が抜群か"
+    },
+    {
+      "id": "cliche",
+      "name": "脱ベタ・新鮮さ",
+      "threshold": 0.5,
+      "description": "手垢のついたベタや安易な下ネタではないか"
+    },
+    {
+      "id": "gut_funny",
+      "name": "直感的な面白さ",
+      "threshold": 0.5,
+      "description": "理屈抜きで思わず吹き出す破壊力・笑いがあるか"
+    },
+    {
+      "id": "peak",
+      "name": "突出したキレ味",
+      "threshold": 0.65,
+      "description": "どれか1つの要素が圧倒的に突出しているか"
+    },
+    {
+      "id": "structure",
+      "name": "構成・完成度",
+      "threshold": 0.55,
+      "description": "お題適合・オチ・情景の全体の調和と完成度"
+    },
+    {
+      "id": "impact",
+      "name": "総合インパクト",
+      "threshold": 0.6,
+      "description": "会場を揺らす決め手・IPPONの決定打があるか"
+    }
+  ]
+}

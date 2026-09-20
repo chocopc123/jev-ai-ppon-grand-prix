@@ -12,6 +12,7 @@ APIキーなしでもローカル開発・演出の調整ができる。
   2. 本審査          : 「面白いか」を分解した構造化質問の束 + 総合判断1問
   3. 合成            : 確率から10点満点を組み立てるのはコード側 (プロンプトのブラックボックスにしない)
 """
+import json
 import hashlib
 import os
 import random
@@ -24,6 +25,16 @@ load_dotenv()
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 JEV_MODEL = os.environ.get("JEV_MODEL", "~typesafe/jev-latest")
 DECISIONS_URL = "https://openrouter.ai/api/alpha/decisions"
+
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "scoring_config.json")
+try:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        SCORING_CONFIG = json.load(f)
+except Exception:
+    SCORING_CONFIG = {"delay_scale_ms": 1000, "fail_delay_ms": 300, "frame_step_ms": 80}
+
+DELAY_SCALE_MS = int(SCORING_CONFIG.get("delay_scale_ms", 1000))
+FAIL_DELAY_MS = int(SCORING_CONFIG.get("fail_delay_ms", 300))
 
 # --- ゲートキーパー (採点前の門番) ---
 GATEKEEP_QUESTIONS = {
@@ -359,10 +370,15 @@ async def judge(theme: str, answer: str, recent_answers: list) -> dict:
     total = sum(scores)
     is_ippon = (total == 10)
 
-    # 10項目独立の点灯タイムライン (確信度1.0なら遅延0ms、最低遅延ゼロの電光石火仕様)
+    # 10項目独立の点灯タイムライン:
+    # - 合格（点灯）項目: 確信度連動 (1.0なら0ms)
+    # - 不合格（非点灯）項目: FAIL_DELAY_MS (300ms) 固定
     timeline = []
     for item in sorted_criteria:
-        delay = max(0, int((1.0 - item["conf"]) * 250))
+        if item["pass"]:
+            delay = max(0, int((1.0 - item["conf"]) * DELAY_SCALE_MS))
+        else:
+            delay = FAIL_DELAY_MS
         timeline.append({
             "judge": item["name"],
             "score": 1 if item["pass"] else 0,
