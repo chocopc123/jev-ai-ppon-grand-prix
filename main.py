@@ -131,22 +131,22 @@ async def terms_of_service():
         2. 当チームは本サービスに関し，本規約のほか，ご利用にあたってのルール等，各種の定め（以下，「個別規定」といいます。）をすることがあります。これら個別規定はその名称のいかんに関わらず，本規約の一部を構成するものとします。<br>
         3. 本規約の規定が個別規定の規定と矛盾する場合には，個別規定において特段の定めなき限り，個別規定の規定が優先されるものとします。</p>
 
-        <h2>第2条（利用登録および認証）</h2>
-        <p>1. 本サービスは，Discord Embedded App SDK等を通じたアカウント認証により利用を開始することができます。<br>
-        2. 当チームは，ユーザーが以下の事由に該当すると判断した場合，本サービスの利用を承認しないことがあり，その理由については一切の開示義務を負わないものとします：</p>
+        <h2>第2条（利用登録および利用開始）</h2>
+        <p>1. 本サービスは，Webブラウザ上でのプレイヤー名入力，またはDiscord Embedded App SDK等を通じたアカウント認証により，アカウント登録不要で即座にご利用を開始いただけます。<br>
+        2. 当チームは，ユーザーが以下の事由に該当すると判断した場合，本サービスの利用を承認しない（または遮断する）ことがあり，その理由については一切の開示義務を負わないものとします：</p>
         <ul>
             <li>本規約に違反したことがある者からの利用である場合</li>
-            <li>Discordの利用規約またはコミュニティガイドラインに違反している場合</li>
+            <li>Discord経由の利用において，Discordの利用規約またはコミュニティガイドラインに違反している場合</li>
             <li>その他，当チームが利用を相当でないと判断した場合</li>
         </ul>
 
-        <h2>第3条（Discordアカウントの管理）</h2>
-        <p>1. ユーザーは，自己の責任において，本サービスへのアクセスに用いるDiscordアカウントおよび認証情報を適切に管理するものとします。<br>
+        <h2>第3条（認証情報およびアクセスの管理）</h2>
+        <p>1. ユーザーは，自己の責任において，本サービスへのアクセスに用いる環境（Webブラウザ環境，Discordアカウント等）を適切に管理するものとします。<br>
         2. ユーザーは，いかなる場合にも，認証情報を第三者に譲渡または貸与し，もしくは第三者と共用することはできません。<br>
-        3. アカウントの不正利用等によって生じた損害について，当チームに故意または重大な過失がある場合を除き，当チームは一切の責任を負わないものとします。</p>
+        3. アカウントまたは端末の不正利用等によって生じた損害について，当チームに故意または重大な過失がある場合を除き，当チームは一切の責任を負わないものとします。</p>
 
         <h2>第4条（利用料金）</h2>
-        <p>1. 本サービスは，原則として無料でご利用いただけます。<br>
+        <p>1. 本サービスは，Web版およびDiscord版ともに原則として無料でご利用いただけます。<br>
         2. 将来的に有料機能または追加コンテンツを提供する場合，利用料金および支払方法は本サービス上にて別途告知するものとします。</p>
 
         <h2>第5条（禁止事項）</h2>
@@ -154,7 +154,7 @@ async def terms_of_service():
         <ol>
             <li>法令または公序良俗に違反する行為</li>
             <li>犯罪行為に関連する行為</li>
-            <li>Discordの利用規約またはコミュニティガイドラインに反する行為</li>
+            <li>Discord経由の利用において，Discordの利用規約またはコミュニティガイドラインに反する行為</li>
             <li>他者に対する嫌がらせ，脅迫，中傷，差別的表現，わいせつな表現を含む大喜利回答等の投稿</li>
             <li>当チーム，他のユーザー，または第三者のサーバー・ネットワーク・インフラの機能を破壊または妨害する行為</li>
             <li>本サービスの運営を妨害するおそれのある行為、または過度なリクエストを送信する行為</li>
@@ -180,7 +180,7 @@ async def terms_of_service():
         <p>当チームは，ユーザーが本規約のいずれかの条項に違反した場合，または当チームが利用を不適当と判断した場合には，事前の通知なく，当該ユーザーに対する本サービスの全部もしくは一部の利用を制限・遮断することができるものとします。</p>
 
         <h2>第8条（利用終了）</h2>
-        <p>ユーザーは，Discordクライアント上で本アクティビティを閉じる，または連携を解除することにより，いつでも本サービスの利用を終了することができます。</p>
+        <p>ユーザーは，Webブラウザのタブを閉じる，ゲーム内の退出ボタンを押す，またはDiscordクライアント上で本アクティビティを閉じる・連携解除することにより，いつでも自由に本サービスの利用を終了することができます。</p>
 
         <h2>第9条（保証の否認および免責事項）</h2>
         <p>1. 当チームは，本サービスに事実上または法律上の瑕疵（安全性，信頼性，正確性，完全性，有効性，特定の目的への適合性，セキュリティなどに関する欠陥，エラーやバグ，権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。<br>
@@ -198,7 +198,7 @@ async def terms_of_service():
         <p>当チームは，本サービスの利用によって取得する情報については，当チームが別途定める「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
 
         <h2>第13条（通知または連絡）</h2>
-        <p>ユーザーと当チームとの間の通知または連絡は，Discord上のアナウンスまたは当チームが指定する方法により行うものとします。</p>
+        <p>ユーザーと当チームとの間の通知または連絡は，本ウェブサイト上またはDiscord上のアナウンス，その他当チームが適当と認める方法により行うものとします。</p>
 
         <h2>第14条（権利義務の譲渡の禁止）</h2>
         <p>ユーザーは，当チームの書面による事前の承諾なく，利用契約上の地位または本規約に基づく権利もしくは義務を第三者に譲渡し，または担保に供することはできません。</p>
@@ -209,8 +209,8 @@ async def terms_of_service():
     </section>
 
     <div class="lang-switch">
-        <h2>English Summary (for Discord Verification)</h2>
-        <p><strong>Terms of Service Summary:</strong> "AI-PPON GRAND PRIX" is a free entertainment party game provided "AS IS". Users must adhere to Discord Community Guidelines and Terms of Service. Harmful, abusive, or infringing content is strictly prohibited. AI judgments, voices, and generated content are for amusement purposes only with no warranty. The service may be modified or discontinued at any time.</p>
+        <h2>English Summary (for Discord Verification & Web Users)</h2>
+        <p><strong>Terms of Service Summary:</strong> "AI-PPON GRAND PRIX" is a free online entertainment party game available via web browsers and as a Discord Activity. No account registration is required. Users must adhere to applicable laws and platform rules (including Discord Community Guidelines when using Discord). Harmful, harassing, or infringing content is strictly prohibited. AI judgments, voices, and generated themes are for amusement purposes only with no warranty. The service is provided "AS IS" and may be modified or terminated at any time.</p>
     </div>
 </body>
 </html>"""
@@ -219,7 +219,7 @@ async def terms_of_service():
 
 @app.get("/privacy", response_class=HTMLResponse)
 async def privacy_policy():
-    """Discord App Directory 審査対応・個人情報保護法準拠のプライバシーポリシー"""
+    """Discord App Directory 審査対応・個人情報保護法準拠のプライバシーポリシー（Web/Discord両対応）"""
     html_content = """<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -241,23 +241,37 @@ async def privacy_policy():
     <h1>プライバシーポリシー</h1>
     <div class="date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
-    <p>AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）は，本サービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）におけるユーザーの個人情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。</p>
+    <p>AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）は，WebブラウザおよびDiscordアクティビティとして提供する本サービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）におけるユーザーの情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。</p>
 
     <section>
         <h2>第1条（個人情報および取得する情報）</h2>
         <p>1. 「個人情報」とは，個人情報保護法にいう「個人情報」を指すものとします。<br>
-        2. 本サービスにおいて当チームが取得する情報は，ゲームプレイの提供・進行に必要な以下の情報に限定されます：</p>
+        2. 本サービスにおいて当チームが取得する情報は，利用形態（Discord版またはWebブラウザ版）に応じた以下の情報に限定されます：</p>
         <ul>
-            <li><strong>Discordアカウント公開情報：</strong> ユーザーID，表示名（ユーザー名），アバター画像URL（ゲーム内でのプレイヤー識別およびスコアボード表示用）</li>
-            <li><strong>ゲームプレイ情報：</strong> ゲーム内のお題に対して送信された大喜利の回答テキスト</li>
+            <li><strong>Discordアクティビティ経由での利用時：</strong>
+                <ul>
+                    <li>Discordアカウント公開情報（ユーザーID，表示名/ユーザー名，アバター画像URL）</li>
+                </ul>
+            </li>
+            <li><strong>Webブラウザ経由での利用時：</strong>
+                <ul>
+                    <li>ユーザー自身が入力した任意のプレイヤー名（ニックネーム）</li>
+                    <li>同一端末からの再接続を識別するためのランダム生成された一時的識別子（ブラウザのローカルストレージにのみ保存）</li>
+                </ul>
+            </li>
+            <li><strong>共通情報（ゲームプレイデータ）：</strong>
+                <ul>
+                    <li>ゲームルーム内でお題に対して送信された大喜利の回答テキスト</li>
+                </ul>
+            </li>
         </ul>
-        <p>※ メールアドレス，パスワード，住所，電話番号，クレジットカード番号等の機密性の高い個人情報は一切取得・保管いたしません。</p>
+        <p>※ パスワード，実名，メールアドレス，住所，電話番号，クレジットカード番号等の機密情報は一切取得・保管いたしません。</p>
 
         <h2>第2条（個人情報の収集方法）</h2>
-        <p>当チームは，ユーザーがDiscordクライアント上で本サービスを起動・認証した際に，Discord API（Embedded App SDK）を通じて上記第1条記載の情報を自動的に取得します。</p>
+        <p>当チームは，ユーザーがDiscordクライアント上で認証した際にDiscord API（Embedded App SDK）を通じて，またはWebブラウザ上の入力フォームを通じて，上記第1条記載の情報を必要最小限取得します。</p>
 
         <h2>第3条（個人情報を収集・利用する目的）</h2>
-        <p>当チームが個人情報を収集・利用する目的は，以下のとおりです。</p>
+        <p>当チームが情報を収集・利用する目的は，以下のとおりです。</p>
         <ul>
             <li>本サービスにおけるゲームセッションの作成・マッチングおよび対戦運営のため</li>
             <li>ゲームルーム内における参加プレイヤーの識別，スコア集計および勝敗判定の表示のため</li>
@@ -300,8 +314,8 @@ async def privacy_policy():
     </section>
 
     <div class="lang-switch">
-        <h2>English Summary (for Discord Verification)</h2>
-        <p><strong>Privacy Policy Summary:</strong> "AI-PPON GRAND PRIX" only accesses your Discord User ID, username, and avatar URL to identify players and display scores inside the game room. Answers submitted are evaluated in-memory by AI APIs (e.g. Gemini) solely for gameplay judgment. No personal data (passwords, payment information, physical addresses) is collected or permanently stored on disk. All session data is cleared when the game ends.</p>
+        <h2>English Summary (for Discord Verification & Web Users)</h2>
+        <p><strong>Privacy Policy Summary:</strong> "AI-PPON GRAND PRIX" operates both on web browsers and as a Discord Activity. Via Discord, we access your Discord User ID, username, and avatar URL to display your player status and score. Via web browsers, only your self-chosen nickname and temporary random session IDs are used. Submitted answers are evaluated in-memory by AI APIs (e.g. Gemini) strictly for gameplay judgment. No passwords, emails, or personal identification details are collected or permanently stored. All session data is discarded when the room closes.</p>
     </div>
 </body>
 </html>"""
