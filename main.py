@@ -18,7 +18,7 @@ import uuid
 import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import Response, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -98,6 +98,117 @@ async def get_theme_audio(text: str, voice: str = "Algieba"):
     if not audio_bytes:
         raise HTTPException(status_code=502, detail="Failed to generate audio via Gemini TTS")
     return Response(content=audio_bytes, media_type="audio/wav")
+
+
+@app.get("/terms", response_class=HTMLResponse)
+async def terms_of_service():
+    """Discord App Directory 審査対応の利用規約 (Terms of Service) ページ"""
+    html_content = """<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>利用規約 (Terms of Service) - AI-PPON GRAND PRIX</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; max-width: 800px; margin: 0 auto; padding: 40px 20px; background: #0f1117; color: #e2e8f0; }
+        h1 { color: #ffd700; border-bottom: 2px solid #ffd700; padding-bottom: 12px; }
+        h2 { color: #f6ad55; margin-top: 30px; }
+        p, li { color: #cbd5e1; font-size: 15px; }
+        .date { color: #718096; font-size: 13px; margin-bottom: 30px; }
+        .lang-switch { margin-top: 40px; padding-top: 20px; border-top: 1px dashed #4a5568; }
+    </style>
+</head>
+<body>
+    <h1>利用規約 (Terms of Service)</h1>
+    <div class="date">制定日: 2026年3月20日 / Last Updated: March 20, 2026</div>
+
+    <section>
+        <h2>1. 適用範囲</h2>
+        <p>本規約は、「AI-PPON GRAND PRIX」（以下「本アプリ」）の利用に関する条件を定めるものです。ユーザーは、本アプリを利用することにより、本規約に同意したものとみなされます。</p>
+
+        <h2>2. サービスの提供</h2>
+        <p>本アプリは、Discordアクティビティ等の環境において、AIを活用した大喜利パーティゲーム体験を提供するものです。本アプリは現状有姿（AS IS）で提供され、機能の変更・中断・終了を行うことがあります。</p>
+
+        <h2>3. 禁止事項</h2>
+        <p>ユーザーは以下の行為を行ってはなりません：</p>
+        <ul>
+            <li>Discordの利用規約やコミュニティガイドラインに違反する行為</li>
+            <li>他者に対する嫌がらせ、誹謗中傷、差別的表現、公序良俗に反する回答の投稿</li>
+            <li>本アプリのサーバーやインフラに対する過度な負荷を与える行為、不正アクセス</li>
+            <li>営利目的の無断転載・再配信・リバースエンジニアリング</li>
+        </ul>
+
+        <h2>4. 免責事項</h2>
+        <p>本アプリ内でAIにより生成される回答・判定・音声等について、その完全性・正確性・妥当性を保証するものではありません。本アプリの利用により生じた損害について、開発者は一切の責任を負いません。</p>
+
+        <h2>5. 規約の変更</h2>
+        <p>本規約は必要に応じて改定されることがあります。改定後の規約は本ページに掲載された時点で効力を生じます。</p>
+    </section>
+
+    <div class="lang-switch">
+        <h2>English Summary</h2>
+        <p><strong>Terms of Service:</strong> By using "AI-PPON GRAND PRIX", you agree to follow Discord's Community Guidelines and Terms of Service. Do not submit harmful, harassing, or illegal content. The service is provided "AS IS" without warranty of any kind. AI-generated judgments, voices, and themes are for entertainment purposes only.</p>
+    </div>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content)
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+async def privacy_policy():
+    """Discord App Directory 審査対応のプライバシーポリシー (Privacy Policy) ページ"""
+    html_content = """<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プライバシーポリシー (Privacy Policy) - AI-PPON GRAND PRIX</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; max-width: 800px; margin: 0 auto; padding: 40px 20px; background: #0f1117; color: #e2e8f0; }
+        h1 { color: #ffd700; border-bottom: 2px solid #ffd700; padding-bottom: 12px; }
+        h2 { color: #f6ad55; margin-top: 30px; }
+        p, li { color: #cbd5e1; font-size: 15px; }
+        .date { color: #718096; font-size: 13px; margin-bottom: 30px; }
+        .lang-switch { margin-top: 40px; padding-top: 20px; border-top: 1px dashed #4a5568; }
+    </style>
+</head>
+<body>
+    <h1>プライバシーポリシー (Privacy Policy)</h1>
+    <div class="date">制定日: 2026年3月20日 / Last Updated: March 20, 2026</div>
+
+    <section>
+        <h2>1. 取得する情報</h2>
+        <p>本アプリは、ゲームプレイおよびスコア管理を円滑に行うため、以下の情報のみを取得・利用します：</p>
+        <ul>
+            <li><strong>Discord ユーザー情報:</strong> ユーザーID、ユーザー名（表示名）、アバター画像URL（スコアボードおよび待機室での表示用）</li>
+            <li><strong>ゲーム内データ:</strong> ゲームセッション内に入力された大喜利の回答テキスト</li>
+        </ul>
+        <p>※ パスワード、メールアドレス、クレジットカード情報などの機密個人情報は一切収集・保持しません。</p>
+
+        <h2>2. 情報の利用目的</h2>
+        <ul>
+            <li>ゲームルーム内でのプレイヤーの識別およびスコア管理</li>
+            <li>入力された回答に対するAIによる審査およびゲーム内判定の表示</li>
+        </ul>
+
+        <h2>3. データの保持と管理</h2>
+        <p>ゲーム内で送信された回答やユーザー情報は、現在のゲームセッション（ルーム）の存続期間中のみサーバーのメモリ上に一時保持され、永続的なデータベース等への長期保存は行いません。セッション終了後は破棄されます。</p>
+
+        <h2>4. 第三者への提供</h2>
+        <p>回答のAI判定のためにGoogle等のAI API（Gemini等）と連携しますが、個人を特定可能な情報（個人名や連絡先等）を外部へ販売・提供することはありません。</p>
+
+        <h2>5. お問い合わせ</h2>
+        <p>プライバシーに関するご質問やデータの削除要請は、アプリ開発者まで直接お問い合わせください。</p>
+    </section>
+
+    <div class="lang-switch">
+        <h2>English Summary</h2>
+        <p><strong>Privacy Policy:</strong> "AI-PPON GRAND PRIX" only accesses your Discord User ID, username, and avatar URL to display your player status and scores inside the game session. Answers submitted are processed in-memory for AI judging during the session and are not permanently stored or shared with third-party advertisers.</p>
+    </div>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content)
+
 
 with open(os.path.join(os.path.dirname(__file__), "themes.json"), encoding="utf-8") as f:
     THEMES = [t["text"] for t in json.load(f)["themes"]]
