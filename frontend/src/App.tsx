@@ -546,27 +546,47 @@ export default function App() {
     }
   };
 
-  // 回答テキストの読み上げ: Web Speech API のみ使用
-  const speakAnswer = (answerText: string) => {
-    const text = answerText.trim();
-    if (!text || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  // 回答テキストの読み上げ: Web Speech API のみ使用（読み上げ完了を待機できるようにPromiseを返す）
+  const speakAnswer = (answerText: string): Promise<void> => {
+    return new Promise((resolve) => {
+      const text = answerText.trim();
+      if (!text || typeof window === "undefined" || !("speechSynthesis" in window)) {
+        resolve();
+        return;
+      }
 
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ja-JP";
-    u.pitch = 1.0;
-    u.rate = 0.92;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "ja-JP";
+      u.pitch = 1.0;
+      u.rate = 0.92;
 
-    const voices = window.speechSynthesis.getVoices();
-    const jaVoices = voices.filter((v) => v.lang.startsWith("ja"));
-    const preferredVoice =
-      jaVoices.find((v) => v.name.includes("Keita") || v.name.includes("Ichiro") || v.name.includes("Natural")) ||
-      jaVoices[0];
-    if (preferredVoice) {
-      u.voice = preferredVoice;
-    }
+      let finished = false;
+      const done = () => {
+        if (!finished) {
+          finished = true;
+          resolve();
+        }
+      };
 
-    window.speechSynthesis.speak(u);
+      u.onend = done;
+      u.onerror = done;
+
+      // 音声読み上げがブラウザ環境等でハングした場合の安全対策（最大8秒でフォールバック）
+      const timeoutMs = Math.max(2500, Math.min(8000, text.length * 250));
+      setTimeout(done, timeoutMs);
+
+      const voices = window.speechSynthesis.getVoices();
+      const jaVoices = voices.filter((v) => v.lang.startsWith("ja"));
+      const preferredVoice =
+        jaVoices.find((v) => v.name.includes("Keita") || v.name.includes("Ichiro") || v.name.includes("Natural")) ||
+        jaVoices[0];
+      if (preferredVoice) {
+        u.voice = preferredVoice;
+      }
+
+      window.speechSynthesis.speak(u);
+    });
   };
 
   const formatTime = (sec: number) =>
@@ -782,10 +802,13 @@ export default function App() {
           setJudging(newJudging);
 
           // ワンテンポ遅れて白フリップを出す (Phase 2)
-          setTimeout(() => {
+          setTimeout(async () => {
             setStageMode("answerShown");
+            // 回答の読み上げが完了するまで待機
+            await speakAnswer(m.answer);
+            // 読み上げ後の短い「間」をとってから採点発表を開始
+            await wait(300);
             runJudgmentAnimation(newJudging);
-            speakAnswer(m.answer);
           }, 350);
           break;
         }
