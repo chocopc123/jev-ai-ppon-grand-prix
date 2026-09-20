@@ -149,10 +149,37 @@ class TestAsyncWorkflow(unittest.IsolatedAsyncioTestCase):
             result = await judge("お題", "テスト回答", [])
             self.assertTrue(result["is_ippon"])
             self.assertEqual(result["total"], 10)
-            # 確信度0.50の項目（on_topic）が最後（10項目目）に来るため、delay_msが1000msになっていること
+            # 確信度0.50の項目が最後（10項目目）に来るため、delay_msが1000msになっていること
             last_item = result["timeline"][-1]
             self.assertEqual(last_item["delay_ms"], 1000)
             self.assertEqual(round(last_item["conf"], 2), 0.50)
+
+    async def test_score_value_and_confidence_are_separate(self):
+        """scoreの評価値と確信度を合否判定・演出で別々に使うことの検証"""
+        from unittest.mock import patch
+
+        mock_decisions = {
+            "on_topic": {"probability": 0.90},
+            "has_punchline": {"probability": 0.90},
+            "comprehensible": {"probability": 0.90},
+            "is_cliche": {"probability": 0.10},
+            "gut_funny": {"probability": 0.90},
+            # 独自性は高いが、評価には迷いがあるケース
+            "novelty": {"value": 0.90, "probability": 0.20},
+            "conciseness": {"value": 0.90, "probability": 0.80},
+        }
+        with patch("jev_client._decide", return_value=mock_decisions):
+            result = await judge("お題", "テスト回答", [])
+
+        novelty_item = next(
+            item for item in result["timeline"] if item["judge"] == "発想の独自性"
+        )
+        self.assertEqual(result["raw"]["novelty"], 0.90)
+        self.assertEqual(result["raw"]["novelty_confidence"], 0.20)
+        self.assertEqual(novelty_item["conf"], 0.20)
+        self.assertEqual(novelty_item["delay_ms"], 800)
+        # scoreが閾値以上なら、確信度が低くても評価項目自体は合格する
+        self.assertEqual(result["total"], 10)
 
     def test_room_timer_pause_and_resume(self):
         """Room の pause_timer / resume_timer の動作検証"""
@@ -179,5 +206,3 @@ class TestAsyncWorkflow(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

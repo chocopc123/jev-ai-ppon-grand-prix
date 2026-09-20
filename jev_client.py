@@ -95,28 +95,32 @@ JUDGE_QUESTIONS = {
     },
     "conciseness": {
         "type": "score",
-        "instructions": "言葉の切れ味、テンポ、フレーズの語感の良さはどうか？",
+        "instructions": "言葉の切れ味、テンポ、フレーズの語感の良さを0.0〜1.0で評価する。",
         "criteria": [
-            "説明的で冗長、テンポが重い",
-            "一般的な文章の長さ",
-            "短く切れ味があり、語感・ワードセンスが抜群に良い"
+            "0.0: 説明的で冗長、テンポが重く、言葉の切れ味がない",
+            "0.25: 大きな問題はないが、やや説明的または長さが気になる",
+            "0.5: 一般的な文章の長さで、意味が無理なく伝わる",
+            "0.75: 無駄が少なく、テンポと語感に明確な良さがある",
+            "1.0: 短く切れ味があり、語感・ワードセンスが非常に優れている"
         ]
     },
     "is_cliche": {
         "type": "noul",
-        "instructions": "誰でも最初に思いつくような手垢のついたベタなネタか？",
+        "instructions": "定番ネタや頻出する言い回しを、ほぼそのまま使っているか？",
         "criteria": {
-            "true": "ベタで定番のありふれたネタ",
-            "false": "視点が新しく、定番ではない新鮮なボケ"
+            "true": "既視感の強い定番ネタ、頻出表現、ありがちな展開をほぼそのまま使っている",
+            "false": "定番要素を使っていても、独自の組み合わせ・視点・表現に変換されている"
         }
     },
     "novelty": {
         "type": "score",
-        "instructions": "発想の奇抜さ、独自性、シュールさ、斜め上の視点はあるか？",
+        "instructions": "発想の独自性を0.0〜1.0で評価する。既視感が強いほど低く、意外で独自の視点ほど高くする。",
         "criteria": [
-            "ありきたりで平凡な発想",
-            "少しひねりのある面白い発想",
-            "誰も思いつかない天才的な切り口、鮮烈なシュールさ、強烈なオリジナリティ"
+            "0.0: ありきたりで、誰でも最初に思いつく発想",
+            "0.25: 少し工夫はあるが、既視感が残る発想",
+            "0.5: 明確なひねりや独自の視点がある発想",
+            "0.75: 意外な組み合わせ、強いシュールさ、または斜め上の視点がある発想",
+            "1.0: 非常に独創的で、鮮烈な切り口と強烈なオリジナリティがある発想"
         ]
     },
     "comprehensible": {
@@ -336,9 +340,13 @@ async def judge(theme: str, answer: str, recent_answers: list) -> dict:
     def bprob(name: str) -> float:  # boolean質問の確率
         return float(res.get(name, {}).get("probability", 0.5))
 
-    def sval(name: str) -> float:   # score質問の値
+    def sval(name: str) -> float:   # score質問の評価値
         val = res.get(name, {}).get("value", 0)
         return float(val if val is not None else 0)
+
+    def sconf(name: str) -> float:  # score質問の評価に対する確信度
+        prob = res.get(name, {}).get("probability", 0.5)
+        return float(prob if prob is not None else 0.5)
 
     on_topic = bprob("on_topic")
     punch    = bprob("has_punchline")
@@ -346,23 +354,38 @@ async def judge(theme: str, answer: str, recent_answers: list) -> dict:
     cliche   = bprob("is_cliche")
     gut      = bprob("gut_funny")
     nov      = sval("novelty")
+    nov_conf = sconf("novelty")
     conc     = sval("conciseness")
+    conc_conf = sconf("conciseness")
 
-    # 尖り度（最高突出度）の算出
-    peak_score = max(punch, nov, comp, conc, gut, (1 - cliche))
+    # 尖り度（最高突出度）の算出。score と確信度は別々に扱う。
+    score_components = [
+        (punch, punch),
+        (nov, nov_conf),
+        (comp, comp),
+        (conc, conc_conf),
+        (gut, gut),
+        (1.0 - cliche, 1.0 - cliche),
+    ]
+    peak_score, peak_conf = max(score_components, key=lambda item: item[0])
 
-    # 10項目の独立評価（各項目が0点または1点、およびその確信度0.0〜1.0）
+    structure_score = (on_topic + punch + comp) / 3.0
+    structure_conf = structure_score
+    impact_score = (gut + nov + punch) / 3.0
+    impact_conf = (gut + nov_conf + punch) / 3.0
+
+    # 10項目の独立評価。score は合否、conf は点灯演出の確信度に使う。
     criteria_defs = [
-        {"name": "お題適合", "conf": on_topic, "pass": on_topic >= 0.50},
-        {"name": "オチの鮮やかさ", "conf": punch, "pass": punch >= 0.50},
-        {"name": "発想の独自性", "conf": nov, "pass": nov >= 0.50},
-        {"name": "情景描写・共感", "conf": comp, "pass": comp >= 0.50},
-        {"name": "言葉のキレ・語感", "conf": conc, "pass": conc >= 0.50},
-        {"name": "脱ベタ・新鮮さ", "conf": (1.0 - cliche), "pass": cliche <= 0.50},
-        {"name": "直感的な面白さ", "conf": gut, "pass": gut >= 0.50},
-        {"name": "突出したキレ味", "conf": peak_score, "pass": peak_score >= 0.65},
-        {"name": "構成・完成度", "conf": (on_topic + punch + comp) / 3.0, "pass": ((on_topic + punch + comp) / 3.0) >= 0.55},
-        {"name": "総合インパクト", "conf": (gut + nov + punch) / 3.0, "pass": ((gut + nov + punch) / 3.0) >= 0.60},
+        {"name": "お題適合", "score": on_topic, "conf": on_topic, "pass": on_topic >= 0.50},
+        {"name": "オチの鮮やかさ", "score": punch, "conf": punch, "pass": punch >= 0.50},
+        {"name": "発想の独自性", "score": nov, "conf": nov_conf, "pass": nov >= 0.50},
+        {"name": "情景描写・共感", "score": comp, "conf": comp, "pass": comp >= 0.50},
+        {"name": "言葉のキレ・語感", "score": conc, "conf": conc_conf, "pass": conc >= 0.50},
+        {"name": "脱ベタ・新鮮さ", "score": (1.0 - cliche), "conf": (1.0 - cliche), "pass": cliche <= 0.50},
+        {"name": "直感的な面白さ", "score": gut, "conf": gut, "pass": gut >= 0.50},
+        {"name": "突出したキレ味", "score": peak_score, "conf": peak_conf, "pass": peak_score >= 0.65},
+        {"name": "構成・完成度", "score": structure_score, "conf": structure_conf, "pass": structure_score >= 0.55},
+        {"name": "総合インパクト", "score": impact_score, "conf": impact_conf, "pass": impact_score >= 0.60},
     ]
 
     # 確信度が高い順（降順）にソート: 高確度な項目から先に即決点灯し、迷う項目が後半に回る
@@ -420,6 +443,8 @@ async def judge(theme: str, answer: str, recent_answers: list) -> dict:
             "is_cliche": round(cliche, 3),
             "gut_funny": round(gut, 3),
             "peak_score": round(peak_score, 3),
+            "novelty_confidence": round(nov_conf, 3),
+            "conciseness_confidence": round(conc_conf, 3),
         },
     }
 
@@ -618,6 +643,5 @@ async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> 
 
     print("[ERROR] All Gemini TTS models (3.1 and 2.5 fallbacks) failed to generate audio.")
     return None
-
 
 
