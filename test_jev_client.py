@@ -132,6 +132,28 @@ class TestAsyncWorkflow(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["scores"], [1] * 10)
         self.assertEqual(len(result["timeline"]), 10)
 
+    async def test_clutch_ippon_delay(self):
+        """IPPONかつ確信度0.50の項目がある場合、最後の点灯ディレイが1000msになることの検証"""
+        from unittest.mock import patch
+        # 10項目すべて合格かつ、1つが0.50になるモック決定
+        mock_decisions = {
+            "on_topic": {"probability": 0.50},
+            "has_punchline": {"probability": 0.90},
+            "comprehensible": {"probability": 0.90},
+            "is_cliche": {"probability": 0.10},
+            "gut_funny": {"probability": 0.90},
+            "novelty": {"value": 0.90},
+            "conciseness": {"value": 0.90},
+        }
+        with patch("jev_client._decide", return_value=mock_decisions):
+            result = await judge("お題", "テスト回答", [])
+            self.assertTrue(result["is_ippon"])
+            self.assertEqual(result["total"], 10)
+            # 確信度0.50の項目（on_topic）が最後（10項目目）に来るため、delay_msが1000msになっていること
+            last_item = result["timeline"][-1]
+            self.assertEqual(last_item["delay_ms"], 1000)
+            self.assertEqual(round(last_item["conf"], 2), 0.50)
+
 
 if __name__ == "__main__":
     unittest.main()

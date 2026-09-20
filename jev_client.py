@@ -35,6 +35,7 @@ except Exception:
 
 DELAY_SCALE_MS = int(SCORING_CONFIG.get("delay_scale_ms", 1000))
 FAIL_DELAY_MS = int(SCORING_CONFIG.get("fail_delay_ms", 300))
+IPPON_LAST_DELAY_MS = int(SCORING_CONFIG.get("ippon_last_delay_ms", 1000))
 
 # --- ゲートキーパー (採点前の門番) ---
 GATEKEEP_QUESTIONS = {
@@ -385,6 +386,10 @@ async def judge(theme: str, answer: str, recent_answers: list) -> dict:
             "delay_ms": delay,
             "conf": round(item["conf"], 3),
         })
+
+    # IPPON（全10項目点灯）かつ、降順ソート後の最後の項目（最も迷った項目）が0.50の場合は最後の点灯（10本目）の遅延を1000msにする
+    if is_ippon and len(sorted_criteria) == 10 and round(sorted_criteria[-1]["conf"], 2) == 0.50:
+        timeline[-1]["delay_ms"] = IPPON_LAST_DELAY_MS
 
     # 敗因フィードバック
     failed = []

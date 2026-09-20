@@ -1,6 +1,7 @@
 {
   "delay_scale_ms": 1000,
   "fail_delay_ms": 300,
+  "ippon_last_delay_ms": 1000,
   "frame_step_ms": 80,
   "criteria": [
     {

@@ -85,6 +85,7 @@ export const DevTool: React.FC = () => {
     const timeline = sorted.map((c) => {
       const delay = calcItemDelay(c.conf, c.pass);
       return {
+        id: c.id,
         judge: c.name,
         score: c.pass ? 1 : 0,
         delay_ms: delay,
@@ -92,6 +93,14 @@ export const DevTool: React.FC = () => {
         pass: c.pass,
       };
     });
+
+    // IPPON（全10項目点灯）かつ、降順ソート後の最後の項目（最も迷った項目）が0.50の場合は最後の点灯（10本目）の遅延を1000msにする
+    const isTargetIppon = sorted.length === 10 && sorted.every((c) => c.pass);
+    const ipponLastDelayMs = Number(scoringConfig.ippon_last_delay_ms ?? 1000);
+
+    if (isTargetIppon && sorted.length > 0 && Math.round(sorted[sorted.length - 1].conf * 100) / 100 === 0.50) {
+      timeline[timeline.length - 1].delay_ms = ipponLastDelayMs;
+    }
 
     return { sorted, timeline };
   };
@@ -239,7 +248,8 @@ export const DevTool: React.FC = () => {
     return "answerFlip__text--xxlarge";
   };
 
-  const { sorted: sortedCriteria } = calculateTimeline(criteria);
+  const { sorted: sortedCriteria, timeline: currentTimeline } = calculateTimeline(criteria);
+  const timelineDelayMap = new Map(currentTimeline.map((t) => [t.id, t.delay_ms]));
   const activeItemName = currentItemIndex !== null && sortedCriteria[currentItemIndex] ? sortedCriteria[currentItemIndex].name : null;
 
   return (
@@ -419,7 +429,7 @@ export const DevTool: React.FC = () => {
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {criteria.map((c, fixedIdx) => {
                 const order = sortedCriteria.findIndex((sc) => sc.id === c.id);
-                const delayMs = calcItemDelay(c.conf, c.pass);
+                const delayMs = timelineDelayMap.get(c.id) ?? calcItemDelay(c.conf, c.pass);
                 const isCurrentlyActive = activeItemName === c.name;
                 const thresholdPercent = c.threshold * 100;
 
