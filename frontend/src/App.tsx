@@ -2110,16 +2110,8 @@ export default function App() {
               ))}
             </section>
 
-            {/* Feed & Input */}
+            {/* Input & Feed */}
             <section className="feed-section">
-              <div className="feed-list" role="log" aria-live="polite">
-                {feed.map((f) => (
-                  <div key={f.key} className={`feed-bubble ${f.kind}`}>
-                    {f.text}
-                  </div>
-                ))}
-              </div>
-
               <div className="input-bar">
                 <input
                   className="answer-input"
@@ -2132,6 +2124,14 @@ export default function App() {
                 <button className="submit-btn" onClick={submit}>
                   送信
                 </button>
+              </div>
+
+              <div className="feed-list" role="log" aria-live="polite">
+                {feed.map((f) => (
+                  <div key={f.key} className={`feed-bubble ${f.kind}`}>
+                    {f.text}
+                  </div>
+                ))}
               </div>
             </section>
           </div>

@@ -1087,7 +1087,7 @@ body {
 .input-bar {
   display: flex;
   gap: 12px;
-  padding-top: 8px;
+  padding-bottom: 4px;
 }
 
 .answer-input {
