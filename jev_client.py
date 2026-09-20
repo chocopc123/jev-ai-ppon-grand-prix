@@ -16,6 +16,7 @@ import json
 import hashlib
 import os
 import random
+import time
 
 from dotenv import load_dotenv
 import httpx
@@ -259,7 +260,7 @@ def _mock(state: dict, questions: dict) -> dict:
 # 1. ゲートキーパー: 採点前に即座にはじく
 # ------------------------------------------------------------------
 
-MAGIC_IPPON_WORD = "chair-man"
+MAGIC_IPPON_WORD = "chairman"
 
 
 async def gatekeep(theme: str, answer: str, recent_answers: list) -> tuple[bool, str]:

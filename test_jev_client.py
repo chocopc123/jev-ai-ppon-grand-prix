@@ -118,9 +118,9 @@ class TestAsyncWorkflow(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(item["delay_ms"] >= 0)
 
     async def test_magic_ippon_word(self):
-        """魔法の言葉 (chair-man) で必ずIPPONになることの検証"""
+        """魔法の言葉 (chairman) で必ずIPPONになることの検証"""
         theme = "どんなお題でも"
-        answer = "chair-man"
+        answer = "chairman"
         
         ok, reason = await gatekeep(theme, answer, [])
         self.assertTrue(ok)
