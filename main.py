@@ -186,6 +186,10 @@ DOCS_COMMON_STYLE = """
         position: relative;
         transition: color 0.15s ease;
     }
+    /* 非選択タブの下のみに境界線（ボーダー）を表示 */
+    .tab-btn:not(.is-active) {
+        border-bottom: 2px solid #111111;
+    }
     .tab-btn:hover {
         color: #111111;
     }
@@ -194,7 +198,7 @@ DOCS_COMMON_STYLE = """
         background: #ffffff;
         color: #111111;
         border: 2px solid #111111;
-        border-bottom: 2px solid #ffffff; /* 下のカード天板とシームレスに結合 */
+        border-bottom: 2px solid #ffffff; /* 非選択側の黒線やカード天板を白で覆いシームレスに結合 */
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         margin-top: -2px; /* 天板の上に覆いかぶさる */
