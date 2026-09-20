@@ -1782,17 +1782,18 @@ body {
   width: 100%;
   background: #ffffff;
   color: #111111;
-  border: 2px solid #111111;
-  border-radius: 14px;
-  padding: 26px 24px;
-  box-shadow:
-    0 8px 0 #1b1b1b,
-    0 20px 48px rgba(0, 0, 0, 0.22);
+  border-radius: 20px;
+  padding: 30px 26px 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 20px 48px -8px rgba(0, 0, 0, 0.16),
+    0 8px 16px -4px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  gap: 16px;
-  animation: joinCardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+  gap: 18px;
+  animation: joinCardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s backwards;
 }
 
 .waiting-card-header {
@@ -1800,7 +1801,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   text-align: center;
 }
 
@@ -1816,16 +1817,13 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.72rem;
-  letter-spacing: 2.5px;
-  font-weight: 900;
+  font-size: 0.75rem;
+  font-weight: 800;
   color: #111111;
   background: #ffdc00;
-  padding: 3px 12px;
-  border-radius: 4px;
-  border: 1.5px solid #111111;
-  box-shadow: 0 2px 0 #111111;
-  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
 }
 
 .waiting-pulse-dot {
@@ -1833,7 +1831,7 @@ body {
   height: 7px;
   background-color: #d5001c;
   border-radius: 50%;
-  box-shadow: 0 0 6px #d5001c;
+  box-shadow: 0 0 6px rgba(213, 0, 28, 0.6);
   animation: pulse-dot 1.5s infinite;
 }
 
@@ -1841,15 +1839,12 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-  color: #111111;
-  background: #ffe66d;
-  padding: 3px 10px;
-  border-radius: 4px;
-  border: 1.5px solid #111111;
-  box-shadow: 0 2px 0 #111111;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #333339;
+  background: #f0f0f3;
+  padding: 4px 10px;
+  border-radius: 6px;
 }
 
 .waiting-card-title {
@@ -1857,16 +1852,17 @@ body {
   font-size: 1.35rem;
   font-weight: 900;
   color: #111111;
-  letter-spacing: 1px;
-  margin: 4px 0 0 0;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin: 2px 0 0 0;
 }
 
 .waiting-desc {
-  font-size: 0.84rem;
-  color: #555562;
+  font-size: 0.82rem;
+  color: #6e6e73;
+  font-weight: 600;
   margin: 0;
   line-height: 1.4;
-  font-weight: 700;
 }
 
 /* 部屋共有バー */
@@ -1875,13 +1871,11 @@ body {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  background: #f5f5f8;
-  border: 2px solid #111111;
-  border-radius: 9px;
-  padding: 8px 14px;
+  background: #f5f5f7;
+  border-radius: 12px;
+  padding: 10px 14px;
   gap: 12px;
   box-sizing: border-box;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .waiting-share-info {
@@ -1892,20 +1886,20 @@ body {
 }
 
 .waiting-share-label {
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #d5001c;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #6e6e73;
 }
 
 .waiting-share-id {
-  font-family: var(--font-mono, monospace);
-  font-size: 1.25rem;
-  font-weight: 900;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: #111111;
-  letter-spacing: 2px;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: color 0.15s ease;
 }
 
 .waiting-share-id:hover {
@@ -1918,36 +1912,41 @@ body {
   justify-content: center;
   gap: 6px;
   background: #ffffff;
-  border: 1.5px solid #111111;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
   color: #111111;
+  font-family: var(--font-heavy);
   font-size: 0.78rem;
   font-weight: 800;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 2px 0 #111111;
-  transition: all 0.1s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.15s ease;
   white-space: nowrap;
   user-select: none;
 }
 
 .btn-waiting-copy:hover {
-  background: #ffdc00;
+  background: #111113;
+  color: #ffffff;
+  border-color: #111113;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   transform: translateY(-1px);
-  box-shadow: 0 3px 0 #111111;
+}
+
+.btn-waiting-copy:hover .btn-action-icon {
+  color: #ffd000;
 }
 
 .btn-waiting-copy:active {
-  transform: translateY(2px);
-  box-shadow: 0 0 0 #111111;
+  transform: scale(0.97);
 }
 
 .btn-waiting-copy.is-copied {
   background: #059669;
-  border-color: #047857;
+  border-color: #059669;
   color: #ffffff;
-  box-shadow: 0 2px 0 #034e38;
-  animation: copyPulse 0.3s ease-out;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
 }
 
 /* 待機参加者リスト */
@@ -1956,33 +1955,33 @@ body {
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .waiting-players-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 1.5px solid #eaeaea;
   padding-bottom: 6px;
+  border-bottom: 1px solid #eeeeef;
 }
 
 .waiting-players-label {
-  font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #d5001c;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #222226;
 }
 
 .waiting-players-count {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #44444a;
+  color: #6e6e73;
 }
 
 .waiting-players-count strong {
   color: #111111;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 900;
 }
 
@@ -1996,32 +1995,30 @@ body {
 }
 
 .waiting-player-chip {
-  background: #f7f7fa;
-  border: 1.5px solid #111111;
-  border-radius: 8px;
-  padding: 8px 10px;
+  background: #f5f5f7;
+  border-radius: 10px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #111111;
-  box-shadow: 0 2px 0 #111111;
-  transition: transform 0.15s ease;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
 }
 
 .waiting-player-chip.is-me {
-  background: #fff9d6;
-  border-color: #111111;
+  background: #fff9db;
+  border-color: rgba(255, 208, 0, 0.4);
 }
 
 .waiting-player-avatar {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: #111111;
-  color: #ffdc00;
-  border: 1.5px solid #111111;
+  background: #111113;
+  color: #ffd000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2029,6 +2026,12 @@ body {
   font-weight: 900;
   flex-shrink: 0;
   overflow: hidden;
+}
+
+.waiting-player-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .waiting-player-name {
@@ -2039,14 +2042,13 @@ body {
 }
 
 .waiting-player-me-tag {
-  font-size: 0.65rem;
-  font-weight: 900;
-  background: #ffdc00;
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: #ffd000;
   color: #111111;
-  border: 1px solid #111111;
-  padding: 1px 5px;
-  border-radius: 3px;
-  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
 }
 
 /* 待機室のアクションボタン群 */
@@ -2054,120 +2056,95 @@ body {
   display: flex;
   gap: 10px;
   width: 100%;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .waiting-start-btn {
   flex: 2;
   position: relative;
-  padding: 0;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #ff1733 0%, #d5001c 65%, #a60015 100%);
+  height: 52px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: #d6001c;
   color: #ffffff;
-  border: 2px solid #111111;
+  border: none;
   cursor: pointer;
   user-select: none;
-  overflow: hidden;
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.45) inset,
-    0 5px 0 #111111,
-    0 12px 24px rgba(0, 0, 0, 0.2);
-  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-heavy);
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 24px rgba(214, 0, 28, 0.28);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .waiting-start-btn:hover {
-  filter: brightness(1.06);
-  transform: translateY(-1px);
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.5) inset,
-    0 6px 0 #111111,
-    0 14px 28px rgba(0, 0, 0, 0.25);
+  background: #b50017;
+  box-shadow: 0 10px 28px rgba(181, 0, 23, 0.38);
+  transform: translateY(-1.5px);
+}
+
+.waiting-start-btn:hover .waiting-start-btn-icon {
+  transform: scale(1.1);
 }
 
 .waiting-start-btn:active {
-  transform: translateY(4px);
-  box-shadow: 
-    0 1px 0 rgba(0, 0, 0, 0.2) inset,
-    0 1px 0 #111111,
-    0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.waiting-start-btn-body {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 11px 18px;
-  gap: 10px;
-}
-
-.waiting-start-btn-labels {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-}
-
-.waiting-start-btn-sub {
-  font-family: var(--font-heavy);
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 2.5px;
-  color: #ffdc00;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
-}
-
-.waiting-start-btn-main {
-  font-family: var(--font-heavy);
-  font-size: 1.25rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .waiting-start-btn-icon {
-  color: #ffdc00;
+  color: #ffffff;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.18s ease;
+}
+
+.waiting-start-btn-text {
+  color: #ffffff;
 }
 
 .waiting-leave-btn {
   flex: 1;
+  height: 52px;
+  padding: 0 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  background: #f2f2f5;
-  border: 2px solid #111111;
-  color: #111111;
+  gap: 8px;
+  background: #f5f5f7;
+  border: none;
+  color: #55555c;
   font-family: var(--font-heavy);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 800;
-  padding: 11px 14px;
-  border-radius: 10px;
+  border-radius: 14px;
   cursor: pointer;
   user-select: none;
-  box-shadow: 0 4px 0 #111111;
-  transition: all 0.1s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .waiting-leave-btn:hover {
-  background: #ffffff;
-  color: #d5001c;
-  transform: translateY(-1px);
-  box-shadow: 0 5px 0 #111111;
+  background: #111113;
+  color: #ffffff;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
 .waiting-leave-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #111111;
+  transform: translateY(1px) scale(0.99);
 }
 
 .waiting-leave-btn-icon {
   flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  transition: color 0.18s ease;
 }
 
 .waiting-page-footer {
@@ -2424,29 +2401,23 @@ body {
     padding: 0 12px;
     font-size: 12px;
   }
-  .join-submit-btn .join-btn-main {
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-  }
-  .join-submit-btn .join-btn-body {
-    padding: 12px 16px;
-    gap: 10px;
+  .join-submit-btn {
+    height: 48px;
+    font-size: 0.98rem;
   }
 
   /* 待機室レスポンシブ */
   .waiting-card {
-    padding: 20px 14px;
+    padding: 24px 18px 20px;
     gap: 14px;
+    border-radius: 16px;
   }
   .waiting-card-title {
     font-size: 1.2rem;
   }
-  .waiting-start-btn .waiting-start-btn-main {
-    font-size: 1.1rem;
-    letter-spacing: 1.5px;
-  }
-  .waiting-start-btn-body {
-    padding: 10px 14px;
+  .waiting-start-btn {
+    height: 48px;
+    font-size: 0.98rem;
   }
   .waiting-share-bar {
     flex-direction: column;

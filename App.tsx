@@ -1770,33 +1770,29 @@ export default function App() {
 
             <div className="waiting-card">
               <div className="waiting-card-header">
-                <div className="waiting-tag-row">
-                  <span className="waiting-card-tag">
-                    <span className="waiting-pulse-dot" />
-                    <span>WAITING LOBBY</span>
-                  </span>
-                  {roomTtsEnabled && (
+                {roomTtsEnabled && (
+                  <div className="waiting-tag-row">
                     <span className="waiting-tts-badge">
                       <MicIcon />
-                      <span>AI NARRATION ON</span>
+                      <span>AIナレーション</span>
                     </span>
-                  )}
-                </div>
+                  </div>
+                )}
                 <h1 className="waiting-card-title">参加者を待っています</h1>
                 <p className="waiting-desc">
-                  参加メンバーが集まったら「ゲームを開始する」を押してください。
+                  メンバーが集まったら「ゲームを開始する」を押してください
                 </p>
               </div>
 
               <div className="waiting-share-bar">
                 <div className="waiting-share-info">
-                  <span className="waiting-share-label">ROOM ID</span>
+                  <span className="waiting-share-label">ルームID</span>
                   {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
                   <span
                     className="waiting-share-id"
                     onClick={handleRoomIdClick}
                     style={{ userSelect: "none" }}
-                    title="ルームID"
+                    title="クリックして部屋URLをコピー"
                   >
                     {roomId}
                   </span>
@@ -1824,9 +1820,9 @@ export default function App() {
 
               <div className="waiting-players-section">
                 <div className="waiting-players-header">
-                  <span className="waiting-players-label">ENTRY LIST</span>
+                  <span className="waiting-players-label">参加者リスト</span>
                   <span className="waiting-players-count">
-                    参加者: <strong>{players.length}</strong> 名
+                    <strong>{players.length}</strong> 名
                   </span>
                 </div>
                 <div className="waiting-players-grid">
@@ -1861,13 +1857,8 @@ export default function App() {
                   className="waiting-start-btn"
                   onClick={startGame}
                 >
-                  <div className="waiting-start-btn-body">
-                    <div className="waiting-start-btn-labels">
-                      <span className="waiting-start-btn-sub">START GAME</span>
-                      <span className="waiting-start-btn-main">ゲームを開始する</span>
-                    </div>
-                    <PlayIcon className="waiting-start-btn-icon" />
-                  </div>
+                  <PlayIcon className="waiting-start-btn-icon" />
+                  <span className="waiting-start-btn-text">ゲームを開始する</span>
                 </button>
                 {!isDiscord && (
                   <button
