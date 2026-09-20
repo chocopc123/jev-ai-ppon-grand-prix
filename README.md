@@ -102,7 +102,7 @@ cmd /c deploy-gcp.bat
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
 
 # 2. Cloud Run へデプロイ
-gcloud run deploy oogiri-grand-prix \
+gcloud run deploy ai-ppon-grand-prix \
   --source . \
   --region asia-northeast1 \
   --platform managed \

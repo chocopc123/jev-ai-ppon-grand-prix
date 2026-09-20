@@ -1,5 +1,5 @@
 """
-OOGIRI GRAND PRIX Web の統合テスト (HTTP 静的配信 + WebSocket 対戦フロー + 再接続・待機室)
+AI-PPON GRAND PRIX Web の統合テスト (HTTP 静的配信 + WebSocket 対戦フロー + 再接続・待機室)
 """
 import asyncio
 from fastapi.testclient import TestClient

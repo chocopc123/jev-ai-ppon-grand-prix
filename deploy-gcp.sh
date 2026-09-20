@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
-echo "========================================================"
-echo "  OOGIRI GRAND PRIX - Google Cloud Run デプロイスクリプト"
-echo "========================================================"
+echo "=================================================="
+echo "  AI-PPON GRAND PRIX - Google Cloud Run デプロイスクリプト"
+echo "=================================================="
 echo ""
 
 # 1. GCP プロジェクトの確認
 CURRENT_PROJECT=$(gcloud config get-value project 2>/dev/null || true)
-if [ -z "$CURRENT_PROJECT" ] || [ "$CURRENT_PROJECT" = "(unset)" ]; then
+if [ -z "$CURRENT_PROJECT" ] || [[ "$CURRENT_PROJECT" == *"unset"* ]]; then
     echo -e "\033[31m[ERROR] gcloud のプロジェクトが設定されていません。\033[0m"
     echo -e "\033[33m先に 'gcloud config set project <PROJECT_ID>' を実行してください。\033[0m"
     exit 1
@@ -38,7 +38,7 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 echo ""
 echo -e "\033[36m[2/2] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)...\033[0m"
 
-gcloud run deploy oogiri-grand-prix \
+gcloud run deploy ai-ppon-grand-prix \
   --source . \
   --region asia-northeast1 \
   --platform managed \
@@ -52,6 +52,6 @@ gcloud run deploy oogiri-grand-prix \
   --set-env-vars "OPENROUTER_API_KEY=${API_KEY},THEME_TIME_LIMIT=150,TARGET_IPPON=3"
 
 echo ""
-echo "========================================================"
+echo "=================================================="
 echo "  デプロイが完了しました！ 上記の Service URL を開いてください。"
-echo "========================================================"
+echo "=================================================="

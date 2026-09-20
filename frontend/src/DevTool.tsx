@@ -37,7 +37,7 @@ export interface CriterionItem {
 }
 
 // scoring_config.json から基準定義を読み込み
-const DEFAULT_CRITERIA: CriterionItem[] = scoringConfig.criteria.map((c) => ({
+const DEFAULT_CRITERIA: CriterionItem[] = ((scoringConfig as any).criteria || []).map((c: any) => ({
   id: c.id,
   name: c.name,
   description: c.description,
@@ -330,7 +330,7 @@ export const DevTool: React.FC = () => {
                   boxShadow: "0 0 10px rgba(63, 185, 80, 0.3)",
                 }}
               >
-                ✨ 10項目全点灯 (ノンストップIPPON!)
+                ✨ 10項目全点灯 (ノンストップAI-PPON!)
               </button>
               <button
                 onClick={() => applyPreset("fastIppon")}
@@ -346,7 +346,7 @@ export const DevTool: React.FC = () => {
                   fontWeight: "bold",
                 }}
               >
-                🚀 高確度 IPPON
+                🚀 高確度 AI-PPON
               </button>
               <button
                 onClick={() => applyPreset("slowIppon")}
@@ -362,7 +362,7 @@ export const DevTool: React.FC = () => {
                   fontWeight: "bold",
                 }}
               >
-                🐢 迷いながら IPPON
+                🐢 迷いながら AI-PPON
               </button>
               <button
                 onClick={() => applyPreset("miss9")}
@@ -680,7 +680,7 @@ export const DevTool: React.FC = () => {
           >
             <div>
               状態: <strong style={{ color: isDone ? (isIppon ? "#ffd200" : "#ff7b72") : isAnimating ? "#58a6ff" : "#aaa" }}>
-                {isAnimating ? "🟡 点灯進行中" : isDone ? (isIppon ? "🌟 IPPON 達成" : "⚪ 不成立終了") : "待機中"}
+                {isAnimating ? "🟡 点灯進行中" : isDone ? (isIppon ? "🌟 AI-PPON 達成" : "⚪ 不成立終了") : "待機中"}
               </strong>
             </div>
             <div>
@@ -720,7 +720,7 @@ export const DevTool: React.FC = () => {
 
               {/* IPPON特大バナー */}
               {isDone && isIppon && (
-                <div className="ipponBanner">IPPON!</div>
+                <div className="ipponBanner">AI-PPON!</div>
               )}
 
               {/* 未IPPON時の点数丸バッジ */}

@@ -1,5 +1,5 @@
 """
-OOGIRI GRAND PRIX Web — FastAPI / WebSocket サーバー
+AI-PPON GRAND PRIX Web — FastAPI / WebSocket サーバー
 
 フロー:
   お題出題 → プレイヤーがチャット送信 → ピンポン & 解答発表 (全員へ)
@@ -37,7 +37,7 @@ def log_answer(room_id: str, theme: str, player: str, answer: str, gatekeep_ok: 
     else:
         total = judge_result.get("total", 0) if judge_result else 0
         is_ippon = judge_result.get("is_ippon", False) if judge_result else False
-        ippon_mark = "★ IPPON! (10点)" if is_ippon else f"{total}点"
+        ippon_mark = "★ AI-PPON! (10点)" if is_ippon else f"{total}点"
         print(f"[{now}] [ROOM: {room_id}] [{ippon_mark}] プレイヤー: {player} | お題: {theme} | 回答: 「{answer}」")
 
 

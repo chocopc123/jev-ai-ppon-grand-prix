@@ -1,8 +1,12 @@
 # ---- ステージ 1: フロントエンドのビルド ----
 FROM node:20-alpine AS frontend-builder
-WORKDIR /app/frontend
+WORKDIR /app
 
-COPY frontend/package*.json ./
+# 親階層の scoring_config.json をコピー（フロントエンドから参照される）
+COPY scoring_config.json ./
+COPY frontend/package*.json ./frontend/
+
+WORKDIR /app/frontend
 RUN npm ci || npm install
 
 COPY frontend/ ./
@@ -15,7 +19,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py jev_client.py themes.json ./
+COPY main.py jev_client.py themes.json scoring_config.json ./
 # フロントエンドのビルド成果物を静的ディレクトリにコピー
 COPY --from=frontend-builder /app/frontend/dist ./static
 

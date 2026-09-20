@@ -9,7 +9,7 @@
 ### 1-1. アプリケーションの新規作成
 1. [Discord Developer Portal](https://discord.com/developers/applications) にアクセスしてログインします。
 2. 画面右上の **「New Application」** をクリックします。
-3. アプリケーション名（例: `AI-PPON GRAND PRIX` や `大喜利グランプリ`）を入力し、利用規約に同意して **「Create」** を押します。
+3. アプリケーション名（例: `AI-PPON GRAND PRIX`）を入力し、利用規約に同意して **「Create」** を押します。
 
 ### 1-2. 基本情報と認証情報の取得
 1. 左メニュー **「General Information」** を開きます。

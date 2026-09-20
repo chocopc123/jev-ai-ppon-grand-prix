@@ -1,6 +1,6 @@
 @echo off
 echo ========================================================
-echo   OOGIRI GRAND PRIX - Production Server (FastAPI + Built UI)
+echo   AI-PPON GRAND PRIX - Production Server (FastAPI + Built UI)
 echo ========================================================
 echo.
 echo Starting Server on http://192.168.10.112:8080 ...

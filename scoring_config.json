@@ -62,7 +62,7 @@
       "id": "impact",
       "name": "総合インパクト",
       "threshold": 0.6,
-      "description": "会場を揺らす決め手・IPPONの決定打があるか"
+      "description": "会場を揺らす決め手・AI-PPONの決定打があるか"
     }
   ]
 }

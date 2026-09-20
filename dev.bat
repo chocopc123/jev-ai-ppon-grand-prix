@@ -1,6 +1,6 @@
 @echo off
 echo ========================================================
-echo   OOGIRI GRAND PRIX - Simultaneous Launch (FastAPI + Vite)
+echo   AI-PPON GRAND PRIX - Simultaneous Launch (FastAPI + Vite)
 echo ========================================================
 echo.
 echo Starting FastAPI Backend (Port 8080)...

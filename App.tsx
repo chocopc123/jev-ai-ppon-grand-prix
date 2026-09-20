@@ -29,7 +29,7 @@ async function loadIpponVoice() {
   if (ipponAudioBuffer) return ipponAudioBuffer;
   try {
     const a = audio();
-    const res = await fetch("/ippon_voice.m4a");
+    const res = await fetch("/aippon_voice.wav");
     const arrayBuffer = await res.arrayBuffer();
     ipponAudioBuffer = await a.decodeAudioData(arrayBuffer);
   } catch (err) {
@@ -51,12 +51,12 @@ let ipponMediaSourceNode: MediaElementAudioSourceNode | null = null;
 function getIpponAudioPipeline() {
   const a = audio();
   if (!ipponAudioEl) {
-    ipponAudioEl = new Audio("/ippon_voice.m4a");
+    ipponAudioEl = new Audio("/aippon_voice.wav");
     // ピッチを上げずに速度だけ上げる設定（標準ブラウザ対応）
     (ipponAudioEl as any).preservesPitch = true;
     (ipponAudioEl as any).mozPreservesPitch = true;
     (ipponAudioEl as any).webkitPreservesPitch = true;
-    ipponAudioEl.playbackRate = 1.15; // 速度は速く保つ
+    ipponAudioEl.playbackRate = 1.3;
     ipponAudioEl.preload = "auto";
 
     ipponMediaSourceNode = a.createMediaElementSource(ipponAudioEl);
@@ -128,7 +128,7 @@ function playIpponVoice() {
   try {
     const el = getIpponAudioPipeline();
     el.currentTime = 0;
-    el.playbackRate = 1.15;
+    el.playbackRate = 1.3;
     el.play().catch((e) => console.warn("playIpponVoice error:", e));
   } catch (e) {
     console.warn("playIpponVoice failure:", e);
@@ -460,11 +460,11 @@ export default function App() {
   const [roomPhase, setRoomPhase] = useState<"waiting" | "theme" | "transition" | "match_win">("waiting");
   const [myPlayerId, setMyPlayerId] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("oogiri_player_id");
+    return localStorage.getItem("aippon_player_id") || localStorage.getItem("oogiri_player_id");
   });
   const [name, setName] = useState<string>(() => {
     if (typeof window === "undefined") return "";
-    return localStorage.getItem("oogiri_player_name") || "";
+    return localStorage.getItem("aippon_player_name") || localStorage.getItem("oogiri_player_name") || "";
   });
   const [roomId, setRoomId] = useState<string>(() => {
     if (typeof window === "undefined") return "";
@@ -712,7 +712,7 @@ export default function App() {
         // 10本目に達した瞬間に即座にIPPON表示・ファンファーレを発動
         if (currentScore === 10) {
           sfx.fanfare();
-          pushFeed(`💥 ${judgement.player} IPPON獲得!! 「${judgement.answer}」`, "ippon");
+          pushFeed(`💥 ${judgement.player} AI-PPON獲得!! 「${judgement.answer}」`, "ippon");
           setJudging((prev) => {
             if (!prev || prev.player !== judgement.player) return prev;
             return { ...prev, isIppon: true, done: true };
@@ -777,7 +777,7 @@ export default function App() {
     const newUrl = `${window.location.pathname}?room=${encodeURIComponent(rId)}`;
     window.history.replaceState({}, "", newUrl);
 
-    const pidToUse = targetPid || myPlayerId || localStorage.getItem("oogiri_player_id");
+    const pidToUse = targetPid || myPlayerId || localStorage.getItem("aippon_player_id") || localStorage.getItem("oogiri_player_id");
     const proto = location.protocol === "https:" ? "wss" : "ws";
     const queryParts = [];
     if (pidToUse) queryParts.push(`player_id=${encodeURIComponent(pidToUse)}`);
@@ -793,9 +793,9 @@ export default function App() {
           setScreen("game");
           setRoomPhase(m.phase || "waiting");
           setMyPlayerId(m.player_id);
-          localStorage.setItem("oogiri_room_id", m.room);
-          localStorage.setItem("oogiri_player_id", m.player_id);
-          localStorage.setItem("oogiri_player_name", pName);
+          localStorage.setItem("aippon_room_id", m.room);
+          localStorage.setItem("aippon_player_id", m.player_id);
+          localStorage.setItem("aippon_player_name", pName);
           setPlayers(m.players);
           if (m.tts_enabled !== undefined) {
             setRoomTtsEnabled(Boolean(m.tts_enabled));
@@ -926,9 +926,9 @@ export default function App() {
 
   // URLパラメータと自動再接続（リロード対策）
   useEffect(() => {
-    const savedRoom = localStorage.getItem("oogiri_room_id");
-    const savedName = localStorage.getItem("oogiri_player_name");
-    const savedPid = localStorage.getItem("oogiri_player_id");
+    const savedRoom = localStorage.getItem("aippon_room_id") || localStorage.getItem("oogiri_room_id");
+    const savedName = localStorage.getItem("aippon_player_name") || localStorage.getItem("oogiri_player_name");
+    const savedPid = localStorage.getItem("aippon_player_id") || localStorage.getItem("oogiri_player_id");
 
     if (savedRoom === roomId && savedName && savedPid) {
       connect(roomId, savedName, savedPid);
@@ -976,6 +976,7 @@ export default function App() {
       wsRef.current?.close();
     } catch {}
     wsRef.current = null;
+    localStorage.removeItem("aippon_player_id");
     localStorage.removeItem("oogiri_player_id");
     setScreen("join");
     setRoomPhase("waiting");
@@ -1473,7 +1474,7 @@ export default function App() {
 
                 {/* IPPON特大バナー */}
                 {judging.done && judging.isIppon && (
-                  <div className="ipponBanner">IPPON!</div>
+                  <div className="ipponBanner">AI-PPON!</div>
                 )}
 
                 {/* 未IPPON時の点数丸バッジ */}
@@ -1487,7 +1488,7 @@ export default function App() {
                 <div className="srOnly" aria-live="polite">
                   {!judging.done && `採点中: ${judging.litFrames} / 10`}
                   {judging.done && (
-                    judging.isIppon ? "IPPON、10点満点" : `今回の得点は ${judging.totalScore} 点`
+                    judging.isIppon ? "AI-PPON、10点満点" : `今回の得点は ${judging.totalScore} 点`
                   )}
                 </div>
               </>
@@ -1499,9 +1500,9 @@ export default function App() {
             {/* Player Scoreboard */}
             <section className="player-scoreboard" aria-label="出場者一覧と得点">
               {players.map((p) => (
-                <div key={p.id} className="player-score-card" aria-label={`${p.name}: ${p.ippons} IPPON`}>
+                <div key={p.id} className="player-score-card" aria-label={`${p.name}: ${p.ippons} AI-PPON`}>
                   <span className="player-name">{p.name}</span>
-                  <div className="ippon-bars-container" title={`${p.ippons} IPPON`}>
+                  <div className="ippon-bars-container" title={`${p.ippons} AI-PPON`}>
                     {[0, 1, 2].map((idx) => (
                       <div key={idx} className={`ippon-bar ${idx < p.ippons ? "active" : ""}`} />
                     ))}
@@ -1545,7 +1546,7 @@ export default function App() {
             <div className="ippon-banner" style={{ marginBottom: 24 }}>
               🏆 {winner} 優勝!!
             </div>
-            <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>3本のIPPONを獲得して勝利しました！</p>
+            <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>3本のAI-PPONを獲得して勝利しました！</p>
             <button className="submit-btn" onClick={restart}>
               もう一度遊ぶ
             </button>
