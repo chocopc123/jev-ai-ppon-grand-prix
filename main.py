@@ -179,9 +179,11 @@ DOCS_COMMON_STYLE = """
         text-decoration: none;
         color: #71717a;
         background: #e4e2d7;
-        border: 2px solid #111111;
+        border-top: 2px solid #111111;
+        border-left: 2px solid #111111;
+        border-right: 2px solid #111111;
         border-bottom: 2px solid #111111;
-        margin-bottom: -2px;
+        position: relative;
         transition: all 0.15s ease;
     }
     .tab-btn:first-child {
@@ -189,28 +191,32 @@ DOCS_COMMON_STYLE = """
     }
     .tab-btn:last-child {
         border-top-right-radius: 12px;
-        margin-left: -2px; /* 中央の境界線重複を解消 */
+        margin-left: -2px; /* 中央境界線の重複解消 */
     }
     .tab-btn:hover {
         background: #edebe2;
         color: #111111;
     }
-    /* 選択中: カードと完全に一体化（白背景＋下枠線をカードへ開放） */
+    /* 選択中: カードと完全に一体化（border-bottomを完全除去し、左右の縦線をカード枠線とシームレスに直結） */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
-        border-bottom: 2px solid #ffffff;
-        position: relative;
-        z-index: 3;
+        border-bottom: none;
+        padding-bottom: 16px; /* 2px分カードに被せる */
+        margin-bottom: -2px;
+        z-index: 4;
     }
-    /* フリップ同色の白カード（タブと完全一致） */
+    /* フリップ同色の白カード（タブと完全直結） */
     .content-card {
         width: 100%;
         position: relative;
         z-index: 1;
         background: #ffffff;
         color: #111111;
-        border: 2px solid #111111;
+        border-left: 2px solid #111111;
+        border-right: 2px solid #111111;
+        border-bottom: 2px solid #111111;
+        border-top: none; /* 上枠線はタブ側が担うため隙間・途切れが一切起きない */
         border-radius: 0 0 12px 12px;
         box-shadow:
             0 8px 0 #1b1b1b,
