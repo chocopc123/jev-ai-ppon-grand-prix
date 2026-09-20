@@ -162,65 +162,59 @@ DOCS_COMMON_STYLE = """
         box-shadow: 0 2px 0 #111;
     }
     /* フリップ同色の白カード（外周全体を完全な1本の黒線で囲む） */
-    .content-card {
-        width: 100%;
-        background: #ffffff;
-        color: #111111;
-        border: 2px solid #111111;
-        border-radius: 14px;
-        box-shadow:
-            0 8px 0 #1b1b1b,
-            0 20px 48px rgba(0, 0, 0, 0.25);
-        overflow: hidden;
-    }
-    .card-tabs {
+    /* タブバー (カードの上に自然に重なる独立ナビゲーション) */
+    .nav-tabs {
         display: flex;
-        background: #dedcd3; /* 奥のタブの背景色 */
-        border-bottom: 2px solid #111111;
         position: relative;
+        margin-bottom: -2px; /* カードの天板の黒枠(2px)にぴったり重ねる */
     }
     .tab-btn {
         flex: 1;
         text-align: center;
-        padding: 14px 20px;
+        padding: 13px 20px;
         font-size: 15px;
         font-weight: 900;
         text-decoration: none;
         color: #71717a;
         background: #dedcd3;
+        border: 2px solid #111111;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
         position: relative;
-        transition: color 0.15s ease;
+        z-index: 1; /* 非選択タブはカード(z-index: 2)の奥 */
+        transition: color 0.15s ease, background 0.15s ease;
     }
     .tab-btn:hover {
         color: #111111;
     }
-    /* 選択中: カード本文と完全に同化する白タブ（段差・色違い・枠線欠けゼロ） */
+    /* 選択中タブ: z-index: 3 で最前面に浮上し、下線なしでカード天板を白く繋ぐ */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
-        margin-bottom: -2px;
-        z-index: 2;
+        border-bottom: 2px solid #ffffff; /* カード天板の黒線を白で覆い、完全に貫通・結合 */
+        z-index: 3;
     }
-    .tab-btn.is-active:first-child {
-        border-right: 2px solid #111111;
-        border-top-right-radius: 12px;
-    }
-    .tab-btn.is-active:last-child {
-        border-left: 2px solid #111111;
-        border-top-left-radius: 12px;
-    }
-    .tab-btn.is-active::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
+
+    /* フリップ同色の白カード本体 */
+    .content-card {
+        width: 100%;
         background: #ffffff;
-    }
-    .card-body {
+        color: #111111;
+        border: 2px solid #111111;
+        border-radius: 0 0 14px 14px; /* 下側の角丸 */
+        box-shadow:
+            0 8px 0 #1b1b1b,
+            0 20px 48px rgba(0, 0, 0, 0.25);
         padding: 36px 36px 40px;
-        background: #ffffff;
+        position: relative;
+        z-index: 2; /* 非選択タブより手前、選択中タブより奥 */
+    }
+    /* 選択中タブがある側のカード上角丸をタブと揃える */
+    .content-card.active-left {
+        border-top-right-radius: 14px;
+    }
+    .content-card.active-right {
+        border-top-left-radius: 14px;
     }
     h1 {
         color: #111;
@@ -362,14 +356,13 @@ async def terms_of_service():
             <a href="/" class="back-btn">← ゲームトップへ戻る</a>
         </header>
 
-        <main class="content-card">
-            <nav class="card-tabs">
-                <a href="/terms" class="tab-btn is-active">利用規約</a>
-                <a href="/privacy" class="tab-btn">プライバシーポリシー</a>
-            </nav>
+        <nav class="nav-tabs">
+            <a href="/terms" class="tab-btn is-active">利用規約</a>
+            <a href="/privacy" class="tab-btn">プライバシーポリシー</a>
+        </nav>
 
-            <div class="card-body">
-                <h1>利用規約 (Terms of Service)</h1>
+        <main class="content-card active-left">
+            <h1>利用規約 (Terms of Service)</h1>
                 <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
                 <div class="disclaimer-box">
@@ -487,7 +480,6 @@ async def terms_of_service():
                     <strong>Minor Policy:</strong> Minors must obtain parental or legal guardian consent prior to playing.<br>
                     <strong>No Warranty:</strong> The service and AI-generated outputs are provided "AS IS" for entertainment only.</p>
                 </div>
-            </div>
         </main>
 
         <footer class="footer">
@@ -519,14 +511,13 @@ async def privacy_policy():
             <a href="/" class="back-btn">← ゲームトップへ戻る</a>
         </header>
 
-        <main class="content-card">
-            <nav class="card-tabs">
-                <a href="/terms" class="tab-btn">利用規約</a>
-                <a href="/privacy" class="tab-btn is-active">プライバシーポリシー</a>
-            </nav>
+        <nav class="nav-tabs">
+            <a href="/terms" class="tab-btn">利用規約</a>
+            <a href="/privacy" class="tab-btn is-active">プライバシーポリシー</a>
+        </nav>
 
-            <div class="card-body">
-                <h1>プライバシーポリシー (Privacy Policy)</h1>
+        <main class="content-card active-right">
+            <h1>プライバシーポリシー (Privacy Policy)</h1>
                 <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
                 <p>AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）は，WebブラウザおよびDiscordアクティビティとして提供する本サービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）におけるユーザーの情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。</p>
@@ -616,7 +607,6 @@ async def privacy_policy():
                     <strong>Children's Privacy:</strong> The service is not directed at children under the age of 13, and does not knowingly collect personal data from them.<br>
                     <strong>Contact:</strong> For privacy inquiries, please contact our support desk via Discord or support email (<a href="mailto:chocoduck.dev@gmail.com" style="color: #1d4ed8; text-decoration: underline;">chocoduck.dev@gmail.com</a>).</p>
                 </div>
-            </div>
         </main>
 
         <footer class="footer">
