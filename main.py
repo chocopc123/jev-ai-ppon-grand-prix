@@ -198,7 +198,9 @@ DOCS_COMMON_STYLE = """
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
+        margin-top: -2px;
         margin-bottom: -2px;
+        border-top: 2px solid #111111;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         z-index: 2;
