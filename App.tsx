@@ -135,7 +135,7 @@ function playIpponVoice() {
   }
 }
 
-const sfx = {
+export const sfx = {
   pingpong() {
     const a = audio();
     const now = a.currentTime;
@@ -335,6 +335,23 @@ const sfx = {
       osc.stop(now + 0.65);
     });
   },
+  unlock() {
+    const a = audio();
+    const now = a.currentTime;
+    // 解禁音: 明るい2音のピコーン（E5 -> B5）
+    [659.25, 987.77].forEach((freq, idx) => {
+      const osc = a.createOscillator();
+      const gain = a.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+      gain.gain.setValueAtTime(0.001, now + idx * 0.1);
+      gain.gain.linearRampToValueAtTime(0.18, now + idx * 0.1 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.35);
+      osc.connect(gain).connect(a.destination);
+      osc.start(now + idx * 0.1);
+      osc.stop(now + idx * 0.1 + 0.35);
+    });
+  },
 };
 
 // ============================================================================
@@ -371,7 +388,7 @@ export function DefaultArenaFrame({ variant }: DefaultArenaFrameProps) {
           className="defaultArenaFrame__inner"
         />
       </svg>
-      <div className="defaultArenaFrame__brand">OOGIRI GRAND PRIX</div>
+      <div className="defaultArenaFrame__brand">AI-PPON GRAND PRIX</div>
     </div>
   );
 }
@@ -478,13 +495,44 @@ export default function App() {
   const feedKey = useRef(0);
   const judgingRef = useRef<JudgingState | null>(null);
   const pendingPlayersRef = useRef<Player[] | null>(null);
+  const pendingThemeStartedRef = useRef<any | null>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // 隠しTTSナレーション要素: ロゴ5回連続タップでアンロック
+  const [ttsUnlocked, setTtsUnlocked] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("ai_ppon_tts_unlocked") === "true";
+  });
+  const [roomTtsEnabled, setRoomTtsEnabled] = useState<boolean>(false);
+  const logoClickTimesRef = useRef<number[]>([]);
+
+  const handleLogoClick = () => {
+    const now = Date.now();
+    // 直近2秒以内のクリックのみ保持
+    const recent = [...logoClickTimesRef.current.filter((t) => now - t < 2000), now];
+    logoClickTimesRef.current = recent;
+
+    if (recent.length >= 5) {
+      logoClickTimesRef.current = [];
+      const newState = !ttsUnlocked;
+      setTtsUnlocked(newState);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("ai_ppon_tts_unlocked", String(newState));
+      }
+      if (newState) {
+        sfx.unlock();
+        showToast("🎙️ NARRATION MODE UNLOCKED! (ナレーション解禁)");
+      } else {
+        showToast("🎙️ ナレーションモードを解除しました");
+      }
+    }
+  };
 
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => {
       setToast((cur) => (cur === msg ? null : cur));
-    }, 2500);
+    }, 3000);
   };
 
   const copyRoomUrl = async (rId?: string) => {
@@ -518,7 +566,10 @@ export default function App() {
     }
   };
 
-  const speakTheme = async (textToSpeak?: string) => {
+  const speakTheme = async (textToSpeak?: string, isTtsActive: boolean = false) => {
+    // 部屋でTTSが有効化されていない場合は一切APIリクエストを投げない
+    if (!isTtsActive && !roomTtsEnabled) return;
+
     const targetText = (textToSpeak ?? theme).trim();
     if (!targetText) return;
 
@@ -603,6 +654,28 @@ export default function App() {
     return 80; // 電光石火: 80ms間隔でタタタタッと点灯
   }
 
+  const applyThemeStarted = (m: any) => {
+    setRoomPhase("theme");
+    setStageMode("theme");
+    judgingRef.current = null;
+    pendingPlayersRef.current = null;
+    pendingThemeStartedRef.current = null;
+    setJudging(null);
+    setIsTimerPaused(false);
+    setTheme(m.theme);
+    setQuestionNumber(m.question_number ?? 1);
+    setPlayers(m.players);
+    deadlineRef.current = m.deadline_epoch;
+    setDeadline(m.deadline_epoch);
+    if (m.tts_enabled !== undefined) {
+      setRoomTtsEnabled(Boolean(m.tts_enabled));
+    }
+    pushFeed(`お題: ${m.theme}`, "info");
+    if (m.theme && (m.tts_enabled || roomTtsEnabled)) {
+      speakTheme(m.theme, true);
+    }
+  };
+
   async function runJudgmentAnimation(judgement: JudgingState) {
     let scoreSoFar = 0;
 
@@ -628,27 +701,34 @@ export default function App() {
         sfx.frameStep(currentScore);
 
         // 10本目に達した瞬間に即座にIPPON表示・ファンファーレを発動
-        if (currentScore === 10 && judgement.isIppon) {
+        if (currentScore === 10) {
           sfx.fanfare();
-          pushFeed(`★ IPPON! ${judgement.player} 「${judgement.answer}」`, "ippon");
-          judgingRef.current = { ...judgement, litFrames: 10, done: true };
+          pushFeed(`💥 ${judgement.player} IPPON獲得!! 「${judgement.answer}」`, "ippon");
           setJudging((prev) => {
             if (!prev || prev.player !== judgement.player) return prev;
-            return { ...prev, litFrames: 10, done: true };
+            return { ...prev, isIppon: true, done: true };
           });
-          // IPPON演出が出た直後に、保留されていたプレイヤー得点更新があれば反映
-          if (pendingPlayersRef.current) {
-            setPlayers(pendingPlayersRef.current);
-            pendingPlayersRef.current = null;
-          }
-          return;
+          break;
         }
 
         await wait(getFrameDelay(currentScore));
       }
+
+      if (scoreSoFar === 10) break;
     }
 
-    await wait(450);
+    if (scoreSoFar === 10) {
+      await wait(2600);
+      setStageMode((current) => (current === "answerShown" ? "theme" : current));
+      judgingRef.current = null;
+      setJudging((prev) => (prev?.player === judgement.player ? null : prev));
+      if (pendingThemeStartedRef.current) {
+        const nextThemeMsg = pendingThemeStartedRef.current;
+        pendingThemeStartedRef.current = null;
+        applyThemeStarted(nextThemeMsg);
+      }
+      return;
+    }
 
     // 10点未満（不成立）の場合の結果処理
     sfx.shakin();
@@ -672,6 +752,11 @@ export default function App() {
     setStageMode((current) => (current === "answerShown" ? "theme" : current));
     judgingRef.current = null;
     setJudging((prev) => (prev?.player === judgement.player ? null : prev));
+    if (pendingThemeStartedRef.current) {
+      const nextThemeMsg = pendingThemeStartedRef.current;
+      pendingThemeStartedRef.current = null;
+      applyThemeStarted(nextThemeMsg);
+    }
   }
 
   const connect = (targetRoomId?: string, targetName?: string, targetPid?: string) => {
@@ -685,7 +770,10 @@ export default function App() {
 
     const pidToUse = targetPid || myPlayerId || localStorage.getItem("oogiri_player_id");
     const proto = location.protocol === "https:" ? "wss" : "ws";
-    const queryParam = pidToUse ? `?player_id=${encodeURIComponent(pidToUse)}` : "";
+    const queryParts = [];
+    if (pidToUse) queryParts.push(`player_id=${encodeURIComponent(pidToUse)}`);
+    if (ttsUnlocked) queryParts.push(`enable_tts=true`);
+    const queryParam = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
     const ws = new WebSocket(`${proto}://${location.host}/ws/${encodeURIComponent(rId)}/${encodeURIComponent(pName)}${queryParam}`);
     wsRef.current = ws;
 
@@ -700,6 +788,9 @@ export default function App() {
           localStorage.setItem("oogiri_player_id", m.player_id);
           localStorage.setItem("oogiri_player_name", pName);
           setPlayers(m.players);
+          if (m.tts_enabled !== undefined) {
+            setRoomTtsEnabled(Boolean(m.tts_enabled));
+          }
           if (m.theme) setTheme(m.theme);
           if (m.question_number) setQuestionNumber(m.question_number);
           if (m.is_timer_paused !== undefined) {
@@ -716,8 +807,12 @@ export default function App() {
         case "PLAYER_JOINED":
         case "PLAYER_LEFT":
           setPlayers(m.players);
+          if (m.tts_enabled !== undefined) {
+            setRoomTtsEnabled(Boolean(m.tts_enabled));
+          }
           break;
         case "WAITING_LOBBY":
+          pendingThemeStartedRef.current = null;
           setRoomPhase("waiting");
           setPlayers(m.players);
           setTheme("");
@@ -735,20 +830,11 @@ export default function App() {
           }
           break;
         case "THEME_STARTED":
-          setRoomPhase("theme");
-          setStageMode("theme");
-          judgingRef.current = null;
-          pendingPlayersRef.current = null;
-          setJudging(null);
-          setIsTimerPaused(false);
-          setTheme(m.theme);
-          setQuestionNumber(m.question_number ?? 1);
-          setPlayers(m.players);
-          deadlineRef.current = m.deadline_epoch;
-          setDeadline(m.deadline_epoch);
-          pushFeed(`お題: ${m.theme}`, "info");
-          if (m.theme) {
-            speakTheme(m.theme);
+          if (judgingRef.current) {
+            // 採点アニメーション中またはIPPON余韻中は、演出完了まで次のお題への移行を保留する
+            pendingThemeStartedRef.current = m;
+          } else {
+            applyThemeStarted(m);
           }
           break;
         case "TIMER_PAUSED":
@@ -771,7 +857,9 @@ export default function App() {
           pushFeed("▶ タイマーが再開されました", "info");
           break;
         case "THEME_ENDED":
-          stopSpeaking();
+          if (!judgingRef.current) {
+            stopSpeaking();
+          }
           if (m.reason && !m.reason.includes("IPPON")) {
             pushFeed(`(${m.reason})`, "info");
           }
@@ -892,14 +980,20 @@ export default function App() {
     return (
       <div className="join-container">
         <div className="join-inner">
-          {/* 画像の色合い・質感を完全再現したベクタータイトルロゴ */}
-          <div className="join-logo-wrapper" aria-label="OOGIRI GRAND PRIX">
+          {/* 画像の色合い・質感を完全再現したベクタータイトルロゴ (5回連続タップでナレーション解禁) */}
+          <div
+            className="join-logo-wrapper"
+            aria-label="AI-PPON GRAND PRIX"
+            onClick={handleLogoClick}
+            style={{ cursor: "pointer", userSelect: "none" }}
+            title="AI-PPON GRAND PRIX"
+          >
             <svg
               className="join-logo-svg"
               viewBox="0 0 520 250"
               xmlns="http://www.w3.org/2000/svg"
               role="img"
-              aria-label="OOGIRI GRAND PRIX"
+              aria-label="AI-PPON GRAND PRIX"
             >
               <defs>
                 <linearGradient id="chromeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -941,20 +1035,22 @@ export default function App() {
               </defs>
 
               <g filter="url(#logoShadow)">
-                {/* === 1. 極太ブラック「OOGIRI」 === */}
+                {/* === 1. 極太ブラック「AI-PPON」 === */}
                 <text
-                  x="4"
+                  x="8"
                   y="125"
                   fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
-                  fontSize="136"
+                  fontSize="122"
                   fontWeight="900"
-                  letterSpacing="2"
+                  letterSpacing="1"
+                  textLength="504"
+                  lengthAdjust="spacingAndGlyphs"
                   fill="#000000"
                 >
-                  OOGIRI
+                  AI-PPON
                 </text>
 
-                {/* === 3. 極太ブラック「GRAND PRIX」 === */}
+                {/* === 2. 極太ブラック「GRAND PRIX」 === */}
                 <text
                   x="8"
                   y="184"
@@ -989,6 +1085,30 @@ export default function App() {
               </g>
             </svg>
           </div>
+
+          {/* 隠しアンロック状態のインジケーター */}
+          {ttsUnlocked && (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                background: "linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2))",
+                border: "1px solid #ffd700",
+                padding: "4px 12px",
+                borderRadius: "20px",
+                color: "#ffd700",
+                fontSize: "12px",
+                fontWeight: "900",
+                letterSpacing: "1px",
+                boxShadow: "0 0 10px rgba(255, 215, 0, 0.3)",
+                marginTop: "-10px",
+                marginBottom: "4px",
+              }}
+            >
+              <span>🎙️ NARRATION MODE (AI-TTS) ACTIVE</span>
+            </div>
+          )}
 
           {/* 漆黒×クローム光沢のエントリーコンソール */}
           <div className="join-card">
@@ -1076,6 +1196,27 @@ export default function App() {
 
             <div className="join-card-footer">
               <span className="join-footer-hint">URLを共有すると同じ部屋に対戦相手を招待できます</span>
+              {(import.meta.env.DEV || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) && (
+                <div style={{ marginTop: "12px", textAlign: "center" }}>
+                  <a
+                    href="/devtool"
+                    style={{
+                      fontSize: "12px",
+                      color: "#ffd200",
+                      textDecoration: "none",
+                      background: "rgba(255, 210, 0, 0.1)",
+                      border: "1px solid rgba(255, 210, 0, 0.3)",
+                      padding: "4px 10px",
+                      borderRadius: "12px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px"
+                    }}
+                  >
+                    🛠️ 演出デバッグツール (DevTool) を開く
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1101,6 +1242,22 @@ export default function App() {
             <div className="waiting-badge">
               <span className="waiting-pulse-dot" />
               <span>ENTRY OPEN</span>
+              {roomTtsEnabled && (
+                <span
+                  style={{
+                    marginLeft: "8px",
+                    background: "rgba(255, 215, 0, 0.2)",
+                    color: "#ffd700",
+                    border: "1px solid #ffd700",
+                    padding: "2px 8px",
+                    borderRadius: "10px",
+                    fontSize: "10px",
+                    fontWeight: "900",
+                  }}
+                >
+                  🎙️ AI NARRATION ON
+                </span>
+              )}
             </div>
             <h1 className="waiting-title">参加者を待っています</h1>
             <p className="waiting-desc">参加メンバーが集まったら「ゲームを開始する」を押してください。</p>
@@ -1161,6 +1318,19 @@ export default function App() {
                 <div className="themeStage__hud">
                   <div className="themeStage__roundBadge" aria-label={`第${questionNumber}問`}>
                     第 {questionNumber} 問
+                    {roomTtsEnabled && (
+                      <span
+                        style={{
+                          marginLeft: "6px",
+                          fontSize: "11px",
+                          color: "#ffd700",
+                          verticalAlign: "middle",
+                        }}
+                        title="AIナレーション有効"
+                      >
+                        🎙️
+                      </span>
+                    )}
                   </div>
 
                   <div className="themeStage__controls">

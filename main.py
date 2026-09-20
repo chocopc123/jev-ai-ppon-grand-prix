@@ -36,7 +36,7 @@ def log_answer(room_id: str, theme: str, player: str, answer: str, gatekeep_ok: 
         print(f"[{now}] [ROOM: {room_id}] [{ippon_mark}] プレイヤー: {player} | お題: {theme} | 回答: 「{answer}」")
 
 
-app = FastAPI(title="OOGIRI GRAND PRIX Web")
+app = FastAPI(title="AI-PPON GRAND PRIX Web")
 
 @app.get("/api/tts/theme")
 async def get_theme_audio(text: str, voice: str = "Algieba"):
@@ -74,6 +74,7 @@ class Room:
         self.paused_remaining = 0.0
         self.next_theme_buffer: str | None = None
         self._pregen_task: asyncio.Task | None = None
+        self.tts_enabled: bool = False       # 隠しコマンド有効化フラグ (部屋単位)
 
     # ---------------- 基礎 ----------------
 
@@ -117,13 +118,16 @@ class Room:
         return THEMES[self._order[self.theme_index]]
 
     async def _pregenerate_next_theme_and_audio(self):
-        """次のお題のテキストとGemini TTS音声をバックグラウンドで完全事前生成して待機させる。"""
+        """次のお題のテキスト（およびTTS解禁時のみ音声）をバックグラウンドで事前生成して待機させる。"""
         try:
             next_t = await self._resolve_theme()
             self.next_theme_buffer = next_t
-            print(f"[PREGEN] Next theme prepared: 「{next_t}」. Starting TTS generation...")
-            await generate_theme_audio(next_t)
-            print(f"[PREGEN] Next theme TTS completely ready in cache for: 「{next_t}」")
+            if self.tts_enabled:
+                print(f"[PREGEN] Next theme prepared: 「{next_t}」. Starting TTS generation...")
+                await generate_theme_audio(next_t)
+                print(f"[PREGEN] Next theme TTS completely ready in cache for: 「{next_t}」")
+            else:
+                print(f"[PREGEN] Next theme prepared: 「{next_t}」 (TTS disabled, saving API quota)")
         except Exception as e:
             print(f"[PREGEN] Failed to pregenerate next theme or audio: {e}")
 
@@ -140,11 +144,13 @@ class Room:
         if self.next_theme_buffer:
             self.theme = self.next_theme_buffer
             self.next_theme_buffer = None
-            print(f"[THEME] Using pregenerated theme & audio: 「{self.theme}」")
+            print(f"[THEME] Using pregenerated theme: 「{self.theme}」 (TTS enabled: {self.tts_enabled})")
+            if self.tts_enabled:
+                asyncio.create_task(generate_theme_audio(self.theme))
         else:
             # 初回などバッファがない場合は即座に生成
             self.theme = await self._resolve_theme()
-            if self.theme:
+            if self.theme and self.tts_enabled:
                 asyncio.create_task(generate_theme_audio(self.theme))
 
         self.recent_themes.append(self.theme)
@@ -166,6 +172,7 @@ class Room:
             "deadline_epoch": self.deadline,
             "is_timer_paused": False,
             "players": self.roster(),
+            "tts_enabled": self.tts_enabled,
         })
         if not self.ticker_started:
             self.ticker_started = True
@@ -181,29 +188,43 @@ class Room:
         self.broadcast({"type": "THEME_ENDED", "reason": reason})
         self.start_theme()
 
+    def pause_timer(self, silent: bool = False):
+        if self.phase != "theme" or self.is_timer_paused:
+            return
+        self.is_timer_paused = True
+        now = time.time()
+        if self.deadline and self.deadline > now:
+            self.paused_remaining = max(0.0, self.deadline - now)
+        else:
+            self.paused_remaining = 0.0
+        self.deadline = None
+        self.broadcast({
+            "type": "TIMER_PAUSED",
+            "remaining": int(self.paused_remaining),
+            "silent": silent,
+        })
+
+    def resume_timer(self, silent: bool = False):
+        if self.phase != "theme" or not self.is_timer_paused:
+            return
+        if self.paused_remaining <= 0.0:
+            return
+        self.is_timer_paused = False
+        self.deadline = time.time() + self.paused_remaining
+        self.broadcast({
+            "type": "TIMER_RESUMED",
+            "deadline_epoch": self.deadline,
+            "remaining": int(self.paused_remaining),
+            "silent": silent,
+        })
+
     def toggle_timer(self):
         if self.phase != "theme":
             return
         if not self.is_timer_paused:
-            self.is_timer_paused = True
-            now = time.time()
-            if self.deadline and self.deadline > now:
-                self.paused_remaining = max(0.0, self.deadline - now)
-            else:
-                self.paused_remaining = 0.0
-            self.deadline = None
-            self.broadcast({
-                "type": "TIMER_PAUSED",
-                "remaining": int(self.paused_remaining),
-            })
+            self.pause_timer(silent=False)
         else:
-            self.is_timer_paused = False
-            self.deadline = time.time() + self.paused_remaining
-            self.broadcast({
-                "type": "TIMER_RESUMED",
-                "deadline_epoch": self.deadline,
-                "remaining": int(self.paused_remaining),
-            })
+            self.resume_timer(silent=False)
 
     def reset_to_waiting(self):
         for p in self.players.values():
@@ -276,6 +297,11 @@ class Room:
                     continue
                 name = self.players[pid]["name"]
 
+                # 回答審査中のタイマー一時停止（動作中だった場合のみ後で再開）
+                was_timer_running = not self.is_timer_paused
+                if was_timer_running:
+                    self.pause_timer(silent=True)
+
                 try:
                     # 1) 解答発表 (クライアントでピンポン音)
                     self.broadcast({"type": "ANSWER_REVEALED", "player": name, "answer": answer})
@@ -288,7 +314,9 @@ class Room:
                             "type": "GATEKEEP_REJECTED",
                             "player": name, "answer": answer, "reason": reason,
                         })
-                        if not self.is_timer_paused and self.deadline and time.time() >= self.deadline and not self.queue:
+                        if was_timer_running and self.paused_remaining > 0:
+                            self.resume_timer(silent=True)
+                        elif self.paused_remaining <= 0 and not self.queue:
                             await asyncio.sleep(1.2)
                             self.next_theme("時間切れ")
                             return
@@ -312,19 +340,22 @@ class Room:
                     })
 
                     # 演出時間ぶん待ってから状態更新
-                    # クライアント側アニメーション所要時間 (案2: 電光石火仕様):
+                    # クライアント側アニメーション所要時間:
                     # - 準備待ち: 350ms (フリップ前) + 50ms (フリップ後) = 400ms
+                    # - 回答読み上げ待ち (Web Speech API rate 0.92): 1文字約0.2秒、最低2.0秒、最大7.0秒 + 読み上げ後の間 300ms
                     # - 各項目ディレイ: sum(delay_ms)
                     # - 各点灯ディレイ: total * 80ms
                     # - IPPON時: 10点目で即座にファンファーレ発動するため +2.6秒待機
-                    # - 不成立時: 終了ウェイト(300ms) + 結果確認(2.6秒)
+                    # - 不成立時: 終了ウェイト(450ms) + 結果確認(2.6秒)
+                    speak_wait_sec = max(2.0, min(7.0, len(answer) * 0.2)) + 0.3
                     anim_ms = sum(s["delay_ms"] for s in result["timeline"])
                     total = result["total"]
                     step_ms = total * 80
+                    base_wait = speak_wait_sec + (anim_ms + 400 + step_ms) / 1000
                     if result["is_ippon"]:
-                        await asyncio.sleep((anim_ms + 400 + step_ms) / 1000 + 2.6)
+                        await asyncio.sleep(base_wait + 2.6)
                     else:
-                        miss_wait = (anim_ms + 400 + step_ms + 300) / 1000 + 2.6
+                        miss_wait = base_wait + 0.45 + 2.6
                         await asyncio.sleep(miss_wait)
 
                     # 5) 結果処理
@@ -339,9 +370,16 @@ class Room:
                             self.phase = "match_win"
                             self.broadcast({"type": "MATCH_WIN", "winner": name, "players": self.roster()})
                             return
-                        await asyncio.sleep(2.5)
-                        self.next_theme(f"{name} のIPPON! 次のお題へ")
-                        return
+
+                        # 時間が残っていればお題は切り替えずにタイマー再開
+                        if self.paused_remaining > 0:
+                            if was_timer_running:
+                                self.resume_timer(silent=True)
+                        else:
+                            await asyncio.sleep(1.0)
+                            if not self.queue:
+                                self.next_theme("時間切れ")
+                                return
                     else:
                         self.broadcast({
                             "type": "ROUND_RESULT",
@@ -350,14 +388,18 @@ class Room:
                             "failed": result["failed"],
                             "players": self.roster(),
                         })
-                        # 判定中にタイマーが時間切れになっていた場合、結果演出を見届けてから次のお題へ
-                        if not self.is_timer_paused and self.deadline and time.time() >= self.deadline:
-                            await asyncio.sleep(2.5)
+                        if self.paused_remaining > 0:
+                            if was_timer_running:
+                                self.resume_timer(silent=True)
+                        else:
+                            await asyncio.sleep(1.0)
                             if not self.queue:
                                 self.next_theme("時間切れ")
                                 return
                 except Exception as e:
                     print(f"[ERROR] Error processing answer for {name}: {e}")
+                    if was_timer_running and self.paused_remaining > 0:
+                        self.resume_timer(silent=True)
         finally:
             self.draining = False
 
@@ -366,9 +408,23 @@ ROOMS: dict[str, Room] = {}
 
 
 @app.websocket("/ws/{room_id}/{player_name}")
-async def ws_endpoint(ws: WebSocket, room_id: str, player_name: str, player_id: str | None = None):
+async def ws_endpoint(
+    ws: WebSocket,
+    room_id: str,
+    player_name: str,
+    player_id: str | None = None,
+    enable_tts: bool = False,
+):
     await ws.accept()
     room = ROOMS.setdefault(room_id, Room(room_id))
+
+    # 隠しコマンド有効化者が入室または作成した場合、その部屋全体でTTSを有効化
+    if enable_tts and not room.tts_enabled:
+        room.tts_enabled = True
+        print(f"[ROOM {room_id}] 🎙️ TTS (Narration Mode) UNLOCKED by player {player_name}!")
+        # もし事前生成がまだ未着手またはTTSなしで生成されていた場合はTTS付きで再スケジュール
+        if room.phase == "waiting" and (not room._pregen_task or room._pregen_task.done()):
+            room.schedule_next_pregeneration()
 
     # player_id が渡され、かつ既存のプレイヤー一覧にあればセッション復帰
     pid = player_id if (player_id and player_id in room.players) else (player_id or uuid.uuid4().hex[:8])
@@ -404,8 +460,13 @@ async def ws_endpoint(ws: WebSocket, room_id: str, player_name: str, player_id: 
         "remaining": int(room.paused_remaining) if room.is_timer_paused else None,
         "players": room.roster(),
         "target_ippon": TARGET_IPPON,
+        "tts_enabled": room.tts_enabled,
     })
-    room.broadcast({"type": "PLAYER_JOINED", "players": room.roster()})
+    room.broadcast({
+        "type": "PLAYER_JOINED",
+        "players": room.roster(),
+        "tts_enabled": room.tts_enabled,
+    })
     if room.phase == "waiting" and not room.next_theme_buffer and (not room._pregen_task or room._pregen_task.done()):
         room.schedule_next_pregeneration()
 

@@ -494,11 +494,13 @@ async def generate_theme(recent_themes: list[str] | None = None) -> str | None:
 # お題音声読み上げ (Gemini 3.1 Flash TTS Preview - 低い男性ボイス)
 # ============================================================================
 
-TTS_MODEL = "gemini-3.1-flash-tts-preview"
+TTS_PRIMARY_MODEL = "gemini-3.1-flash-tts-preview"
+TTS_FALLBACK_MODELS = ["gemini-2.5-flash-preview-tts", "gemini-2.5-flash-tts"]
 TTS_CACHE: dict[str, bytes] = {}
 
 async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> bytes | None:
     """Gemini 3.1 Flash TTS Preview API を使用して、お題テキストから低い男性の声のWAV音声を生成する。
+    3.1 Flash TTSが制限(429等)やエラーになった場合は、自動的に 2.5 Flash TTS へフォールバックする。
     voice_name: 'Algieba' 等
     """
     clean_text = theme_text.strip()
@@ -515,69 +517,77 @@ async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> 
         return None
 
     prompt = (
-        "あなたは大喜利グランプリ（OOGIRI GRAND PRIX）のナレーターです。\n"
+        "あなたはAI-PPON GRAND PRIX（AI-PPON グランプリ）のナレーターです。\n"
         "低く落ち着きのある重厚な男性の声で、次の大喜利のお題をはっきりと威厳を持って読み上げてください：\n"
         f"「{clean_text}」"
     )
 
-    url = f"{GEMINI_API_BASE_URL}/models/{TTS_MODEL}:generateContent?key={api_key}"
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "responseModalities": ["AUDIO"],
-            "speechConfig": {
-                "voiceConfig": {
-                    "prebuiltVoiceConfig": {
-                        "voiceName": voice_name
+    candidate_models = [TTS_PRIMARY_MODEL, *TTS_FALLBACK_MODELS]
+
+    for model_name in candidate_models:
+        url = f"{GEMINI_API_BASE_URL}/models/{model_name}:generateContent?key={api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "responseModalities": ["AUDIO"],
+                "speechConfig": {
+                    "voiceConfig": {
+                        "prebuiltVoiceConfig": {
+                            "voiceName": voice_name
+                        }
                     }
                 }
             }
         }
-    }
 
-    try:
-        import base64
-        import io
-        import wave
+        try:
+            import base64
+            import io
+            import wave
 
-        async with httpx.AsyncClient(timeout=25) as client:
-            r = await client.post(url, json=payload)
-            if r.status_code == 200:
-                data = r.json()
-                candidates = data.get("candidates", [])
-                if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    for part in parts:
-                        inline_data = part.get("inlineData", {})
-                        raw_b64 = inline_data.get("data")
-                        mime_type = inline_data.get("mimeType", "")
-                        if raw_b64:
-                            pcm_data = base64.b64decode(raw_b64)
-                            # audio/l16; rate=24000; channels=1 を WAVコンテナにラップ
-                            rate = 24000
-                            if "rate=" in mime_type:
-                                try:
-                                    rate_str = mime_type.split("rate=")[1].split(";")[0].strip()
-                                    rate = int(rate_str)
-                                except Exception:
-                                    pass
+            async with httpx.AsyncClient(timeout=25) as client:
+                r = await client.post(url, json=payload)
+                if r.status_code == 200:
+                    data = r.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        for part in parts:
+                            inline_data = part.get("inlineData", {})
+                            raw_b64 = inline_data.get("data")
+                            mime_type = inline_data.get("mimeType", "")
+                            if raw_b64:
+                                pcm_data = base64.b64decode(raw_b64)
+                                # audio/l16; rate=24000; channels=1 を WAVコンテナにラップ
+                                rate = 24000
+                                if "rate=" in mime_type:
+                                    try:
+                                        rate_str = mime_type.split("rate=")[1].split(";")[0].strip()
+                                        rate = int(rate_str)
+                                    except Exception:
+                                        pass
 
-                            buf = io.BytesIO()
-                            with wave.open(buf, "wb") as wav_file:
-                                wav_file.setnchannels(1)
-                                wav_file.setsampwidth(2)
-                                wav_file.setframerate(rate)
-                                wav_file.writeframes(pcm_data)
+                                buf = io.BytesIO()
+                                with wave.open(buf, "wb") as wav_file:
+                                    wav_file.setnchannels(1)
+                                    wav_file.setsampwidth(2)
+                                    wav_file.setframerate(rate)
+                                    wav_file.writeframes(pcm_data)
 
-                            wav_bytes = buf.getvalue()
-                            TTS_CACHE[cache_key] = wav_bytes
-                            print(f"[TTS] Successfully generated WAV audio for theme ({len(wav_bytes)} bytes)")
-                            return wav_bytes
-            else:
-                print(f"[WARN] Gemini TTS API returned status {r.status_code}: {r.text}")
-    except Exception as e:
-        print(f"[ERROR] Gemini TTS API request failed: {e}")
+                                wav_bytes = buf.getvalue()
+                                TTS_CACHE[cache_key] = wav_bytes
+                                print(f"[TTS] Successfully generated WAV audio for theme via {model_name} ({len(wav_bytes)} bytes)")
+                                return wav_bytes
+                elif r.status_code in (429, 503, 500, 404):
+                    print(f"[TTS-FALLBACK] Model {model_name} hit rate-limit or error (HTTP {r.status_code}). Trying next fallback model...")
+                    continue
+                else:
+                    print(f"[WARN] Gemini TTS API returned status {r.status_code} for model {model_name}: {r.text}")
+        except Exception as e:
+            print(f"[TTS-FALLBACK] Gemini TTS request failed for {model_name}: {e}. Trying fallback...")
+            continue
 
+    print("[ERROR] All Gemini TTS models (3.1 and 2.5 fallbacks) failed to generate audio.")
     return None
 
 

@@ -1,6 +1,6 @@
-# OOGIRI GRAND PRIX Web — Jev × 大喜利マルチ対戦
+# AI-PPON GRAND PRIX Web — Jev × 大喜利マルチ対戦
 
-TypeSafe の Jev (System One モデル) を OpenRouter 経由で使った、大喜利グランプリ（OOGIRI GRAND PRIX）風マルチ対戦 Web アプリケーション。
+TypeSafe の Jev (System One モデル) を OpenRouter 経由で使った、大喜利グランプリ（AI-PPON GRAND PRIX）風マルチ対戦 Web アプリケーション。
 
 ## 特徴 (Jev の強みを生かした設計)
 
