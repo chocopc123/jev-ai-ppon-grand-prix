@@ -182,7 +182,7 @@ DOCS_COMMON_STYLE = """
         border-top: 2px solid #111111;
         border-left: 2px solid #111111;
         border-right: 2px solid #111111;
-        border-bottom: 2px solid #111111;
+        border-bottom: none; /* 下ボーダーはカードの上枠線を利用するため一切はみ出さない */
         position: relative;
         transition: all 0.15s ease;
     }
@@ -197,26 +197,29 @@ DOCS_COMMON_STYLE = """
         background: #edebe2;
         color: #111111;
     }
-    /* 選択中: カードと完全に一体化（border-bottomを完全除去し、左右の縦線をカード枠線とシームレスに直結） */
+    /* 選択中: カードと一体化（白いオーバーレイでカードの上枠線だけを完全に覆い隠す） */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
-        border-bottom: none;
-        padding-bottom: 16px; /* 2px分カードに被せる */
-        margin-bottom: -2px;
-        z-index: 4;
+        z-index: 5;
     }
-    /* フリップ同色の白カード（タブと完全直結） */
+    .tab-btn.is-active::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: #ffffff; /* カードの上枠線だけを純白で上書きして一体化 */
+    }
+    /* フリップ同色の白カード */
     .content-card {
         width: 100%;
         position: relative;
         z-index: 1;
         background: #ffffff;
         color: #111111;
-        border-left: 2px solid #111111;
-        border-right: 2px solid #111111;
-        border-bottom: 2px solid #111111;
-        border-top: none; /* 上枠線はタブ側が担うため隙間・途切れが一切起きない */
+        border: 2px solid #111111;
         border-radius: 0 0 12px 12px;
         box-shadow:
             0 8px 0 #1b1b1b,
