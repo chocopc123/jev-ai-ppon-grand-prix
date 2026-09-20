@@ -197,10 +197,12 @@ DOCS_COMMON_STYLE = """
         background: #edebe2;
         color: #111111;
     }
-    /* 選択中: カードと一体化（白いオーバーレイでカードの上枠線だけを完全に覆い隠す） */
+    /* 選択中: カードと一体化（左右両角に丸み12px＋白いオーバーレイでカード上枠線を覆い隠す） */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
         z-index: 5;
     }
     .tab-btn.is-active::after {
