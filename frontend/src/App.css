@@ -1553,13 +1553,13 @@ body {
    ========================================================================== */
 @media (max-width: 640px) {
   .themeStage {
-    min-height: 420px;
+    min-height: clamp(240px, 36vh, 440px);
   }
 
   .themeStage__hud {
-    top: 28px;
-    right: 28px;
-    left: 28px;
+    top: 24px;
+    right: 24px;
+    left: 24px;
     align-items: flex-start;
   }
 
@@ -1591,12 +1591,12 @@ body {
   }
 
   .themeStage__question {
-    padding: 110px 48px 84px;
+    padding: 80px 42px 58px;
   }
 
   .themeStage__title {
-    font-size: clamp(25px, 7vw, 39px);
-    line-height: 1.38;
+    font-size: clamp(24px, 7vw, 38px);
+    line-height: 1.35;
   }
 }
 
