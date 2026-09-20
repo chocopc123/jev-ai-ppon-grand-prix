@@ -199,15 +199,15 @@ DOCS_COMMON_STYLE = """
         background: #ffffff;
         color: #111111;
         margin-bottom: -2px;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
         z-index: 2;
     }
     .tab-btn.is-active:first-child {
         border-right: 2px solid #111111;
+        border-top-right-radius: 20px;
     }
     .tab-btn.is-active:last-child {
         border-left: 2px solid #111111;
+        border-top-left-radius: 20px;
     }
     .tab-btn.is-active::after {
         content: "";
