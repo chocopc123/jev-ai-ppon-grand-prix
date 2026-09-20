@@ -161,18 +161,23 @@ DOCS_COMMON_STYLE = """
         transform: translateY(2px);
         box-shadow: 0 2px 0 #111;
     }
-    .nav-tabs {
-        display: flex;
-        gap: 0;
+    /* フリップ同色の白カード（外周全体を完全な1本の黒線で囲む） */
+    .content-card {
         width: 100%;
-        margin-bottom: 0;
+        background: #ffffff;
+        color: #111111;
+        border: 2px solid #111111;
+        border-radius: 14px;
+        box-shadow:
+            0 8px 0 #1b1b1b,
+            0 20px 48px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+    }
+    .card-tabs {
+        display: flex;
+        background: #dedcd3; /* 奥のタブの背景色 */
+        border-bottom: 2px solid #111111;
         position: relative;
-        z-index: 2;
-        padding: 0;
-        background: #e4e2d7; /* 奥のタブの地色 */
-        border-top: 2px solid #111111; /* 奥のタブの天板（黒枠線）を全体に貫通させる */
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
     }
     .tab-btn {
         flex: 1;
@@ -182,51 +187,40 @@ DOCS_COMMON_STYLE = """
         font-weight: 900;
         text-decoration: none;
         color: #71717a;
-        background: transparent; /* nav-tabsの背景色を活かす */
-        border: none;
+        background: #dedcd3;
         position: relative;
-        transition: all 0.15s ease;
+        transition: color 0.15s ease;
     }
     .tab-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
         color: #111111;
     }
-    /* 選択中: 手前に重なる白いフリップタブ（両角丸12px、黒枠線付きで上に乗る） */
+    /* 選択中: カード本文と完全に同化する白タブ（段差・色違い・枠線欠けゼロ） */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
-        border: 2px solid #111111;
-        border-bottom: none;
+        margin-bottom: -2px;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
-        margin-top: -2px; /* nav-tabsの天板の上に覆いかぶさる */
-        margin-left: -2px;
-        margin-right: -2px;
-        z-index: 5;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        z-index: 2;
+    }
+    .tab-btn.is-active:first-child {
+        border-right: 2px solid #111111;
+    }
+    .tab-btn.is-active:last-child {
+        border-left: 2px solid #111111;
     }
     .tab-btn.is-active::after {
         content: "";
         position: absolute;
-        bottom: -2px;
+        bottom: 0;
         left: 0;
         right: 0;
-        height: 4px;
-        background: #ffffff; /* カードの上枠線だけを消して一体化 */
-    }
-    /* フリップ同色の白カード */
-    .content-card {
-        width: 100%;
-        position: relative;
-        z-index: 1;
+        height: 2px;
         background: #ffffff;
-        color: #111111;
-        border: 2px solid #111111;
-        border-radius: 0 0 12px 12px;
-        box-shadow:
-            0 8px 0 #1b1b1b,
-            0 20px 48px rgba(0, 0, 0, 0.25);
-        padding: 40px 36px;
+    }
+    .card-body {
+        padding: 36px 36px 40px;
+        background: #ffffff;
     }
     h1 {
         color: #111;
@@ -368,129 +362,131 @@ async def terms_of_service():
             <a href="/" class="back-btn">← ゲームトップへ戻る</a>
         </header>
 
-        <nav class="nav-tabs">
-            <a href="/terms" class="tab-btn is-active">利用規約</a>
-            <a href="/privacy" class="tab-btn">プライバシーポリシー</a>
-        </nav>
-
         <main class="content-card">
-            <h1>利用規約 (Terms of Service)</h1>
-            <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
+            <nav class="card-tabs">
+                <a href="/terms" class="tab-btn is-active">利用規約</a>
+                <a href="/privacy" class="tab-btn">プライバシーポリシー</a>
+            </nav>
 
-            <div class="disclaimer-box">
-                <p style="margin: 0; font-size: 13.5px; color: #ffd700;"><strong>【非提携に関する明記 / Disclaimer of Affiliation】</strong><br>
-                本サービス「AI-PPON GRAND PRIX」は，独立したファンメイド・インディー開発プロジェクトです。実在する特定のテレビ番組，放送局，芸能事務所，興行団体，または特定の法人・団体等とは一切提携・後援・関係するものではありません。</p>
-            </div>
+            <div class="card-body">
+                <h1>利用規約 (Terms of Service)</h1>
+                <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
-            <p>この利用規約（以下，「本規約」といいます。）は，AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）が提供するサービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）の利用条件を定めるものです。ユーザーの皆さま（以下，「ユーザー」といいます。）には，本規約に従って，本サービスをご利用いただきます。</p>
+                <div class="disclaimer-box">
+                    <p style="margin: 0; font-size: 13.5px; color: #ffd700;"><strong>【非提携に関する明記 / Disclaimer of Affiliation】</strong><br>
+                    本サービス「AI-PPON GRAND PRIX」は，独立したファンメイド・インディー開発プロジェクトです。実在する特定のテレビ番組，放送局，芸能事務所，興行団体，または特定の法人・団体等とは一切提携・後援・関係するものではありません。</p>
+                </div>
 
-            <section>
-                <h2>第1条（適用）</h2>
-                <p>1. 本規約は，ユーザーと当チームとの間の本サービスの利用に関わる一切の関係に適用されるものとします。<br>
-                2. 当チームは本サービスに関し，本規約のほか，ご利用にあたってのルール等，各種の定め（以下，「個別規定」といいます。）をすることがあります。これら個別規定はその名称のいかんに関わらず，本規約の一部を構成するものとします。<br>
-                3. 本規約の規定が個別規定の規定と矛盾する場合には，個別規定において特段の定めなき限り，個別規定の規定が優先されるものとします。<br>
-                4. 本サービスは前掲の通り，特定の既存メディア・番組・企業等とは一切関係のない独自のインディープロジェクトとして提供されます。</p>
+                <p>この利用規約（以下，「本規約」といいます。）は，AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）が提供するサービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）の利用条件を定めるものです。ユーザーの皆さま（以下，「ユーザー」といいます。）には，本規約に従って，本サービスをご利用いただきます。</p>
 
-                <h2>第2条（利用登録・利用開始および未成年者の利用）</h2>
-                <p>1. 本サービスは，Webブラウザ上でのプレイヤー名入力，またはDiscord Embedded App SDK等を通じたアカウント認証により，アカウント登録不要で即座にご利用を開始いただけます。<br>
-                2. 当チームは，ユーザーが以下の事由に該当すると判断した場合，本サービスの利用を承認しない（または遮断する）ことがあり，その理由については一切の開示義務を負わないものとします：</p>
-                <ul>
-                    <li>本規約に違反したことがある者からの利用である場合</li>
-                    <li>Discord経由の利用において，Discordの利用規約またはコミュニティガイドラインに違反している場合</li>
-                    <li>その他，当チームが利用を相当でないと判断した場合</li>
-                </ul>
-                <p>3. <strong>（未成年者による利用）</strong>未成年者のユーザーが本サービスを利用する場合，事前に親権者等の法定代理人の包括的な同意を得た上で利用するものとします。未成年ユーザーが本サービスを利用した場合，法定代理人の同意を得て利用しているものとみなします。</p>
+                <section>
+                    <h2>第1条（適用）</h2>
+                    <p>1. 本規約は，ユーザーと当チームとの間の本サービスの利用に関わる一切の関係に適用されるものとします。<br>
+                    2. 当チームは本サービスに関し，本規約のほか，ご利用にあたってのルール等，各種の定め（以下，「個別規定」といいます。）をすることがあります。これら個別規定はその名称のいかんに関わらず，本規約の一部を構成するものとします。<br>
+                    3. 本規約の規定が個別規定の規定と矛盾する場合には，個別規定において特段の定めなき限り，個別規定の規定が優先されるものとします。<br>
+                    4. 本サービスは前掲の通り，特定の既存メディア・番組・企業等とは一切関係のない独自のインディープロジェクトとして提供されます。</p>
 
-                <h2>第3条（認証情報およびアクセスの管理）</h2>
-                <p>1. ユーザーは，自己の責任において，本サービスへのアクセスに用いる環境（Webブラウザ環境，Discordアカウント等）を適切に管理するものとします。<br>
-                2. ユーザーは，いかなる場合にも，認証情報を第三者に譲渡または貸与し，もしくは第三者と共用することはできません。<br>
-                3. アカウントまたは端末の不正利用等によって生じた損害について，当チームに故意または重大な過失がある場合を除き，当チームは一切の責任を負わないものとします。</p>
+                    <h2>第2条（利用登録・利用開始および未成年者の利用）</h2>
+                    <p>1. 本サービスは，Webブラウザ上でのプレイヤー名入力，またはDiscord Embedded App SDK等を通じたアカウント認証により，アカウント登録不要で即座にご利用を開始いただけます。<br>
+                    2. 当チームは，ユーザーが以下の事由に該当すると判断した場合，本サービスの利用を承認しない（または遮断する）ことがあり，その理由については一切の開示義務を負わないものとします：</p>
+                    <ul>
+                        <li>本規約に違反したことがある者からの利用である場合</li>
+                        <li>Discord経由の利用において，Discordの利用規約またはコミュニティガイドラインに違反している場合</li>
+                        <li>その他，当チームが利用を相当でないと判断した場合</li>
+                    </ul>
+                    <p>3. <strong>（未成年者による利用）</strong>未成年者のユーザーが本サービスを利用する場合，事前に親権者等の法定代理人の包括的な同意を得た上で利用するものとします。未成年ユーザーが本サービスを利用した場合，法定代理人の同意を得て利用しているものとみなします。</p>
 
-                <h2>第4条（利用料金）</h2>
-                <p>1. 本サービスは，Web版およびDiscord版ともに原則として無料でご利用いただけます。<br>
-                2. 将来的に有料機能または追加コンテンツを提供する場合，利用料金および支払方法は本サービス上にて別途告知するものとします。</p>
+                    <h2>第3条（認証情報およびアクセスの管理）</h2>
+                    <p>1. ユーザーは，自己の責任において，本サービスへのアクセスに用いる環境（Webブラウザ環境，Discordアカウント等）を適切に管理するものとします。<br>
+                    2. ユーザーは，いかなる場合にも，認証情報を第三者に譲渡または貸与し，もしくは第三者と共用することはできません。<br>
+                    3. アカウントまたは端末の不正利用等によって生じた損害について，当チームに故意または重大な過失がある場合を除き，当チームは一切の責任を負わないものとします。</p>
 
-                <h2>第5条（禁止事項）</h2>
-                <p>ユーザーは，本サービスの利用にあたり，以下の行為をしてはなりません：</p>
-                <ol>
-                    <li>法令または公序良俗に違反する行為</li>
-                    <li>犯罪行為に関連する行為</li>
-                    <li>Discord経由の利用において，Discordの利用規約またはコミュニティガイドラインに反する行為</li>
-                    <li>他者に対する嫌がらせ，脅迫，中傷，差別的表現，わいせつな表現を含む大喜利回答等の投稿</li>
-                    <li>当チーム，他のユーザー，または第三者のサーバー・ネットワーク・インフラの機能を破壊または妨害する行為</li>
-                    <li>本サービスの運営を妨害するおそれのある行為、または過度なリクエストを送信する行為</li>
-                    <li>不正アクセスをし，またはこれを試みる行為</li>
-                    <li>他のユーザーの個人情報を無断で収集または蓄積する行為</li>
-                    <li>他のユーザーに成りすます行為</li>
-                    <li>当チームが許諾しない本サービス上での宣伝，広告，勧誘，または営業行為</li>
-                    <li>反社会的勢力に対して直接または間接に利益を供与する行為</li>
-                    <li>その他，当チームが不適切と判断する行為</li>
-                </ol>
+                    <h2>第4条（利用料金）</h2>
+                    <p>1. 本サービスは，Web版およびDiscord版ともに原則として無料でご利用いただけます。<br>
+                    2. 将来的に有料機能または追加コンテンツを提供する場合，利用料金および支払方法は本サービス上にて別途告知するものとします。</p>
 
-                <h2>第6条（投稿コンテンツの著作権および利用許諾）</h2>
-                <p>1. ユーザーが本サービス内に入力・投稿した大喜利回答テキスト（以下，「投稿コンテンツ」といいます。）の著作権は，当該ユーザーまたは正当な権利者に留保されます。<br>
-                2. ユーザーは，当チームに対し，投稿コンテンツを本サービス内でのゲーム進行・画面表示，AIによる審査・判定処理，スコアボードおよび演出の表示，ならびに本サービスの運営・改善・広報・プロモーション（公式SNSや紹介動画等での抜粋・紹介を含みます。）に必要な範囲において，全世界で非独占的・無償かつ再許諾可能に利用（複製，公衆送信，上映，翻案等を含みます。）することを許諾するものとします。<br>
-                3. ユーザーは，当チームおよび当チームが許諾した第三者に対し，前項の利用に関して著作者人格権を行使しないものとします。</p>
+                    <h2>第5条（禁止事項）</h2>
+                    <p>ユーザーは，本サービスの利用にあたり，以下の行為をしてはなりません：</p>
+                    <ol>
+                        <li>法令または公序良俗に違反する行為</li>
+                        <li>犯罪行為に関連する行為</li>
+                        <li>Discord経由の利用において，Discordの利用規約またはコミュニティガイドラインに反する行為</li>
+                        <li>他者に対する嫌がらせ，脅迫，中傷，差別的表現，わいせつな表現を含む大喜利回答等の投稿</li>
+                        <li>当チーム，他のユーザー，または第三者のサーバー・ネットワーク・インフラの機能を破壊または妨害する行為</li>
+                        <li>本サービスの運営を妨害するおそれのある行為、または過度なリクエストを送信する行為</li>
+                        <li>不正アクセスをし，またはこれを試みる行為</li>
+                        <li>他のユーザーの個人情報を無断で収集または蓄積する行為</li>
+                        <li>他のユーザーに成りすます行為</li>
+                        <li>当チームが許諾しない本サービス上での宣伝，広告，勧誘，または営業行為</li>
+                        <li>反社会的勢力に対して直接または間接に利益を供与する行為</li>
+                        <li>その他，当チームが不適切と判断する行為</li>
+                    </ol>
 
-                <h2>第7条（プレイ動画配信およびスクリーンショット共有のガイドライン）</h2>
-                <p>1. 当チームは，個人・法人を問わず，YouTube，Twitch，Discord，X（旧Twitter）等の各種配信プラットフォームやSNSにおいて，本サービスのゲーム画面を含むプレイ動画のライブ配信，動画投稿，スクリーンショット等の画像共有を全面的に歓迎・許諾いたします。<br>
-                2. 配信プラットフォームが提供する収益化機能（YouTubeパートナープログラム，投げ銭，広告表示等）を利用した実況配信も可能です。<br>
-                3. 配信および共有にあたっては，以下のルールを遵守してください：</p>
-                <ul>
-                    <li>他者への誹謗中傷や公序良俗に反する意図での利用を行わないこと</li>
-                    <li>当チームまたは第三者の名誉・権利を不当に毀損しないこと</li>
-                    <li>可能であればゲームタイトル「AI-PPON GRAND PRIX」またはURLを併記いただけると幸いです（任意）</li>
-                </ul>
+                    <h2>第6条（投稿コンテンツの著作権および利用許諾）</h2>
+                    <p>1. ユーザーが本サービス内に入力・投稿した大喜利回答テキスト（以下，「投稿コンテンツ」といいます。）の著作権は，当該ユーザーまたは正当な権利者に留保されます。<br>
+                    2. ユーザーは，当チームに対し，投稿コンテンツを本サービス内でのゲーム進行・画面表示，AIによる審査・判定処理，スコアボードおよび演出の表示，ならびに本サービスの運営・改善・広報・プロモーション（公式SNSや紹介動画等での抜粋・紹介を含みます。）に必要な範囲において，全世界で非独占的・無償かつ再許諾可能に利用（複製，公衆送信，上映，翻案等を含みます。）することを許諾するものとします。<br>
+                    3. ユーザーは，当チームおよび当チームが許諾した第三者に対し，前項の利用に関して著作者人格権を行使しないものとします。</p>
 
-                <h2>第8条（本サービスの提供の停止等）</h2>
-                <p>1. 当チームは，以下のいずれかの事由があると判断した場合，ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします：</p>
-                <ul>
-                    <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
-                    <li>地震，落雷，火災，停電または天災などの不可抗力により，本サービスの提供が困難となった場合</li>
-                    <li>コンピュータまたは通信回線，外部AI API等の障害により停止した場合</li>
-                    <li>その他，当チームが本サービスの提供が困難と判断した場合</li>
-                </ul>
-                <p>2. 当チームは，本サービスの提供の停止または中断により，ユーザーまたは第三者が被ったいかなる不利益または損害についても，一切の責任を負わないものとします。</p>
+                    <h2>第7条（プレイ動画配信およびスクリーンショット共有のガイドライン）</h2>
+                    <p>1. 当チームは，個人・法人を問わず，YouTube，Twitch，Discord，X（旧Twitter）等の各種配信プラットフォームやSNSにおいて，本サービスのゲーム画面を含むプレイ動画のライブ配信，動画投稿，スクリーンショット等の画像共有を全面的に歓迎・許諾いたします。<br>
+                    2. 配信プラットフォームが提供する収益化機能（YouTubeパートナープログラム，投げ銭，広告表示等）を利用した実況配信も可能です。<br>
+                    3. 配信および共有にあたっては，以下のルールを遵守してください：</p>
+                    <ul>
+                        <li>他者への誹謗中傷や公序良俗に反する意図での利用を行わないこと</li>
+                        <li>当チームまたは第三者の名誉・権利を不当に毀損しないこと</li>
+                        <li>可能であればゲームタイトル「AI-PPON GRAND PRIX」またはURLを併記いただけると幸いです（任意）</li>
+                    </ul>
 
-                <h2>第9条（利用制限等）</h2>
-                <p>当チームは，ユーザーが本規約のいずれかの条項に違反した場合，または当チームが利用を不適当と判断した場合には，事前の通知なく，当該ユーザーに対する本サービスの全部もしくは一部の利用を制限・遮断することができるものとします。</p>
+                    <h2>第8条（本サービスの提供の停止等）</h2>
+                    <p>1. 当チームは，以下のいずれかの事由があると判断した場合，ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします：</p>
+                    <ul>
+                        <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
+                        <li>地震，落雷，火災，停電または天災などの不可抗力により，本サービスの提供が困難となった場合</li>
+                        <li>コンピュータまたは通信回線，外部AI API等の障害により停止した場合</li>
+                        <li>その他，当チームが本サービスの提供が困難と判断した場合</li>
+                    </ul>
+                    <p>2. 当チームは，本サービスの提供の停止または中断により，ユーザーまたは第三者が被ったいかなる不利益または損害についても，一切の責任を負わないものとします。</p>
 
-                <h2>第10条（利用終了）</h2>
-                <p>ユーザーは，Webブラウザのタブを閉じる，ゲーム内の退出ボタンを押す，またはDiscordクライアント上で本アクティビティを閉じる・連携解除することにより，いつでも自由に本サービスの利用を終了することができます。</p>
+                    <h2>第9条（利用制限等）</h2>
+                    <p>当チームは，ユーザーが本規約のいずれかの条項に違反した場合，または当チームが利用を不適当と判断した場合には，事前の通知なく，当該ユーザーに対する本サービスの全部もしくは一部の利用を制限・遮断することができるものとします。</p>
 
-                <h2>第11条（保証の否認および免責事項）</h2>
-                <p>1. 当チームは，本サービスに事実上または法律上の瑕疵（安全性，信頼性，正確性，完全性，有効性，特定の目的への適合性，セキュリティなどに関する欠陥，エラーやバグ，権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。<br>
-                2. 本サービス内でAI（人工知能）により生成・判定されるお題，音声，判定結果（一本等のユーモア評価）は娯楽目的のみで提供され，その正確性や妥当性を保証するものではありません。<br>
-                3. 当チームは，本サービスに起因してユーザーに生じたあらゆる損害について，当チームの故意または重過失による場合を除き，一切の責任を負いません。<br>
-                4. 当チームは，本サービスに関して，ユーザーと他のユーザーまたは第三者との間において生じた取引，連絡または紛争等について一切責任を負いません。</p>
+                    <h2>第10条（利用終了）</h2>
+                    <p>ユーザーは，Webブラウザのタブを閉じる，ゲーム内の退出ボタンを押す，またはDiscordクライアント上で本アクティビティを閉じる・連携解除することにより，いつでも自由に本サービスの利用を終了することができます。</p>
 
-                <h2>第12条（サービス内容の変更等）</h2>
-                <p>当チームは，ユーザーへの事前の告知または本ウェブサイト上への掲載をもって，本サービスの内容を変更，追加または廃止することがあり，ユーザーはこれを承諾するものとします。</p>
+                    <h2>第11条（保証の否認および免責事項）</h2>
+                    <p>1. 当チームは，本サービスに事実上または法律上の瑕疵（安全性，信頼性，正確性，完全性，有効性，特定の目的への適合性，セキュリティなどに関する欠陥，エラーやバグ，権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。<br>
+                    2. 本サービス内でAI（人工知能）により生成・判定されるお題，音声，判定結果（一本等のユーモア評価）は娯楽目的のみで提供され，その正確性や妥当性を保証するものではありません。<br>
+                    3. 当チームは，本サービスに起因してユーザーに生じたあらゆる損害について，当チームの故意または重過失による場合を除き，一切の責任を負いません。<br>
+                    4. 当チームは，本サービスに関して，ユーザーと他のユーザーまたは第三者との間において生じた取引，連絡または紛争等について一切責任を負いません。</p>
 
-                <h2>第13条（利用規約の変更）</h2>
-                <p>当チームは，必要と判断した場合には，ユーザーへの個別の事前承諾を得ることなく，本ウェブサイト上に変更後の規約を掲示することにより本規約を変更できるものとします。変更後の規約は，本ウェブサイト上に表示された時点より効力を生じるものとします。</p>
+                    <h2>第12条（サービス内容の変更等）</h2>
+                    <p>当チームは，ユーザーへの事前の告知または本ウェブサイト上への掲載をもって，本サービスの内容を変更，追加または廃止することがあり，ユーザーはこれを承諾するものとします。</p>
 
-                <h2>第14条（個人情報の取扱い）</h2>
-                <p>当チームは，本サービスの利用によって取得する情報については，当チームが別途定める「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
+                    <h2>第13条（利用規約の変更）</h2>
+                    <p>当チームは，必要と判断した場合には，ユーザーへの個別の事前承諾を得ることなく，本ウェブサイト上に変更後の規約を掲示することにより本規約を変更できるものとします。変更後の規約は，本ウェブサイト上に表示された時点より効力を生じるものとします。</p>
 
-                <h2>第15条（通知または連絡）</h2>
-                <p>ユーザーと当チームとの間の通知または連絡は，本ウェブサイト上またはDiscord上のアナウンス，その他当チームが適当と認める方法により行うものとします。</p>
+                    <h2>第14条（個人情報の取扱い）</h2>
+                    <p>当チームは，本サービスの利用によって取得する情報については，当チームが別途定める「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
 
-                <h2>第16条（権利義務の譲渡の禁止）</h2>
-                <p>ユーザーは，当チームの書面による事前の承諾なく，利用契約上の地位または本規約に基づく権利もしくは義務を第三者に譲渡し，または担保に供することはできません。</p>
+                    <h2>第15条（通知または連絡）</h2>
+                    <p>ユーザーと当チームとの間の通知または連絡は，本ウェブサイト上またはDiscord上のアナウンス，その他当チームが適当と認める方法により行うものとします。</p>
 
-                <h2>第17条（準拠法・裁判管轄）</h2>
-                <p>1. 本規約の解釈にあたっては，日本法を準拠法とします。<br>
-                2. 本サービスに関して紛争が生じた場合には，日本国内の東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
-            </section>
+                    <h2>第16条（権利義務の譲渡の禁止）</h2>
+                    <p>ユーザーは，当チームの書面による事前の承諾なく，利用契約上の地位または本規約に基づく権利もしくは義務を第三者に譲渡し，または担保に供することはできません。</p>
 
-            <div class="lang-switch">
-                <h2>English Summary (for Discord Verification & Web Users)</h2>
-                <p><strong>Terms of Service Summary:</strong> "AI-PPON GRAND PRIX" is an independent, fan-made online party game available on web browsers and as a Discord Activity. It is NOT affiliated with, endorsed by, or associated with any television show, production studio, or commercial organization.<br>
-                <strong>User Content & License:</strong> Copyright of your submitted answers remains with you. By playing, you grant us a royalty-free license to display, judge via AI, and showcase answers for gameplay and service promotion.<br>
-                <strong>Game Streaming Permitted:</strong> Live streaming, video creation (e.g. YouTube, Twitch), and social media sharing (e.g. X/Twitter screenshots) are warmly welcomed and fully permitted, including monetization on eligible platforms.<br>
-                <strong>Minor Policy:</strong> Minors must obtain parental or legal guardian consent prior to playing.<br>
-                <strong>No Warranty:</strong> The service and AI-generated outputs are provided "AS IS" for entertainment only.</p>
+                    <h2>第17条（準拠法・裁判管轄）</h2>
+                    <p>1. 本規約の解釈にあたっては，日本法を準拠法とします。<br>
+                    2. 本サービスに関して紛争が生じた場合には，日本国内の東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+                </section>
+
+                <div class="lang-switch">
+                    <h2>English Summary (for Discord Verification & Web Users)</h2>
+                    <p><strong>Terms of Service Summary:</strong> "AI-PPON GRAND PRIX" is an independent, fan-made online party game available on web browsers and as a Discord Activity. It is NOT affiliated with, endorsed by, or associated with any television show, production studio, or commercial organization.<br>
+                    <strong>User Content & License:</strong> Copyright of your submitted answers remains with you. By playing, you grant us a royalty-free license to display, judge via AI, and showcase answers for gameplay and service promotion.<br>
+                    <strong>Game Streaming Permitted:</strong> Live streaming, video creation (e.g. YouTube, Twitch), and social media sharing (e.g. X/Twitter screenshots) are warmly welcomed and fully permitted, including monetization on eligible platforms.<br>
+                    <strong>Minor Policy:</strong> Minors must obtain parental or legal guardian consent prior to playing.<br>
+                    <strong>No Warranty:</strong> The service and AI-generated outputs are provided "AS IS" for entertainment only.</p>
+                </div>
             </div>
         </main>
 
@@ -523,101 +519,103 @@ async def privacy_policy():
             <a href="/" class="back-btn">← ゲームトップへ戻る</a>
         </header>
 
-        <nav class="nav-tabs">
-            <a href="/terms" class="tab-btn">利用規約</a>
-            <a href="/privacy" class="tab-btn is-active">プライバシーポリシー</a>
-        </nav>
-
         <main class="content-card">
-            <h1>プライバシーポリシー (Privacy Policy)</h1>
-            <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
+            <nav class="card-tabs">
+                <a href="/terms" class="tab-btn">利用規約</a>
+                <a href="/privacy" class="tab-btn is-active">プライバシーポリシー</a>
+            </nav>
 
-            <p>AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）は，WebブラウザおよびDiscordアクティビティとして提供する本サービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）におけるユーザーの情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。</p>
+            <div class="card-body">
+                <h1>プライバシーポリシー (Privacy Policy)</h1>
+                <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
-            <section>
-                <h2>第1条（個人情報および取得する情報）</h2>
-                <p>1. 「個人情報」とは，個人情報保護法にいう「個人情報」を指すものとします。<br>
-                2. 本サービスにおいて当チームが取得する情報は，利用形態（Discord版またはWebブラウザ版）に応じた以下の情報に限定されます：</p>
-                <ul>
-                    <li><strong>Discordアクティビティ経由での利用時：</strong>
-                        <ul>
-                            <li>Discordアカウント公開情報（ユーザーID，表示名/ユーザー名，アバター画像URL）</li>
-                        </ul>
-                    </li>
-                    <li><strong>Webブラウザ経由での利用時：</strong>
-                        <ul>
-                            <li>ユーザー自身が入力した任意のプレイヤー名（ニックネーム）</li>
-                            <li>同一端末からの再接続を識別するためのランダム生成された一時的識別子（ブラウザのローカルストレージにのみ保存）</li>
-                        </ul>
-                    </li>
-                    <li><strong>共通情報（ゲームプレイデータ）：</strong>
-                        <ul>
-                            <li>ゲームルーム内でお題に対して送信された大喜利の回答テキスト</li>
-                        </ul>
-                    </li>
-                </ul>
-                <p>※ パスワード，実名，メールアドレス，住所，電話番号，クレジットカード番号等の機密情報は一切取得・保管いたしません。</p>
+                <p>AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）は，WebブラウザおよびDiscordアクティビティとして提供する本サービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）におけるユーザーの情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。</p>
 
-                <h2>第2条（個人情報の収集方法）</h2>
-                <p>当チームは，ユーザーがDiscordクライアント上で認証した際にDiscord API（Embedded App SDK）を通じて，またはWebブラウザ上の入力フォームを通じて，上記第1条記載の情報を必要最小限取得します。</p>
+                <section>
+                    <h2>第1条（個人情報および取得する情報）</h2>
+                    <p>1. 「個人情報」とは，個人情報保護法にいう「個人情報」を指すものとします。<br>
+                    2. 本サービスにおいて当チームが取得する情報は，利用形態（Discord版またはWebブラウザ版）に応じた以下の情報に限定されます：</p>
+                    <ul>
+                        <li><strong>Discordアクティビティ経由での利用時：</strong>
+                            <ul>
+                                <li>Discordアカウント公開情報（ユーザーID，表示名/ユーザー名，アバター画像URL）</li>
+                            </ul>
+                        </li>
+                        <li><strong>Webブラウザ経由での利用時：</strong>
+                            <ul>
+                                <li>ユーザー自身が入力した任意のプレイヤー名（ニックネーム）</li>
+                                <li>同一端末からの再接続を識別するためのランダム生成された一時的識別子（ブラウザのローカルストレージにのみ保存）</li>
+                            </ul>
+                        </li>
+                        <li><strong>共通情報（ゲームプレイデータ）：</strong>
+                            <ul>
+                                <li>ゲームルーム内でお題に対して送信された大喜利の回答テキスト</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p>※ パスワード，実名，メールアドレス，住所，電話番号，クレジットカード番号等の機密情報は一切取得・保管いたしません。</p>
 
-                <h2>第3条（個人情報を収集・利用する目的）</h2>
-                <p>当チームが情報を収集・利用する目的は，以下のとおりです。</p>
-                <ul>
-                    <li>本サービスにおけるゲームセッションの作成・マッチングおよび対戦運営のため</li>
-                    <li>ゲームルーム内における参加プレイヤーの識別，スコア集計および勝敗判定の表示のため</li>
-                    <li>ユーザーが入力した回答に対するAIによるリアルタイム審査・採点処理の実行のため</li>
-                    <li>不正行為・利用規約違反行為の防止および調査のため</li>
-                    <li>ユーザーからのお問い合わせに対応するため</li>
-                </ul>
+                    <h2>第2条（個人情報の収集方法）</h2>
+                    <p>当チームは，ユーザーがDiscordクライアント上で認証した際にDiscord API（Embedded App SDK）を通じて，またはWebブラウザ上の入力フォームを通じて，上記第1条記載の情報を必要最小限取得します。</p>
 
-                <h2>第4条（利用目的の変更）</h2>
-                <p>当チームは，利用目的が変更前と関連性を有すると合理的に認められる場合に限り，個人情報の利用目的を変更するものとします。変更を行った場合には，変更後の目的について本ウェブサイト上に公表します。</p>
+                    <h2>第3条（個人情報を収集・利用する目的）</h2>
+                    <p>当チームが情報を収集・利用する目的は，以下のとおりです。</p>
+                    <ul>
+                        <li>本サービスにおけるゲームセッションの作成・マッチングおよび対戦運営のため</li>
+                        <li>ゲームルーム内における参加プレイヤーの識別，スコア集計および勝敗判定の表示のため</li>
+                        <li>ユーザーが入力した回答に対するAIによるリアルタイム審査・採点処理の実行のため</li>
+                        <li>不正行為・利用規約違反行為の防止および調査のため</li>
+                        <li>ユーザーからのお問い合わせに対応するため</li>
+                    </ul>
 
-                <h2>第5条（個人情報の第三者提供・外部連携およびAI学習の禁止）</h2>
-                <p>1. 当チームは，次に掲げる場合を除いて，あらかじめユーザーの同意を得ることなく第三者に個人情報を提供することはありません：</p>
-                <ul>
-                    <li>人の生命，身体または財産の保護のために必要がある場合</li>
-                    <li>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合</li>
-                    <li>法令に基づく場合</li>
-                </ul>
-                <p>2. （AI審査機能における外部サービス連携）本サービスは，回答のユーモア判定・審査のためにGoogle LLC等の提供するAIサービス（Gemini API等）とテキスト連携を行います。当該送信には回答テキストおよびお題のみが含まれ，個人を特定可能な情報（個人名や連絡先等）は含まれません。<br>
-                3. （AI学習・トレーニングの禁止 / Discord Developer Policy準拠）本サービスを通じて取得したDiscordユーザーデータおよび回答テキストは，ゲーム内でのリアルタイム判定および演出の目的のみに使用され，<strong>AI・機械学習モデルのトレーニング・追加学習データとして使用・提供されることは一切ありません</strong>。</p>
+                    <h2>第4条（利用目的の変更）</h2>
+                    <p>当チームは，利用目的が変更前と関連性を有すると合理的に認められる場合に限り，個人情報の利用目的を変更するものとします。変更を行った場合には，変更後の目的について本ウェブサイト上に公表します。</p>
 
-                <h2>第6条（データの管理と保持期間）</h2>
-                <p>本サービスで送受信されるユーザー情報および回答データは，ゲームセッション（ルーム）の進行中のみサーバーの揮発性メモリ上に一時保持されます。ゲームセッションの終了または切断後，当該データは自動的に消去され，永続的なデータベース等への保存は行いません。</p>
+                    <h2>第5条（個人情報の第三者提供・外部連携およびAI学習の禁止）</h2>
+                    <p>1. 当チームは，次に掲げる場合を除いて，あらかじめユーザーの同意を得ることなく第三者に個人情報を提供することはありません：</p>
+                    <ul>
+                        <li>人の生命，身体または財産の保護のために必要がある場合</li>
+                        <li>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合</li>
+                        <li>法令に基づく場合</li>
+                    </ul>
+                    <p>2. （AI審査機能における外部サービス連携）本サービスは，回答のユーモア判定・審査のためにGoogle LLC等の提供するAIサービス（Gemini API等）とテキスト連携を行います。当該送信には回答テキストおよびお題のみが含まれ，個人を特定可能な情報（個人名や連絡先等）は含まれません。<br>
+                    3. （AI学習・トレーニングの禁止 / Discord Developer Policy準拠）本サービスを通じて取得したDiscordユーザーデータおよび回答テキストは，ゲーム内でのリアルタイム判定および演出の目的のみに使用され，<strong>AI・機械学習モデルのトレーニング・追加学習データとして使用・提供されることは一切ありません</strong>。</p>
 
-                <h2>第7条（個人情報の開示・訂正・削除）</h2>
-                <p>1. ユーザーは，当チームの保有する自己の個人情報について開示・訂正・削除を請求することができます。当チームは，ユーザー本人からの請求であることを確認の上，遅滞なく対応を行います。<br>
-                2. <strong>（データ非保持に関する特記事項）</strong>当チームは第6条に定めるとおり，ユーザーデータをサーバー上に永続保持せず，ゲームセッション終了後にすべて自動消去いたします。そのため，セッション終了後における開示・訂正・削除のご請求については，当チーム側に保有する対象データが存在しないため，対応いたしかねる旨をあらかじめご了承ください。</p>
+                    <h2>第6条（データの管理と保持期間）</h2>
+                    <p>本サービスで送受信されるユーザー情報および回答データは，ゲームセッション（ルーム）の進行中のみサーバーの揮発性メモリ上に一時保持されます。ゲームセッションの終了または切断後，当該データは自動的に消去され，永続的なデータベース等への保存は行いません。</p>
 
-                <h2>第8条（個人情報の利用停止等）</h2>
-                <p>1. 当チームは，本人から個人情報が利用目的の範囲を超えて取り扱われている等の理由により利用停止を求められた場合には，遅滞なく必要な調査を行い，その結果に基づき利用停止等の措置を講じます。<br>
-                2. 第7条第2項と同様に，セッション終了後は対象データが既に自動破棄されているため，利用停止措置を行うべきデータが存在しない状態となります。</p>
+                    <h2>第7条（個人情報の開示・訂正・削除）</h2>
+                    <p>1. ユーザーは，当チームの保有する自己の個人情報について開示・訂正・削除を請求することができます。当チームは，ユーザー本人からの請求であることを確認の上，遅滞なく対応を行います。<br>
+                    2. <strong>（データ非保持に関する特記事項）</strong>当チームは第6条に定めるとおり，ユーザーデータをサーバー上に永続保持せず，ゲームセッション終了後にすべて自動消去いたします。そのため，セッション終了後における開示・訂正・削除のご請求については，当チーム側に保有する対象データが存在しないため，対応いたしかねる旨をあらかじめご了承ください。</p>
 
-                <h2>第9条（未成年者・児童のプライバシー保護）</h2>
-                <p>本サービスは，13歳未満（または利用者の居住地域の法令が定める年齢未満）の児童を対象としておらず，13歳未満の児童から意図して個人情報を収集することはありません。13歳未満のお子様が本サービスを利用されたことが判明した場合，速やかに関連する一時データを破棄します。</p>
+                    <h2>第8条（個人情報の利用停止等）</h2>
+                    <p>1. 当チームは，本人から個人情報が利用目的の範囲を超えて取り扱われている等の理由により利用停止を求められた場合には，遅滞なく必要な調査を行い，その結果に基づき利用停止等の措置を講じます。<br>
+                    2. 第7条第2項と同様に，セッション終了後は対象データが既に自動破棄されているため，利用停止措置を行うべきデータが存在しない状態となります。</p>
 
-                <h2>第10条（プライバシーポリシーの変更）</h2>
-                <p>本ポリシーの内容は，法令その他本ポリシーに別段の定めのある事項を除いて，ユーザーに通知することなく変更することができるものとします。変更後のプライバシーポリシーは，本ウェブサイトに掲載したときから効力を生じるものとします。</p>
+                    <h2>第9条（未成年者・児童のプライバシー保護）</h2>
+                    <p>本サービスは，13歳未満（または利用者の居住地域の法令が定める年齢未満）の児童を対象としておらず，13歳未満の児童から意図して個人情報を収集することはありません。13歳未満のお子様が本サービスを利用されたことが判明した場合，速やかに関連する一時データを破棄します。</p>
 
-                <h2>第11条（お問い合わせ窓口）</h2>
-                <p>本ポリシーに関するお問い合わせ・苦情・ご質問等は，以下の窓口までご連絡ください。Discordアカウントをお持ちでないWebユーザーの方もメールまたはお問い合わせフォームよりご連絡いただけます。</p>
-                <div class="contact-box">
-                    <p><strong>サービス名：</strong> AI-PPON GRAND PRIX</p>
-                    <p><strong>運営組織：</strong> AI-PPON GRAND PRIX 開発運営チーム</p>
-                    <p><strong>Discordサポート：</strong> 公式Discordサーバーまたは開発者DM</p>
-                    <p><strong>Web・メール窓口：</strong> <a href="mailto:support@ai-ppon.internal" style="color: #ffd700;">support@ai-ppon.internal</a> （またはアプリ公式お問い合わせフォーム）</p>
+                    <h2>第10条（プライバシーポリシーの変更）</h2>
+                    <p>本ポリシーの内容は，法令その他本ポリシーに別段の定めのある事項を除いて，ユーザーに通知することなく変更することができるものとします。変更後のプライバシーポリシーは，本ウェブサイトに掲載したときから効力を生じるものとします。</p>
+
+                    <h2>第11条（お問い合わせ窓口）</h2>
+                    <p>本ポリシーに関するお問い合わせ・苦情・ご質問等は，以下の窓口までご連絡ください。Discordアカウントをお持ちでないWebユーザーの方もメールまたはお問い合わせフォームよりご連絡いただけます。</p>
+                    <div class="contact-box">
+                        <p><strong>サービス名：</strong> AI-PPON GRAND PRIX</p>
+                        <p><strong>運営組織：</strong> AI-PPON GRAND PRIX 開発運営チーム</p>
+                        <p><strong>Discordサポート：</strong> 公式Discordサーバーまたは開発者DM</p>
+                        <p><strong>Web・メール窓口：</strong> <a href="mailto:support@ai-ppon.internal" style="color: #ffd700;">support@ai-ppon.internal</a> （またはアプリ公式お問い合わせフォーム）</p>
+                    </div>
+                </section>
+
+                <div class="lang-switch">
+                    <h2>English Summary (for Discord Verification & Compliance)</h2>
+                    <p><strong>Privacy Policy Summary:</strong> "AI-PPON GRAND PRIX" operates via web browsers and as a Discord Activity. Via Discord, we only access public profile details (User ID, username, avatar URL) to display scores. Via web, only self-assigned nicknames and temporary local storage session tokens are used.<br>
+                    <strong>Zero Data Retention:</strong> All user information and submitted game answers are strictly processed in-memory during an active session and are permanently wiped immediately upon session closure. Thus, no persistent personal data is stored on disk.<br>
+                    <strong>No AI Model Training:</strong> In compliance with Discord Developer Policy (Rule 21), user data and answers are NEVER used to train, tune, or improve machine learning or AI models.<br>
+                    <strong>Children's Privacy:</strong> The service is not directed at children under the age of 13, and does not knowingly collect personal data from them.<br>
+                    <strong>Contact:</strong> For privacy inquiries, please contact our support desk via Discord or support email.</p>
                 </div>
-            </section>
-
-            <div class="lang-switch">
-                <h2>English Summary (for Discord Verification & Compliance)</h2>
-                <p><strong>Privacy Policy Summary:</strong> "AI-PPON GRAND PRIX" operates via web browsers and as a Discord Activity. Via Discord, we only access public profile details (User ID, username, avatar URL) to display scores. Via web, only self-assigned nicknames and temporary local storage session tokens are used.<br>
-                <strong>Zero Data Retention:</strong> All user information and submitted game answers are strictly processed in-memory during an active session and are permanently wiped immediately upon session closure. Thus, no persistent personal data is stored on disk.<br>
-                <strong>No AI Model Training:</strong> In compliance with Discord Developer Policy (Rule 21), user data and answers are NEVER used to train, tune, or improve machine learning or AI models.<br>
-                <strong>Children's Privacy:</strong> The service is not directed at children under the age of 13, and does not knowingly collect personal data from them.<br>
-                <strong>Contact:</strong> For privacy inquiries, please contact our support desk via Discord or support email.</p>
             </div>
         </main>
 
