@@ -37,26 +37,50 @@ if ([string]::IsNullOrWhiteSpace($apiKey)) {
     exit 1
 }
 
-Write-Host "[1/2] 必要な Google Cloud API を有効化中..." -ForegroundColor Cyan
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
+Write-Host "[1/3] 必要な Google Cloud API を有効化中..." -ForegroundColor Cyan
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com
 
 Write-Host ""
-Write-Host "[2/2] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)..." -ForegroundColor Cyan
+Write-Host "[2/3] Secret Manager (GEMINI_API_KEY) のアクセス権限を確認・付与中..." -ForegroundColor Cyan
+$projectNum = (gcloud projects describe $currentProject --format="value(projectNumber)" 2>$null).Trim()
+$serviceAccount = "${projectNum}-compute@developer.gserviceaccount.com"
+
+$secretFlag = @()
+$hasSecret = (gcloud secrets describe GEMINI_API_KEY --project=$currentProject 2>$null)
+if ($LASTEXITCODE -eq 0) {
+    gcloud secrets add-iam-policy-binding GEMINI_API_KEY `
+      --project=$currentProject `
+      --member="serviceAccount:$serviceAccount" `
+      --role="roles/secretmanager.secretAccessor" `
+      --condition=None 2>$null | Out-Null
+    $secretFlag = @("--set-secrets", "GEMINI_API_KEY=GEMINI_API_KEY:latest")
+    Write-Host "GEMINI_API_KEY のシークレットバインドを設定しました。" -ForegroundColor Green
+} else {
+    Write-Host "[WARN] Secret Manager に 'GEMINI_API_KEY' が見つかりませんでした。" -ForegroundColor Yellow
+    Write-Host "事前に GCP コンソール等で 'GEMINI_API_KEY' シークレットを作成してください。" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "[3/3] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)..." -ForegroundColor Cyan
 
 $envVars = "OPENROUTER_API_KEY=$apiKey,THEME_TIME_LIMIT=150,TARGET_IPPON=3"
 
-gcloud run deploy ai-ppon-grand-prix `
-  --source . `
-  --region asia-northeast1 `
-  --platform managed `
-  --allow-unauthenticated `
-  --min-instances 0 `
-  --max-instances 1 `
-  --cpu 1 `
-  --memory 512Mi `
-  --timeout 3600 `
-  --concurrency 80 `
-  --set-env-vars $envVars
+$deployArgs = @(
+  "run", "deploy", "ai-ppon-grand-prix",
+  "--source", ".",
+  "--region", "asia-northeast1",
+  "--platform", "managed",
+  "--allow-unauthenticated",
+  "--min-instances", "0",
+  "--max-instances", "1",
+  "--cpu", "1",
+  "--memory", "512Mi",
+  "--timeout", "3600",
+  "--concurrency", "80",
+  "--set-env-vars", $envVars
+) + $secretFlag
+
+& gcloud $deployArgs
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host ""

@@ -32,11 +32,31 @@ if [ -z "$API_KEY" ]; then
     exit 1
 fi
 
-echo -e "\033[36m[1/2] 必要な Google Cloud API を有効化中...\033[0m"
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
+echo -e "\033[36m[1/3] 必要な Google Cloud API を有効化中...\033[0m"
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com
 
 echo ""
-echo -e "\033[36m[2/2] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)...\033[0m"
+echo -e "\033[36m[2/3] Secret Manager (GEMINI_API_KEY) のアクセス権限を確認・付与中...\033[0m"
+PROJECT_NUM=$(gcloud projects describe "$CURRENT_PROJECT" --format="value(projectNumber)")
+SERVICE_ACCOUNT="${PROJECT_NUM}-compute@developer.gserviceaccount.com"
+
+# シークレットが存在する場合にアクセス権限を付与 (存在しない場合は警告を表示してスキップ)
+if gcloud secrets describe GEMINI_API_KEY --project="$CURRENT_PROJECT" >/dev/null 2>&1; then
+    gcloud secrets add-iam-policy-binding GEMINI_API_KEY \
+      --project="$CURRENT_PROJECT" \
+      --member="serviceAccount:${SERVICE_ACCOUNT}" \
+      --role="roles/secretmanager.secretAccessor" \
+      --condition=None >/dev/null 2>&1 || true
+    SECRET_FLAG="--set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest"
+    echo -e "\033[32mGEMINI_API_KEY のシークレットバインドを設定しました。\033[0m"
+else
+    echo -e "\033[33m[WARN] Secret Manager に 'GEMINI_API_KEY' が見つかりませんでした。\033[0m"
+    echo -e "\033[33m事前に GCP コンソール等で 'GEMINI_API_KEY' シークレットを作成してください。\033[0m"
+    SECRET_FLAG=""
+fi
+
+echo ""
+echo -e "\033[36m[3/3] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)...\033[0m"
 
 gcloud run deploy ai-ppon-grand-prix \
   --source . \
@@ -49,7 +69,8 @@ gcloud run deploy ai-ppon-grand-prix \
   --memory 512Mi \
   --timeout 3600 \
   --concurrency 80 \
-  --set-env-vars "OPENROUTER_API_KEY=${API_KEY},THEME_TIME_LIMIT=150,TARGET_IPPON=3"
+  --set-env-vars "OPENROUTER_API_KEY=${API_KEY},THEME_TIME_LIMIT=150,TARGET_IPPON=3" \
+  ${SECRET_FLAG}
 
 echo ""
 echo "=================================================="

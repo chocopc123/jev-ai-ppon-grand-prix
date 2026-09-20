@@ -2,18 +2,32 @@ import { useEffect, useRef, useState } from "react";
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 import "./App.css";
 
-type Player = { id: string; name: string; ippons: number; avatar_url?: string | null };
+type Player = {
+  id: string;
+  name: string;
+  ippons: number;
+  avatar_url?: string | null;
+};
 type TimelineItem = { judge: string; score: number; delay_ms: number };
 
-type FeedItem = { key: number; text: string; kind: "info" | "miss" | "reject" | "ippon" };
-
+type FeedItem = {
+  key: number;
+  text: string;
+  kind: "info" | "miss" | "reject" | "ippon";
+};
 
 let ac: AudioContext | null = null;
 function audio(): AudioContext {
   if (!ac) ac = new AudioContext();
   return ac;
 }
-function tone(freq: number, start: number, dur: number, type: OscillatorType = "sine", vol = 0.25) {
+function tone(
+  freq: number,
+  start: number,
+  dur: number,
+  type: OscillatorType = "sine",
+  vol = 0.25,
+) {
   const a = audio();
   const o = a.createOscillator();
   const g = a.createGain();
@@ -40,10 +54,14 @@ async function loadIpponVoice() {
 }
 // 初回ロードをバックグラウンドで走らせておく
 if (typeof window !== "undefined") {
-  window.addEventListener("click", () => {
-    audio();
-    loadIpponVoice();
-  }, { once: true });
+  window.addEventListener(
+    "click",
+    () => {
+      audio();
+      loadIpponVoice();
+    },
+    { once: true },
+  );
 }
 
 let ipponAudioEl: HTMLAudioElement | null = null;
@@ -57,7 +75,7 @@ function getIpponAudioPipeline() {
     (ipponAudioEl as any).preservesPitch = true;
     (ipponAudioEl as any).mozPreservesPitch = true;
     (ipponAudioEl as any).webkitPreservesPitch = true;
-    ipponAudioEl.playbackRate = 1.3;
+    ipponAudioEl.playbackRate = 2;
     ipponAudioEl.preload = "auto";
 
     ipponMediaSourceNode = a.createMediaElementSource(ipponAudioEl);
@@ -88,7 +106,7 @@ function getIpponAudioPipeline() {
     delay.delayTime.setValueAtTime(0.16, a.currentTime);
 
     const delayFeedback = a.createGain();
-    delayFeedback.gain.setValueAtTime(0.30, a.currentTime);
+    delayFeedback.gain.setValueAtTime(0.3, a.currentTime);
 
     const delayFilter = a.createBiquadFilter();
     delayFilter.type = "lowpass";
@@ -117,19 +135,23 @@ function getIpponAudioPipeline() {
 
 // ユーザー操作時に事前ロード
 if (typeof window !== "undefined") {
-  window.addEventListener("click", () => {
-    audio();
-    try {
-      getIpponAudioPipeline().load();
-    } catch {}
-  }, { once: true });
+  window.addEventListener(
+    "click",
+    () => {
+      audio();
+      try {
+        getIpponAudioPipeline().load();
+      } catch {}
+    },
+    { once: true },
+  );
 }
 
 function playIpponVoice() {
   try {
     const el = getIpponAudioPipeline();
     el.currentTime = 0;
-    el.playbackRate = 1.3;
+    el.playbackRate = 2.0;
     el.play().catch((e) => console.warn("playIpponVoice error:", e));
   } catch (e) {
     console.warn("playIpponVoice failure:", e);
@@ -222,7 +244,9 @@ export const sfx = {
 
     // 2. 「じゃら〜ん」と駆け上がる神聖なハープ / ウィンドチャイム風アルペジオ (Cメジャー9th / リディアン系)
     // C4, E4, G4, B4, D5, E5, G5, C6
-    const arpeggioNotes = [261.63, 329.63, 392.0, 493.88, 587.33, 659.25, 783.99, 1046.5];
+    const arpeggioNotes = [
+      261.63, 329.63, 392.0, 493.88, 587.33, 659.25, 783.99, 1046.5,
+    ];
     arpeggioNotes.forEach((freq, idx) => {
       const noteStart = fanfareStart + idx * 0.038; // 38msずつ流れるように「じゃら〜ん」
       const dur = 2.4 - idx * 0.12;
@@ -324,7 +348,10 @@ export const sfx = {
       const osc = a.createOscillator();
       const gain = a.createGain();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(freq * (1 + (idx % 2 === 0 ? 0.015 : -0.015)), now);
+      osc.frequency.setValueAtTime(
+        freq * (1 + (idx % 2 === 0 ? 0.015 : -0.015)),
+        now,
+      );
       osc.frequency.exponentialRampToValueAtTime(freq * 0.97, now + 0.55);
 
       const vol = 0.22 / (idx + 1);
@@ -378,7 +405,10 @@ type DefaultArenaFrameProps = {
 
 export function DefaultArenaFrame({ variant }: DefaultArenaFrameProps) {
   return (
-    <div className={`defaultArenaFrame defaultArenaFrame--${variant}`} aria-hidden="true">
+    <div
+      className={`defaultArenaFrame defaultArenaFrame--${variant}`}
+      aria-hidden="true"
+    >
       <svg viewBox="0 0 1000 620" preserveAspectRatio="none">
         <polygon
           points="110,8 890,8 992,110 992,510 890,612 110,612 8,510 8,110"
@@ -400,7 +430,11 @@ type JudgmentFrameMeterProps = {
   isIppon?: boolean;
 };
 
-export function JudgmentFrameMeter({ litFrames, totalFrames = 10, isIppon = false }: JudgmentFrameMeterProps) {
+export function JudgmentFrameMeter({
+  litFrames,
+  totalFrames = 10,
+  isIppon = false,
+}: JudgmentFrameMeterProps) {
   const frames = Array.from({ length: totalFrames }, (_, i) => {
     const isLit = i < litFrames;
     // デフォルトフレーム inner(余白28px) の内側に外側から内側へ配置
@@ -411,7 +445,10 @@ export function JudgmentFrameMeter({ litFrames, totalFrames = 10, isIppon = fals
   });
 
   return (
-    <div className={`frameMeter ${isIppon ? "frameMeter--ippon" : ""}`} aria-hidden="true">
+    <div
+      className={`frameMeter ${isIppon ? "frameMeter--ippon" : ""}`}
+      aria-hidden="true"
+    >
       <svg viewBox="0 0 1000 620" preserveAspectRatio="none">
         {frames.map((f) => (
           <polygon
@@ -460,14 +497,23 @@ const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "";
 
 export default function App() {
   const [screen, setScreen] = useState<"join" | "game">("join");
-  const [roomPhase, setRoomPhase] = useState<"waiting" | "theme" | "transition" | "match_win">("waiting");
+  const [roomPhase, setRoomPhase] = useState<
+    "waiting" | "theme" | "transition" | "match_win"
+  >("waiting");
   const [myPlayerId, setMyPlayerId] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("aippon_player_id") || localStorage.getItem("oogiri_player_id");
+    return (
+      localStorage.getItem("aippon_player_id") ||
+      localStorage.getItem("oogiri_player_id")
+    );
   });
   const [name, setName] = useState<string>(() => {
     if (typeof window === "undefined") return "";
-    return localStorage.getItem("aippon_player_name") || localStorage.getItem("oogiri_player_name") || "";
+    return (
+      localStorage.getItem("aippon_player_name") ||
+      localStorage.getItem("oogiri_player_name") ||
+      ""
+    );
   });
   const [roomId, setRoomId] = useState<string>(() => {
     if (typeof window === "undefined") return "";
@@ -518,7 +564,10 @@ export default function App() {
   const handleLogoClick = () => {
     const now = Date.now();
     // 直近2秒以内のクリックのみ保持
-    const recent = [...logoClickTimesRef.current.filter((t) => now - t < 2000), now];
+    const recent = [
+      ...logoClickTimesRef.current.filter((t) => now - t < 2000),
+      now,
+    ];
     logoClickTimesRef.current = recent;
 
     if (recent.length >= 5) {
@@ -584,7 +633,10 @@ export default function App() {
     }
   };
 
-  const speakTheme = async (textToSpeak?: string, isTtsActive: boolean = false) => {
+  const speakTheme = async (
+    textToSpeak?: string,
+    isTtsActive: boolean = false,
+  ) => {
     // 部屋でTTSが有効化されていない場合は一切APIリクエストを投げない
     if (!isTtsActive && !roomTtsEnabled) return;
 
@@ -619,7 +671,11 @@ export default function App() {
   const speakAnswer = (answerText: string): Promise<void> => {
     return new Promise((resolve) => {
       const text = answerText.trim();
-      if (!text || typeof window === "undefined" || !("speechSynthesis" in window)) {
+      if (
+        !text ||
+        typeof window === "undefined" ||
+        !("speechSynthesis" in window)
+      ) {
         resolve();
         return;
       }
@@ -648,8 +704,12 @@ export default function App() {
       const voices = window.speechSynthesis.getVoices();
       const jaVoices = voices.filter((v) => v.lang.startsWith("ja"));
       const preferredVoice =
-        jaVoices.find((v) => v.name.includes("Keita") || v.name.includes("Ichiro") || v.name.includes("Natural")) ||
-        jaVoices[0];
+        jaVoices.find(
+          (v) =>
+            v.name.includes("Keita") ||
+            v.name.includes("Ichiro") ||
+            v.name.includes("Natural"),
+        ) || jaVoices[0];
       if (preferredVoice) {
         u.voice = preferredVoice;
       }
@@ -666,7 +726,8 @@ export default function App() {
     setFeed((f) => [{ key: feedKey.current, text, kind }, ...f.slice(0, 29)]);
   };
 
-  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const wait = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
   function getFrameDelay(_score: number): number {
     return 80; // 電光石火: 80ms間隔でタタタタッと点灯
@@ -721,7 +782,10 @@ export default function App() {
         // 10本目に達した瞬間に即座にIPPON表示・ファンファーレを発動
         if (currentScore === 10) {
           sfx.fanfare();
-          pushFeed(`💥 ${judgement.player} AI-PPON獲得!! 「${judgement.answer}」`, "ippon");
+          pushFeed(
+            `💥 ${judgement.player} AI-PPON獲得!! 「${judgement.answer}」`,
+            "ippon",
+          );
           setJudging((prev) => {
             if (!prev || prev.player !== judgement.player) return prev;
             return { ...prev, isIppon: true, done: true };
@@ -737,7 +801,9 @@ export default function App() {
 
     if (scoreSoFar === 10) {
       await wait(2600);
-      setStageMode((current) => (current === "answerShown" ? "theme" : current));
+      setStageMode((current) =>
+        current === "answerShown" ? "theme" : current,
+      );
       judgingRef.current = null;
       setJudging((prev) => (prev?.player === judgement.player ? null : prev));
       if (pendingThemeStartedRef.current) {
@@ -752,7 +818,7 @@ export default function App() {
     sfx.shakin();
     pushFeed(
       `${judgement.player} ${judgement.totalScore}点… 「${judgement.answer}」`,
-      "miss"
+      "miss",
     );
 
     judgingRef.current = { ...judgement, done: true };
@@ -791,15 +857,23 @@ export default function App() {
     const newUrl = `${window.location.pathname}?room=${encodeURIComponent(rId)}`;
     window.history.replaceState({}, "", newUrl);
 
-    const pidToUse = targetPid || myPlayerId || localStorage.getItem("aippon_player_id") || localStorage.getItem("oogiri_player_id");
-    const avatarToUse = targetAvatarUrl !== undefined ? targetAvatarUrl : myAvatarUrl;
+    const pidToUse =
+      targetPid ||
+      myPlayerId ||
+      localStorage.getItem("aippon_player_id") ||
+      localStorage.getItem("oogiri_player_id");
+    const avatarToUse =
+      targetAvatarUrl !== undefined ? targetAvatarUrl : myAvatarUrl;
     const proto = location.protocol === "https:" ? "wss" : "ws";
     const queryParts = [];
     if (pidToUse) queryParts.push(`player_id=${encodeURIComponent(pidToUse)}`);
     if (ttsUnlocked) queryParts.push(`enable_tts=true`);
-    if (avatarToUse) queryParts.push(`avatar_url=${encodeURIComponent(avatarToUse)}`);
+    if (avatarToUse)
+      queryParts.push(`avatar_url=${encodeURIComponent(avatarToUse)}`);
     const queryParam = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
-    const ws = new WebSocket(`${proto}://${location.host}/ws/${encodeURIComponent(rId)}/${encodeURIComponent(pName)}${queryParam}`);
+    const ws = new WebSocket(
+      `${proto}://${location.host}/ws/${encodeURIComponent(rId)}/${encodeURIComponent(pName)}${queryParam}`,
+    );
     wsRef.current = ws;
 
     ws.onmessage = (ev) => {
@@ -942,9 +1016,15 @@ export default function App() {
 
   // URLパラメータと自動再接続（リロード対策）
   useEffect(() => {
-    const savedRoom = localStorage.getItem("aippon_room_id") || localStorage.getItem("oogiri_room_id");
-    const savedName = localStorage.getItem("aippon_player_name") || localStorage.getItem("oogiri_player_name");
-    const savedPid = localStorage.getItem("aippon_player_id") || localStorage.getItem("oogiri_player_id");
+    const savedRoom =
+      localStorage.getItem("aippon_room_id") ||
+      localStorage.getItem("oogiri_room_id");
+    const savedName =
+      localStorage.getItem("aippon_player_name") ||
+      localStorage.getItem("oogiri_player_name");
+    const savedPid =
+      localStorage.getItem("aippon_player_id") ||
+      localStorage.getItem("oogiri_player_id");
 
     if (savedRoom === roomId && savedName && savedPid) {
       connect(roomId, savedName, savedPid);
@@ -960,7 +1040,9 @@ export default function App() {
   useEffect(() => {
     const t = setInterval(() => {
       if (!isTimerPausedRef.current && deadlineRef.current) {
-        setRemaining(Math.max(0, Math.ceil(deadlineRef.current - Date.now() / 1000)));
+        setRemaining(
+          Math.max(0, Math.ceil(deadlineRef.current - Date.now() / 1000)),
+        );
       }
     }, 500);
     return () => clearInterval(t);
@@ -1018,8 +1100,12 @@ export default function App() {
 
     setIsDiscord(true);
     if (!DISCORD_CLIENT_ID) {
-      console.warn("[Discord SDK] VITE_DISCORD_CLIENT_ID が設定されていません。手動モードで続行します。");
-      setDiscordError("Discord クライアントIDが未設定です。下のフォームから手動で参加できます。");
+      console.warn(
+        "[Discord SDK] VITE_DISCORD_CLIENT_ID が設定されていません。手動モードで続行します。",
+      );
+      setDiscordError(
+        "Discord クライアントIDが未設定です。下のフォームから手動で参加できます。",
+      );
       return;
     }
 
@@ -1071,7 +1157,8 @@ export default function App() {
         }
 
         // 4. 部屋ID: DSC-プレフィックス + channelId (または instanceId)
-        const channelId = discordSdk.channelId || discordSdk.instanceId || "room";
+        const channelId =
+          discordSdk.channelId || discordSdk.instanceId || "room";
         const discordRoomId = `DSC-${channelId}`;
 
         setName(displayName);
@@ -1109,7 +1196,9 @@ export default function App() {
             <div className="discord-loading-card">
               <div className="discord-loading-spinner" />
               <h2 className="discord-loading-title">Discord 連携中...</h2>
-              <p className="discord-loading-desc">チャンネル情報とアカウントを確認しています</p>
+              <p className="discord-loading-desc">
+                チャンネル情報とアカウントを確認しています
+              </p>
             </div>
           </div>
         </div>
@@ -1120,9 +1209,7 @@ export default function App() {
       <div className="join-container">
         <div className="join-inner">
           {discordError && (
-            <div className="discord-error-banner">
-              ⚠️ {discordError}
-            </div>
+            <div className="discord-error-banner">⚠️ {discordError}</div>
           )}
           {/* 画像の色合い・質感を完全再現したベクタータイトルロゴ (5回連続タップでナレーション解禁) */}
           <div
@@ -1140,7 +1227,13 @@ export default function App() {
               aria-label="AI-PPON GRAND PRIX"
             >
               <defs>
-                <linearGradient id="chromeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <linearGradient
+                  id="chromeGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="0%"
+                  y2="100%"
+                >
                   <stop offset="0%" stopColor="#ffffff" />
                   <stop offset="35%" stopColor="#e2e8f0" />
                   <stop offset="48%" stopColor="#818ea3" />
@@ -1159,22 +1252,46 @@ export default function App() {
                   <stop offset="96%" stopColor="#3c2e25" />
                   <stop offset="100%" stopColor="#554236" />
                 </linearGradient>
-                <linearGradient id="barBorderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient
+                  id="barBorderGrad"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
                   <stop offset="0%" stopColor="#b8bcc4" />
                   <stop offset="25%" stopColor="#ffffff" />
                   <stop offset="50%" stopColor="#8a8e98" />
                   <stop offset="75%" stopColor="#ffffff" />
                   <stop offset="100%" stopColor="#a0a4ae" />
                 </linearGradient>
-                <linearGradient id="sheenGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient
+                  id="sheenGlow"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
                   <stop offset="0%" stopColor="#ffffff" stopOpacity="0.32" />
                   <stop offset="35%" stopColor="#ffffff" stopOpacity="0.12" />
                   <stop offset="50%" stopColor="#ffffff" stopOpacity="0" />
                   <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
                 </linearGradient>
 
-                <filter id="logoShadow" x="-10%" y="-10%" width="120%" height="125%">
-                  <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#000000" floodOpacity="0.22" />
+                <filter
+                  id="logoShadow"
+                  x="-10%"
+                  y="-10%"
+                  width="120%"
+                  height="125%"
+                >
+                  <feDropShadow
+                    dx="0"
+                    dy="6"
+                    stdDeviation="8"
+                    floodColor="#000000"
+                    floodOpacity="0.22"
+                  />
                 </filter>
               </defs>
 
@@ -1222,9 +1339,20 @@ export default function App() {
                     strokeWidth="1.6"
                   />
                   {/* ガラス反射の斜め光沢ハイライト */}
-                  <polygon points="4,196 290,196 150,242 4,242" fill="url(#sheenGlow)" />
+                  <polygon
+                    points="4,196 290,196 150,242 4,242"
+                    fill="url(#sheenGlow)"
+                  />
                   {/* 上辺の極細ホワイト光彩ライン */}
-                  <line x1="6" y1="198" x2="514" y2="198" stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.9" />
+                  <line
+                    x1="6"
+                    y1="198"
+                    x2="514"
+                    y2="198"
+                    stroke="#ffffff"
+                    strokeWidth="1.2"
+                    strokeOpacity="0.9"
+                  />
                 </g>
               </g>
             </svg>
@@ -1241,7 +1369,8 @@ export default function App() {
                 border: "1px solid #ffd700",
                 padding: "6px 14px",
                 borderRadius: "24px",
-                boxShadow: "0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 215, 0, 0.25)",
+                boxShadow:
+                  "0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 215, 0, 0.25)",
                 marginTop: "-10px",
                 marginBottom: "4px",
                 zIndex: 10,
@@ -1378,8 +1507,13 @@ export default function App() {
             </div>
 
             <div className="join-card-footer">
-              <span className="join-footer-hint">URLを共有すると同じ部屋に対戦相手を招待できます</span>
-              {(import.meta.env.DEV || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) && (
+              <span className="join-footer-hint">
+                URLを共有すると同じ部屋に対戦相手を招待できます
+              </span>
+              {(import.meta.env.DEV ||
+                (typeof window !== "undefined" &&
+                  (window.location.hostname === "localhost" ||
+                    window.location.hostname === "127.0.0.1"))) && (
                 <div style={{ marginTop: "12px", textAlign: "center" }}>
                   <a
                     href="/devtool"
@@ -1393,7 +1527,7 @@ export default function App() {
                       borderRadius: "12px",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: "6px"
+                      gap: "6px",
                     }}
                   >
                     🛠️ 演出デバッグツール (DevTool) を開く
@@ -1443,14 +1577,20 @@ export default function App() {
               )}
             </div>
             <h1 className="waiting-title">参加者を待っています</h1>
-            <p className="waiting-desc">参加メンバーが集まったら「ゲームを開始する」を押してください。</p>
+            <p className="waiting-desc">
+              参加メンバーが集まったら「ゲームを開始する」を押してください。
+            </p>
 
             <div className="room-share-bar">
               <div className="room-share-info">
                 <span className="room-share-label">ROOM:</span>
                 <span className="room-share-id">{roomId}</span>
               </div>
-              <button type="button" className="btn-copy-url" onClick={() => copyRoomUrl()}>
+              <button
+                type="button"
+                className="btn-copy-url"
+                onClick={() => copyRoomUrl()}
+              >
                 📋 招待URLをコピー
               </button>
             </div>
@@ -1469,7 +1609,11 @@ export default function App() {
                   >
                     <div className="waiting-player-avatar">
                       {p.avatar_url ? (
-                        <img src={p.avatar_url} alt={p.name} className="waiting-player-avatar-img" />
+                        <img
+                          src={p.avatar_url}
+                          alt={p.name}
+                          className="waiting-player-avatar-img"
+                        />
                       ) : (
                         p.name.charAt(0).toUpperCase()
                       )}
@@ -1483,10 +1627,18 @@ export default function App() {
             </div>
 
             <div className="waiting-actions">
-              <button type="button" className="btn-start-game" onClick={startGame}>
+              <button
+                type="button"
+                className="btn-start-game"
+                onClick={startGame}
+              >
                 ▶ ゲームを開始する
               </button>
-              <button type="button" className="btn-leave-room" onClick={leaveRoom}>
+              <button
+                type="button"
+                className="btn-leave-room"
+                onClick={leaveRoom}
+              >
                 🚪 退出する
               </button>
             </div>
@@ -1495,15 +1647,23 @@ export default function App() {
       ) : (
         <>
           {/* 1. Upper Theme & Judgment Stage (RESULT_ANNOUNCEMENT_SPEC v2.0) */}
-          <section className={`themeStage themeStage--${stageMode}`} aria-label="大喜利ステージ">
+          <section
+            className={`themeStage themeStage--${stageMode}`}
+            aria-label="大喜利ステージ"
+          >
             {/* Layer 1: 常時表示デフォルトフレーム */}
-            <DefaultArenaFrame variant={stageMode === "theme" ? "theme" : "judgment"} />
+            <DefaultArenaFrame
+              variant={stageMode === "theme" ? "theme" : "judgment"}
+            />
 
             {/* Phase 0: 通常のお題表示 */}
             {stageMode === "theme" && (
               <>
                 <div className="themeStage__hud">
-                  <div className="themeStage__roundBadge" aria-label={`第${questionNumber}問`}>
+                  <div
+                    className="themeStage__roundBadge"
+                    aria-label={`第${questionNumber}問`}
+                  >
                     第 {questionNumber} 問
                     {roomTtsEnabled && (
                       <span
@@ -1545,18 +1705,27 @@ export default function App() {
                       className={`themeStage__timer ${isTimerPaused ? "themeStage__timer--paused" : ""}`}
                       aria-label={`残り時間 ${formatTime(remaining)} ${isTimerPaused ? "（停止中）" : ""}`}
                     >
-                      <span className="themeStage__timerIcon" aria-hidden="true">
+                      <span
+                        className="themeStage__timerIcon"
+                        aria-hidden="true"
+                      >
                         {isTimerPaused ? "⏸" : "◷"}
                       </span>
                       <span>{formatTime(remaining)}</span>
-                      {isTimerPaused && <span className="themeStage__timerPausedTag">停止中</span>}
+                      {isTimerPaused && (
+                        <span className="themeStage__timerPausedTag">
+                          停止中
+                        </span>
+                      )}
                     </div>
 
                     <button
                       type="button"
                       className={`themeStage__timerButton ${isTimerPaused ? "themeStage__timerButton--paused" : ""}`}
                       onClick={toggleTimer}
-                      title={isTimerPaused ? "タイマーを再開" : "タイマーを停止"}
+                      title={
+                        isTimerPaused ? "タイマーを再開" : "タイマーを停止"
+                      }
                     >
                       {isTimerPaused ? "▶ 再開" : "⏸ 停止"}
                     </button>
@@ -1574,7 +1743,9 @@ export default function App() {
                 <div className="themeStage__question">
                   <p className="themeStage__eyebrow">お 題</p>
                   <div className="themeStage__titleWrapper">
-                    <h1 className={`themeStage__title ${getThemeSizeClass(theme || "")}`}>
+                    <h1
+                      className={`themeStage__title ${getThemeSizeClass(theme || "")}`}
+                    >
                       {theme || "お題を読み込んでいます..."}
                     </h1>
                   </div>
@@ -1598,7 +1769,9 @@ export default function App() {
                 <div className="answerArea">
                   <div className="answerArea__player-wrapper">
                     {(() => {
-                      const pObj = players.find((pl) => pl.name === judging.player);
+                      const pObj = players.find(
+                        (pl) => pl.name === judging.player,
+                      );
                       if (pObj?.avatar_url) {
                         return (
                           <img
@@ -1610,12 +1783,18 @@ export default function App() {
                       }
                       return null;
                     })()}
-                    <div className="answerArea__player">{judging.player} の回答</div>
+                    <div className="answerArea__player">
+                      {judging.player} の回答
+                    </div>
                   </div>
 
                   {/* 白フリップ */}
-                  <div className={`answerFlip ${judging.done && judging.isIppon ? "answerFlip--ippon" : ""}`}>
-                    <p className={`answerFlip__text ${getAnswerSizeClass(judging.answer)}`}>
+                  <div
+                    className={`answerFlip ${judging.done && judging.isIppon ? "answerFlip--ippon" : ""}`}
+                  >
+                    <p
+                      className={`answerFlip__text ${getAnswerSizeClass(judging.answer)}`}
+                    >
                       「{judging.answer}」
                     </p>
                   </div>
@@ -1628,17 +1807,23 @@ export default function App() {
 
                 {/* 未IPPON時の点数丸バッジ */}
                 {judging.done && !judging.isIppon && (
-                  <div className="scoreBadge" aria-label={`得点: ${judging.totalScore}点`}>
-                    <span className="scoreBadge__number">{judging.totalScore}</span>
+                  <div
+                    className="scoreBadge"
+                    aria-label={`得点: ${judging.totalScore}点`}
+                  >
+                    <span className="scoreBadge__number">
+                      {judging.totalScore}
+                    </span>
                   </div>
                 )}
 
                 {/* アクセシビリティ用通知（視覚的には非表示） */}
                 <div className="srOnly" aria-live="polite">
                   {!judging.done && `採点中: ${judging.litFrames} / 10`}
-                  {judging.done && (
-                    judging.isIppon ? "AI-PPON、10点満点" : `今回の得点は ${judging.totalScore} 点`
-                  )}
+                  {judging.done &&
+                    (judging.isIppon
+                      ? "AI-PPON、10点満点"
+                      : `今回の得点は ${judging.totalScore} 点`)}
                 </div>
               </>
             )}
@@ -1647,22 +1832,39 @@ export default function App() {
           {/* 2. Lower Area: Scoreboard + Feed + Input */}
           <div className="arena-bottom">
             {/* Player Scoreboard */}
-            <section className="player-scoreboard" aria-label="出場者一覧と得点">
+            <section
+              className="player-scoreboard"
+              aria-label="出場者一覧と得点"
+            >
               {players.map((p) => (
-                <div key={p.id} className="player-score-card" aria-label={`${p.name}: ${p.ippons} AI-PPON`}>
+                <div
+                  key={p.id}
+                  className="player-score-card"
+                  aria-label={`${p.name}: ${p.ippons} AI-PPON`}
+                >
                   <div className="player-score-identity">
                     <div className="player-mini-avatar">
                       {p.avatar_url ? (
-                        <img src={p.avatar_url} alt={p.name} className="player-mini-avatar-img" />
+                        <img
+                          src={p.avatar_url}
+                          alt={p.name}
+                          className="player-mini-avatar-img"
+                        />
                       ) : (
                         <span>{p.name.charAt(0).toUpperCase()}</span>
                       )}
                     </div>
                     <span className="player-name">{p.name}</span>
                   </div>
-                  <div className="ippon-bars-container" title={`${p.ippons} AI-PPON`}>
+                  <div
+                    className="ippon-bars-container"
+                    title={`${p.ippons} AI-PPON`}
+                  >
                     {[0, 1, 2].map((idx) => (
-                      <div key={idx} className={`ippon-bar ${idx < p.ippons ? "active" : ""}`} />
+                      <div
+                        key={idx}
+                        className={`ippon-bar ${idx < p.ippons ? "active" : ""}`}
+                      />
                     ))}
                   </div>
                 </div>
@@ -1698,27 +1900,34 @@ export default function App() {
       )}
 
       {/* 3. Match Winner Overlay */}
-      {winner && (() => {
-        const winPlayer = players.find((pl) => pl.name === winner);
-        return (
-          <div className="overlay" role="dialog" aria-modal="true">
-            <div className="reveal-card">
-              {winPlayer?.avatar_url && (
-                <div className="winner-avatar-container">
-                  <img src={winPlayer.avatar_url} alt={winner} className="winner-avatar-img" />
+      {winner &&
+        (() => {
+          const winPlayer = players.find((pl) => pl.name === winner);
+          return (
+            <div className="overlay" role="dialog" aria-modal="true">
+              <div className="reveal-card">
+                {winPlayer?.avatar_url && (
+                  <div className="winner-avatar-container">
+                    <img
+                      src={winPlayer.avatar_url}
+                      alt={winner}
+                      className="winner-avatar-img"
+                    />
+                  </div>
+                )}
+                <div className="ippon-banner" style={{ marginBottom: 24 }}>
+                  🏆 {winner} 優勝!!
                 </div>
-              )}
-              <div className="ippon-banner" style={{ marginBottom: 24 }}>
-                🏆 {winner} 優勝!!
+                <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>
+                  3本のAI-PPONを獲得して勝利しました！
+                </p>
+                <button className="submit-btn" onClick={restart}>
+                  もう一度遊ぶ
+                </button>
               </div>
-              <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>3本のAI-PPONを獲得して勝利しました！</p>
-              <button className="submit-btn" onClick={restart}>
-                もう一度遊ぶ
-              </button>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
 
       {/* トースト通知 */}
       {toast && (
