@@ -40,119 +40,90 @@ function tone(
   o.stop(a.currentTime + start + dur);
 }
 let ipponAudioBuffer: AudioBuffer | null = null;
-async function loadIpponVoice() {
+let ipponAudioLoadingPromise: Promise<AudioBuffer | null> | null = null;
+
+async function loadIpponVoice(): Promise<AudioBuffer | null> {
   if (ipponAudioBuffer) return ipponAudioBuffer;
-  try {
+  if (ipponAudioLoadingPromise) return ipponAudioLoadingPromise;
+
+  ipponAudioLoadingPromise = (async () => {
+    try {
+      const a = audio();
+      const res = await fetch("/aippon_voice.wav");
+      const arrayBuffer = await res.arrayBuffer();
+      ipponAudioBuffer = await a.decodeAudioData(arrayBuffer);
+    } catch (err) {
+      console.warn("Failed to load ippon voice:", err);
+    } finally {
+      ipponAudioLoadingPromise = null;
+    }
+    return ipponAudioBuffer;
+  })();
+
+  return ipponAudioLoadingPromise;
+}
+
+// フォールバック用のAudioElement（AudioBufferデコード失敗時の安全策）
+let fallbackIpponAudioEl: HTMLAudioElement | null = null;
+function getFallbackIpponAudio(): HTMLAudioElement {
+  if (!fallbackIpponAudioEl) {
+    fallbackIpponAudioEl = new Audio("/aippon_voice.wav");
+    fallbackIpponAudioEl.preload = "auto";
+  }
+  return fallbackIpponAudioEl;
+}
+
+// ユーザー操作時に事前ロード & Web Speech API / Web Audio アンロック
+if (typeof window !== "undefined") {
+  const unlockAudioAndSpeech = () => {
     const a = audio();
-    const res = await fetch("/aippon_voice.wav");
-    const arrayBuffer = await res.arrayBuffer();
-    ipponAudioBuffer = await a.decodeAudioData(arrayBuffer);
-  } catch (err) {
-    console.warn("Failed to load ippon voice:", err);
-  }
-  return ipponAudioBuffer;
-}
-// 初回ロードをバックグラウンドで走らせておく
-if (typeof window !== "undefined") {
-  window.addEventListener(
-    "click",
-    () => {
-      audio();
-      loadIpponVoice();
-    },
-    { once: true },
-  );
-}
+    if (a.state === "suspended") {
+      a.resume().catch(() => {});
+    }
+    loadIpponVoice();
+    try {
+      getFallbackIpponAudio().load();
+    } catch {}
 
-let ipponAudioEl: HTMLAudioElement | null = null;
-let ipponMediaSourceNode: MediaElementAudioSourceNode | null = null;
-
-function getIpponAudioPipeline() {
-  const a = audio();
-  if (!ipponAudioEl) {
-    ipponAudioEl = new Audio("/aippon_voice.wav");
-    // ピッチを上げずに速度だけ上げる設定（標準ブラウザ対応）
-    (ipponAudioEl as any).preservesPitch = true;
-    (ipponAudioEl as any).mozPreservesPitch = true;
-    (ipponAudioEl as any).webkitPreservesPitch = true;
-    ipponAudioEl.playbackRate = 2;
-    ipponAudioEl.preload = "auto";
-
-    ipponMediaSourceNode = a.createMediaElementSource(ipponAudioEl);
-
-    // 1. 低音・男性らしいドス・重厚感を補強するEQ（150Hz〜250Hzをブースト、高域を抑えて声を太く低く）
-    const bassBoost = a.createBiquadFilter();
-    bassBoost.type = "lowshelf";
-    bassBoost.frequency.setValueAtTime(260, a.currentTime);
-    bassBoost.gain.setValueAtTime(6.0, a.currentTime); // 重低音ブースト
-
-    const highCut = a.createBiquadFilter();
-    highCut.type = "peaking";
-    highCut.frequency.setValueAtTime(3200, a.currentTime);
-    highCut.gain.setValueAtTime(-3.5, a.currentTime); // キンキンした高音をカットし太さを強調
-
-    // 2. 音圧コンプレッサー
-    const comp = a.createDynamicsCompressor();
-    comp.threshold.setValueAtTime(-16, a.currentTime);
-    comp.knee.setValueAtTime(20, a.currentTime);
-    comp.ratio.setValueAtTime(6, a.currentTime);
-
-    // 3. メインゲイン
-    const mainGain = a.createGain();
-    mainGain.gain.setValueAtTime(0.85, a.currentTime);
-
-    // 4. アリーナ風ディレイ（空間エコー）
-    const delay = a.createDelay();
-    delay.delayTime.setValueAtTime(0.16, a.currentTime);
-
-    const delayFeedback = a.createGain();
-    delayFeedback.gain.setValueAtTime(0.3, a.currentTime);
-
-    const delayFilter = a.createBiquadFilter();
-    delayFilter.type = "lowpass";
-    delayFilter.frequency.setValueAtTime(1800, a.currentTime);
-
-    const delayGain = a.createGain();
-    delayGain.gain.setValueAtTime(0.28, a.currentTime);
-
-    // 接続
-    ipponMediaSourceNode.connect(bassBoost);
-    bassBoost.connect(highCut);
-    highCut.connect(comp);
-    comp.connect(mainGain);
-
-    mainGain.connect(a.destination);
-
-    mainGain.connect(delay);
-    delay.connect(delayFilter);
-    delayFilter.connect(delayFeedback);
-    delayFeedback.connect(delay);
-    delayFilter.connect(delayGain);
-    delayGain.connect(a.destination);
-  }
-  return ipponAudioEl;
-}
-
-// ユーザー操作時に事前ロード
-if (typeof window !== "undefined") {
-  window.addEventListener(
-    "click",
-    () => {
-      audio();
+    // iOS (Chrome / Safari WebKit) 向け Web Speech API アンロック
+    if ("speechSynthesis" in window) {
       try {
-        getIpponAudioPipeline().load();
+        const u = new SpeechSynthesisUtterance("");
+        u.volume = 0;
+        u.rate = 2;
+        window.speechSynthesis.speak(u);
       } catch {}
-    },
-    { once: true },
-  );
+    }
+  };
+
+  window.addEventListener("click", unlockAudioAndSpeech, { once: true });
+  window.addEventListener("touchstart", unlockAudioAndSpeech, { once: true });
 }
 
 function playIpponVoice() {
   try {
-    const el = getIpponAudioPipeline();
-    el.currentTime = 0;
-    el.playbackRate = 2.0;
-    el.play().catch((e) => console.warn("playIpponVoice error:", e));
+    const a = audio();
+    if (a.state === "suspended") {
+      a.resume().catch(() => {});
+    }
+
+    if (ipponAudioBuffer) {
+      // 事前加工済みのWAVをAudioBufferSourceNodeで等倍再生
+      // iOS / Android / PC 全ての環境でブラウザ依存なく100%同一の音質・ピッチで再生される
+      const source = a.createBufferSource();
+      source.buffer = ipponAudioBuffer;
+      const gainNode = a.createGain();
+      gainNode.gain.setValueAtTime(0.9, a.currentTime);
+      source.connect(gainNode).connect(a.destination);
+      source.start(a.currentTime);
+    } else {
+      // まだデコードが完了していない場合のフォールバック再生
+      const el = getFallbackIpponAudio();
+      el.currentTime = 0;
+      el.playbackRate = 1.0;
+      el.play().catch((e) => console.warn("playIpponVoice fallback error:", e));
+      loadIpponVoice();
+    }
   } catch (e) {
     console.warn("playIpponVoice failure:", e);
   }
@@ -1028,7 +999,13 @@ export default function App() {
         return;
       }
 
-      window.speechSynthesis.cancel();
+      try {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+        window.speechSynthesis.cancel();
+      } catch {}
+
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "ja-JP";
       u.pitch = 1.0;
