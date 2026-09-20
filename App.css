@@ -98,31 +98,25 @@ body {
   }
 }
 
-/* 漆黒×クローム光沢のエントリーコンソール（画像のブラック光沢バーの質感を継承） */
+/* ==========================================================================
+   フリップ風エントリーカード（terms / privacy と完全共通の白カード×黒枠仕様）
+   ========================================================================== */
 .join-card {
   position: relative;
   width: 100%;
-  background: linear-gradient(180deg, #28201a 0%, #15100d 25%, #080605 100%);
-  border: 2px solid #584c42;
-  border-radius: 16px;
-  padding: 28px 24px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25), 0 20px 48px rgba(0, 0, 0, 0.45);
+  background: #ffffff;
+  color: #111111;
+  border: 2px solid #111111;
+  border-radius: 14px;
+  padding: 30px 24px 26px;
+  box-shadow:
+    0 8px 0 #1b1b1b,
+    0 20px 48px rgba(0, 0, 0, 0.22);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   overflow: hidden;
   animation: joinCardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
-}
-
-/* カード表面のガラス光沢リフレクション */
-.join-card-sheen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 120%;
-  height: 60px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 60%);
-  pointer-events: none;
 }
 
 @keyframes joinCardEntrance {
@@ -141,7 +135,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   margin-bottom: 22px;
 }
 
@@ -149,24 +143,28 @@ body {
   font-size: 0.72rem;
   letter-spacing: 3px;
   font-weight: 900;
-  color: #ffdc00;
+  color: #111111;
+  background: #ffdc00;
+  padding: 3px 12px;
+  border-radius: 4px;
+  border: 1.5px solid #111111;
+  box-shadow: 0 2px 0 #111111;
   text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(255, 220, 0, 0.4);
 }
 
 .join-card-title {
-  font-size: 1.3rem;
+  font-family: var(--font-heavy);
+  font-size: 1.4rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #111111;
   letter-spacing: 1.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .join-form {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   width: 100%;
 }
 
@@ -188,121 +186,162 @@ body {
   font-size: 0.74rem;
   font-weight: 900;
   letter-spacing: 2px;
-  color: #ffdc00;
+  color: #d5001c;
 }
 
 .join-field-label .label-jp {
   font-size: 0.82rem;
-  font-weight: 700;
-  color: #c4c6ce;
+  font-weight: 800;
+  color: #222222;
 }
 
 .join-input {
   width: 100%;
-  padding: 13px 16px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  border-radius: 10px;
-  background: #060505;
-  border: 2px solid #38302a;
-  color: #ffffff;
+  padding: 12px 16px;
+  font-family: var(--font-heavy);
+  font-size: 1.05rem;
+  font-weight: 800;
+  border-radius: 8px;
+  background: #f7f7f9;
+  border: 2px solid #111111;
+  color: #111111;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   box-sizing: border-box;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .join-input:focus {
-  border-color: #ffdc00;
-  box-shadow: 0 0 14px rgba(255, 220, 0, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.9);
-  background: #000000;
+  background: #ffffff;
+  border-color: #111111;
+  box-shadow: 0 0 0 3px rgba(255, 220, 0, 0.65), inset 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .join-input::placeholder {
-  color: #6a645e;
-  font-weight: 500;
+  color: #9c9ca4;
+  font-weight: 600;
 }
 
-/* アンサーボタン風の「入場する」立体ボタン */
+/* ==========================================================================
+   アンサーボタン仕様「入場する」コンソール
+   IPPONグランプリの回答席にある深紅のハードボタンと特番グラフィックの質感を再現
+   ========================================================================== */
+.join-submit-container {
+  width: 100%;
+  margin-top: 10px;
+}
+
 .join-submit-btn {
   position: relative;
   width: 100%;
-  padding: 14px 20px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, #ff3b4e 0%, #d8001e 50%, #aa0016 100%);
+  padding: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ff1733 0%, #d5001c 65%, #a60015 100%);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #111111;
   cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 5px 0 #111111,
+    0 12px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+}
+
+/* ボタン内部コンテンツ配置 */
+.join-btn-body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 20px;
+  gap: 12px;
+}
+
+.join-btn-labels {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  box-shadow: 0 6px 0 #73000e, 0 12px 24px rgba(170, 0, 22, 0.5);
-  transition: all 0.12s ease;
-  margin-top: 8px;
-  user-select: none;
-  overflow: hidden;
-}
-
-.join-btn-sheen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 100%);
-  pointer-events: none;
+  gap: 1px;
 }
 
 .join-submit-btn .join-btn-sub {
-  position: relative;
+  font-family: var(--font-heavy);
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 3px;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  color: #ffdc00;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
 
 .join-submit-btn .join-btn-main {
-  position: relative;
-  font-size: 1.3rem;
+  font-family: var(--font-heavy);
+  font-size: 1.35rem;
   font-weight: 900;
   letter-spacing: 3px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
+/* エントリーアローアイコン */
+.join-btn-arrow-icon {
+  color: #ffdc00;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.join-submit-btn:hover:not(:disabled) .join-btn-arrow-icon {
+  transform: translateX(3px);
+}
+
+/* ホバー＆アクティブ状態 */
 .join-submit-btn:hover:not(:disabled) {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 0 #73000e, 0 16px 28px rgba(170, 0, 22, 0.6);
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 6px 0 #111111,
+    0 14px 28px rgba(0, 0, 0, 0.25);
 }
 
 .join-submit-btn:active:not(:disabled) {
   transform: translateY(4px);
-  box-shadow: 0 2px 0 #73000e, 0 6px 12px rgba(170, 0, 22, 0.4);
+  box-shadow: 
+    0 1px 0 rgba(0, 0, 0, 0.2) inset,
+    0 1px 0 #111111,
+    0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .join-submit-btn:disabled {
-  background: #332b26;
-  box-shadow: 0 4px 0 #1e1916;
-  border-color: transparent;
-  color: #7a7068;
+  background: #e2e2e8;
+  border-color: #888890;
+  box-shadow: 0 3px 0 #888890;
+  color: #888890;
   cursor: not-allowed;
-  opacity: 0.65;
+  opacity: 0.8;
+}
+
+.join-submit-btn:disabled .join-btn-sub,
+.join-submit-btn:disabled .join-btn-main,
+.join-submit-btn:disabled .join-btn-arrow-icon {
+  color: #888890;
+  text-shadow: none;
 }
 
 .join-card-footer {
   position: relative;
-  margin-top: 16px;
+  margin-top: 14px;
   text-align: center;
 }
 
 .join-footer-hint {
-  font-size: 0.78rem;
-  color: #948b82;
-  font-weight: 600;
+  font-size: 12px;
+  color: #666666;
+  font-weight: 700;
 }
+
 
 /* トップ画面 法的情報フッター (利用規約・プライバシーポリシー) */
 .join-page-footer {
@@ -1867,28 +1906,59 @@ body {
 .btn-copy-url {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: linear-gradient(180deg, #2a2a36 0%, #1c1c24 100%);
-  border: 1px solid rgba(255, 208, 0, 0.4);
-  color: var(--color-gold);
+  justify-content: center;
+  gap: 7px;
+  background: linear-gradient(180deg, #2a2b37 0%, #1a1b24 100%);
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  color: #ffe6a3;
   font-size: 13px;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 6px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 3px 8px rgba(0, 0, 0, 0.45);
+  user-select: none;
 }
 
 .btn-copy-url:hover {
-  background: linear-gradient(180deg, #38384a 0%, #252532 100%);
-  border-color: var(--color-gold);
-  box-shadow: 0 0 10px rgba(255, 208, 0, 0.25);
-  transform: translateY(-1px);
+  background: linear-gradient(180deg, #373948 0%, #242533 100%);
+  border-color: #ffd700;
+  color: #ffffff;
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 0 14px rgba(255, 215, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1.5px);
 }
 
 .btn-copy-url:active {
-  transform: translateY(0);
+  transform: translateY(1px);
+  box-shadow: 
+    0 1px 0 rgba(0, 0, 0, 0.5) inset,
+    0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* コピー完了時のフィードバック演出 */
+.btn-copy-url.is-copied {
+  background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  border-color: #34d399;
+  color: #ffffff;
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 0 16px rgba(52, 211, 153, 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+  animation: copyPulse 0.3s ease-out;
+}
+
+@keyframes copyPulse {
+  0% { transform: scale(0.96); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
 }
 
 /* 待機参加者リスト */
@@ -1973,11 +2043,15 @@ body {
 .btn-start-game {
   flex: 2;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: linear-gradient(180deg, #ffd700 0%, #ffaa00 100%);
   border: 1px solid #ffffff;
   color: #0d0d0d;
   font-family: var(--font-heavy);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 900;
   padding: 14px 20px;
   border-radius: 8px;
@@ -1999,6 +2073,10 @@ body {
 
 .btn-leave-room {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #c0c0cf;
@@ -2015,6 +2093,39 @@ body {
   background: rgba(255, 59, 48, 0.15);
   border-color: rgba(255, 59, 48, 0.4);
   color: #ff453a;
+}
+
+.btn-tts-toggle {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #a0a0b0;
+  font-family: var(--font-heavy);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-tts-toggle:hover {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+}
+
+.btn-tts-toggle.is-active {
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+}
+
+.btn-tts-toggle.is-active:hover {
+  background: rgba(255, 59, 48, 0.12);
+  border-color: rgba(255, 59, 48, 0.4);
+  color: #ff6b6b;
 }
 
 /* ゲーム内HUD追加ボタン (部屋共有・退出) */
@@ -2109,28 +2220,286 @@ body {
   }
 }
 
-/* エントリー画面のランダムボタン */
+/* ==========================================================================
+   エントリー画面: ルーム入力＆再生成ボタン（スタジオ機材仕様）
+   ========================================================================== */
 .room-input-group {
   display: flex;
   gap: 8px;
+  width: 100%;
 }
 
+.room-input-group .join-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 白カード用の再生成ボタン */
 .btn-random-room {
-  background: #252530;
-  border: 1px solid #444455;
-  color: var(--color-gold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 2px solid #111111;
+  color: #111111;
+  font-family: var(--font-heavy);
   font-size: 13px;
-  font-weight: 700;
-  padding: 0 14px;
-  border-radius: 6px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 0 16px;
+  height: auto;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.12s ease;
   white-space: nowrap;
+  user-select: none;
+  box-shadow: 0 3px 0 #111111;
 }
 
 .btn-random-room:hover {
-  background: #323242;
-  border-color: var(--color-gold);
+  background: #ffdc00;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #111111;
+}
+
+.btn-random-room:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #111111;
+}
+
+.btn-random-room .btn-action-icon {
+  color: #111111;
+  flex-shrink: 0;
+}
+
+/* ナレーション解禁バッジ & 解除ボタン */
+.narration-unlocked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #11141a 0%, #1e2330 100%);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  padding: 6px 14px;
+  border-radius: 24px;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(255, 215, 0, 0.25);
+  margin-top: -10px;
+  margin-bottom: 6px;
+  z-index: 10;
+  animation: toastPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.narration-unlocked-text {
+  color: #ffd700;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.narration-badge-icon {
+  color: #ffd700;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.6));
+}
+
+.narration-disable-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+}
+
+.narration-disable-btn:hover {
+  background: rgba(239, 68, 68, 0.45);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+  transform: translateY(-0.5px);
+}
+
+
+/* バナー内アラートアイコン */
+.banner-alert-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 6px;
+}
+
+@media (max-width: 480px) {
+  .btn-random-room {
+    padding: 0 12px;
+    font-size: 12px;
+  }
+  .join-submit-btn .join-btn-main {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+  .join-submit-btn .join-btn-body {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+}
+
+/* ==========================================================================
+   Discord Activity & Avatar Styling
+   ========================================================================== */
+
+/* 待機室アバター画像 */
+.waiting-player-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* スコアボード内プレイヤー情報 & ミニロゴ */
+.player-score-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.player-mini-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.player-mini-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 回答発表エリアのアバター */
+.answerArea__player-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.answerArea__avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-gold);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  object-fit: cover;
+}
+
+/* 勝者オーバーレイのアバター */
+.winner-avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.winner-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 24px rgba(255, 215, 0, 0.6);
+  object-fit: cover;
+  animation: pulseAvatar 2s infinite ease-in-out;
+}
+
+@keyframes pulseAvatar {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 36px rgba(255, 215, 0, 0.9);
+  }
+}
+
+/* Discord ローディングカード */
+.discord-loading-card {
+  background: rgba(18, 18, 24, 0.92);
+  border: 1px solid rgba(88, 101, 242, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(88, 101, 242, 0.2);
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 440px;
+  margin: 60px auto;
+  backdrop-filter: blur(12px);
+  animation: toastPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.discord-loading-spinner {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 20px;
+  border: 4px solid rgba(88, 101, 242, 0.2);
+  border-top-color: #5865f2;
+  border-radius: 50%;
+  animation: discordSpin 0.9s linear infinite;
+}
+
+@keyframes discordSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.discord-loading-title {
+  font-family: var(--font-heavy);
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.discord-loading-desc {
+  font-size: 13px;
+  color: #949ba4;
+  line-height: 1.5;
+}
+
+/* Discord エラーバナー */
+.discord-error-banner {
+  background: rgba(237, 66, 69, 0.15);
+  border: 1px solid rgba(237, 66, 69, 0.4);
+  color: #ff8587;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(237, 66, 69, 0.2);
 }
 
 

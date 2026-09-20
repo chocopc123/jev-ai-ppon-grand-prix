@@ -373,7 +373,7 @@ async def terms_of_service():
                 <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
                 <div class="disclaimer-box">
-                    <p style="margin: 0; font-size: 13.5px; color: #ffd700;"><strong>【非提携に関する明記 / Disclaimer of Affiliation】</strong><br>
+                    <p style="margin: 0; font-size: 13.5px; color: #854d0e; line-height: 1.6;"><strong>【非提携に関する明記 / Disclaimer of Affiliation】</strong><br>
                     本サービス「AI-PPON GRAND PRIX」は，独立したファンメイド・インディー開発プロジェクトです。実在する特定のテレビ番組，放送局，芸能事務所，興行団体，または特定の法人・団体等とは一切提携・後援・関係するものではありません。</p>
                 </div>
 
@@ -604,7 +604,7 @@ async def privacy_policy():
                         <p><strong>サービス名：</strong> AI-PPON GRAND PRIX</p>
                         <p><strong>運営組織：</strong> AI-PPON GRAND PRIX 開発運営チーム</p>
                         <p><strong>Discordサポート：</strong> 公式Discordサーバーまたは開発者DM</p>
-                        <p><strong>Web・メール窓口：</strong> <a href="mailto:support@ai-ppon.internal" style="color: #ffd700;">support@ai-ppon.internal</a> （またはアプリ公式お問い合わせフォーム）</p>
+                        <p><strong>Web・メール窓口：</strong> <a href="mailto:chocoduck.dev@gmail.com" style="color: #1d4ed8; font-weight: 600; text-decoration: underline;">chocoduck.dev@gmail.com</a> （またはアプリ公式お問い合わせフォーム）</p>
                     </div>
                 </section>
 
@@ -614,7 +614,7 @@ async def privacy_policy():
                     <strong>Zero Data Retention:</strong> All user information and submitted game answers are strictly processed in-memory during an active session and are permanently wiped immediately upon session closure. Thus, no persistent personal data is stored on disk.<br>
                     <strong>No AI Model Training:</strong> In compliance with Discord Developer Policy (Rule 21), user data and answers are NEVER used to train, tune, or improve machine learning or AI models.<br>
                     <strong>Children's Privacy:</strong> The service is not directed at children under the age of 13, and does not knowingly collect personal data from them.<br>
-                    <strong>Contact:</strong> For privacy inquiries, please contact our support desk via Discord or support email.</p>
+                    <strong>Contact:</strong> For privacy inquiries, please contact our support desk via Discord or support email (<a href="mailto:chocoduck.dev@gmail.com" style="color: #1d4ed8; text-decoration: underline;">chocoduck.dev@gmail.com</a>).</p>
                 </div>
             </div>
         </main>

@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { DiscordSDK } from "@discord/embedded-app-sdk";
 import "./App.css";
 
-type Player = { id: string; name: string; ippons: number };
+type Player = {
+  id: string;
+  name: string;
+  ippons: number;
+  avatar_url?: string | null;
+};
 type TimelineItem = { judge: string; score: number; delay_ms: number };
 
 type FeedItem = {
@@ -393,6 +399,193 @@ type JudgingState = {
   done: boolean;
 };
 
+// ============================================================================
+// UI Icons (Premium Vector Icons)
+// ============================================================================
+function DiceIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="3.5" />
+      <circle cx="8" cy="8" r="1.4" fill="currentColor" />
+      <circle cx="16" cy="8" r="1.4" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+      <circle cx="8" cy="16" r="1.4" fill="currentColor" />
+      <circle cx="16" cy="16" r="1.4" fill="currentColor" />
+    </svg>
+  );
+}
+
+function CopyIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="9" y="9" width="13" height="13" rx="2.5" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function EnterArenaIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" opacity="0.25" />
+      <path d="M5 3l14 9-14 9V3z" />
+      <path d="M12 7l5 5-5 5" />
+    </svg>
+  );
+}
+
+function MicIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" y1="19" x2="12" y2="23" />
+      <line x1="8" y1="23" x2="16" y2="23" />
+    </svg>
+  );
+}
+
+function CloseIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+
+function AlertIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  );
+}
+
+function PlayIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+  );
+}
+
+function ExitIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  );
+}
+
 type DefaultArenaFrameProps = {
   variant: "theme" | "judgment";
 };
@@ -487,6 +680,17 @@ function generateRoomId(): string {
   return res;
 }
 
+function checkIsDiscord(): boolean {
+  if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  return (
+    params.has("frame_id") ||
+    window.location.host.includes("discordsays.com")
+  );
+}
+
+const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "";
+
 export default function App() {
   const [screen, setScreen] = useState<"join" | "game">("join");
   const [roomPhase, setRoomPhase] = useState<
@@ -509,16 +713,21 @@ export default function App() {
   });
   const [roomId, setRoomId] = useState<string>(() => {
     if (typeof window === "undefined") return "";
+    if (checkIsDiscord()) return ""; // Discord Activity では SDK が DSC-{channelId} を設定する
     const params = new URLSearchParams(window.location.search);
     const roomFromUrl = params.get("room")?.trim();
     if (roomFromUrl) return roomFromUrl;
-    const newId = generateRoomId();
-    const newUrl = `${window.location.pathname}?room=${encodeURIComponent(newId)}`;
-    window.history.replaceState({}, "", newUrl);
-    return newId;
+    return generateRoomId();
   });
   const [toast, setToast] = useState<string | null>(null);
+  const [copiedRoomUrl, setCopiedRoomUrl] = useState<boolean>(false);
   const wsRef = useRef<WebSocket | null>(null);
+
+  // Discord Activities 連携ステート
+  const [isDiscord, setIsDiscord] = useState<boolean>(() => checkIsDiscord());
+  const [discordLoading, setDiscordLoading] = useState<boolean>(false);
+  const [discordError, setDiscordError] = useState<string | null>(null);
+  const [myAvatarUrl, setMyAvatarUrl] = useState<string | null>(null);
 
   const [players, setPlayers] = useState<Player[]>([]);
   const [theme, setTheme] = useState("");
@@ -546,6 +755,7 @@ export default function App() {
   });
   const [roomTtsEnabled, setRoomTtsEnabled] = useState<boolean>(false);
   const logoClickTimesRef = useRef<number[]>([]);
+  const roomIdClickTimesRef = useRef<number[]>([]);
 
   const handleLogoClick = () => {
     const now = Date.now();
@@ -594,6 +804,8 @@ export default function App() {
     try {
       const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(target)}`;
       await navigator.clipboard.writeText(url);
+      setCopiedRoomUrl(true);
+      setTimeout(() => setCopiedRoomUrl(false), 2000);
       showToast("招待URLをコピーしました！");
     } catch (e) {
       console.warn("Copy failed:", e);
@@ -833,24 +1045,31 @@ export default function App() {
     targetRoomId?: string,
     targetName?: string,
     targetPid?: string,
+    targetAvatarUrl?: string,
   ) => {
     const rId = (targetRoomId || roomId || "").trim();
     const pName = (targetName || name || "").trim();
     if (!pName || !rId) return;
 
-    // URLのパラメータを更新
-    const newUrl = `${window.location.pathname}?room=${encodeURIComponent(rId)}`;
-    window.history.replaceState({}, "", newUrl);
+    // URLのパラメータを更新 (Discord Activity 内では URL を書き換えない)
+    if (!checkIsDiscord()) {
+      const newUrl = `${window.location.pathname}?room=${encodeURIComponent(rId)}`;
+      window.history.replaceState({}, "", newUrl);
+    }
 
     const pidToUse =
       targetPid ||
       myPlayerId ||
       localStorage.getItem("aippon_player_id") ||
       localStorage.getItem("oogiri_player_id");
+    const avatarToUse =
+      targetAvatarUrl !== undefined ? targetAvatarUrl : myAvatarUrl;
     const proto = location.protocol === "https:" ? "wss" : "ws";
     const queryParts = [];
     if (pidToUse) queryParts.push(`player_id=${encodeURIComponent(pidToUse)}`);
     if (ttsUnlocked) queryParts.push(`enable_tts=true`);
+    if (avatarToUse)
+      queryParts.push(`avatar_url=${encodeURIComponent(avatarToUse)}`);
     const queryParam = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
     const ws = new WebSocket(
       `${proto}://${location.host}/ws/${encodeURIComponent(rId)}/${encodeURIComponent(pName)}${queryParam}`,
@@ -889,6 +1108,15 @@ export default function App() {
           setPlayers(m.players);
           if (m.tts_enabled !== undefined) {
             setRoomTtsEnabled(Boolean(m.tts_enabled));
+          }
+          break;
+        case "TTS_TOGGLED":
+          setRoomTtsEnabled(Boolean(m.tts_enabled));
+          if (m.tts_enabled) {
+            sfx.unlock();
+            showToast("🎙️ AIナレーションがONになりました！");
+          } else {
+            showToast("🔇 AIナレーションがOFFになりました");
           }
           break;
         case "WAITING_LOBBY":
@@ -997,6 +1225,8 @@ export default function App() {
 
   // URLパラメータと自動再接続（リロード対策）
   useEffect(() => {
+    if (checkIsDiscord()) return; // Discord Activity 内は SDK による自動接続に任せる
+
     const savedRoom =
       localStorage.getItem("aippon_room_id") ||
       localStorage.getItem("oogiri_room_id");
@@ -1040,6 +1270,22 @@ export default function App() {
   const startGame = () => {
     wsRef.current?.send(JSON.stringify({ type: "START_GAME" }));
   };
+  const toggleTts = () => {
+    wsRef.current?.send(JSON.stringify({ type: "TOGGLE_TTS" }));
+  };
+  // 隠し要素: 部屋IDを5回連続クリックでナレーション切り替え
+  const handleRoomIdClick = () => {
+    const now = Date.now();
+    const recent = [
+      ...roomIdClickTimesRef.current.filter((t) => now - t < 2000),
+      now,
+    ];
+    roomIdClickTimesRef.current = recent;
+    if (recent.length >= 5) {
+      roomIdClickTimesRef.current = [];
+      toggleTts();
+    }
+  };
   const restart = () => {
     setStageMode("theme");
     setJudging(null);
@@ -1067,12 +1313,156 @@ export default function App() {
   };
 
   // --------------------------------------------------------------------------
+  // Discord Activity 初期化・自動認証フロー
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (!checkIsDiscord()) {
+      // 通常ブラウザアクセス: 何もしない (手動ロビー画面を表示)
+      return;
+    }
+
+    setIsDiscord(true);
+    let isMounted = true;
+
+    const initDiscord = async () => {
+      try {
+        setDiscordLoading(true);
+
+        // 1. Client ID の解決 (Vite環境変数 -> /api/config -> ハードコードフォールバック)
+        let clientId = DISCORD_CLIENT_ID;
+        if (!clientId) {
+          try {
+            const cfgRes = await fetch("/api/config");
+            if (cfgRes.ok) {
+              const cfg = await cfgRes.json();
+              clientId = cfg.discord_client_id || "";
+            }
+          } catch (e) {
+            console.warn("[Discord SDK] Failed to fetch /api/config:", e);
+          }
+        }
+        if (!clientId) {
+          clientId = "1551072987417944104";
+        }
+
+        console.log("[Discord SDK] Starting initialization with Client ID:", clientId);
+        const discordSdk = new DiscordSDK(clientId);
+        await discordSdk.ready();
+        console.log(
+          "[Discord SDK] ready() resolved. Channel ID:",
+          discordSdk.channelId,
+          "Instance ID:",
+          discordSdk.instanceId,
+        );
+
+        // 2. 認可コード取得
+        const { code } = await discordSdk.commands.authorize({
+          client_id: clientId,
+          response_type: "code",
+          state: "",
+          prompt: "none",
+          scope: ["identify", "guilds"],
+        });
+        console.log("[Discord SDK] Authorize success, code acquired");
+
+        // 3. バックエンドで access_token と交換
+        const tokenRes = await fetch("/api/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        });
+
+        if (!tokenRes.ok) {
+          const errDetail = await tokenRes.text();
+          throw new Error(`トークン交換失敗 (${tokenRes.status}): ${errDetail}`);
+        }
+
+        const { access_token } = await tokenRes.json();
+        console.log("[Discord SDK] Access token exchanged successfully");
+
+        // 4. SDK 認証
+        const auth = await discordSdk.commands.authenticate({ access_token });
+        if (!isMounted) return;
+
+        console.log("[Discord SDK] Authenticated as user:", auth.user);
+        const user = auth.user;
+        const displayName = user.global_name || user.username || "名無し";
+        let avatarUrl = "";
+        if (user.avatar) {
+          avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
+        } else {
+          try {
+            const defaultIdx = Number((BigInt(user.id) >> 22n) % 6n);
+            avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultIdx}.png`;
+          } catch {
+            avatarUrl = "https://cdn.discordapp.com/embed/avatars/0.png";
+          }
+        }
+
+        // 5. 部屋ID: ボイスチャンネルID優先 (DSC-${channelId})
+        const channelId =
+          discordSdk.channelId || discordSdk.instanceId || "voice";
+        const discordRoomId = `DSC-${channelId}`;
+
+        console.log(
+          `[Discord SDK] Auto-joining room: ${discordRoomId}, player: ${displayName}, avatar: ${avatarUrl}`,
+        );
+
+        setName(displayName);
+        setRoomId(discordRoomId);
+        setMyAvatarUrl(avatarUrl);
+
+        // 6. 自動接続
+        connect(discordRoomId, displayName, user.id, avatarUrl);
+      } catch (err: any) {
+        console.error("[Discord SDK Error]", err);
+        if (isMounted) {
+          setDiscordError(`Discord連携エラー: ${err.message || err}`);
+        }
+      } finally {
+        if (isMounted) {
+          setDiscordLoading(false);
+        }
+      }
+    };
+
+    initDiscord();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // --------------------------------------------------------------------------
   // Join Screen
   // --------------------------------------------------------------------------
   if (screen === "join") {
+    if (discordLoading) {
+      return (
+        <div className="join-container">
+          <div className="join-inner">
+            <div className="discord-loading-card">
+              <div className="discord-loading-spinner" />
+              <h2 className="discord-loading-title">Discord 連携中...</h2>
+              <p className="discord-loading-desc">
+                チャンネル情報とアカウントを確認しています
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="join-container">
         <div className="join-inner">
+          {discordError && (
+            <div className="discord-error-banner">
+              <AlertIcon className="banner-alert-icon" />
+              <span>{discordError}</span>
+            </div>
+          )}
           {/* 画像の色合い・質感を完全再現したベクタータイトルロゴ (5回連続タップでナレーション解禁) */}
           <div
             className="join-logo-wrapper"
@@ -1222,71 +1612,25 @@ export default function App() {
 
           {/* 隠しアンロック状態のインジケーター */}
           {ttsUnlocked && (
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "10px",
-                background: "linear-gradient(135deg, #11141a 0%, #1a1e29 100%)",
-                border: "1px solid #ffd700",
-                padding: "6px 14px",
-                borderRadius: "24px",
-                boxShadow:
-                  "0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 215, 0, 0.25)",
-                marginTop: "-10px",
-                marginBottom: "4px",
-                zIndex: 10,
-              }}
-            >
-              <span
-                style={{
-                  color: "#ffd700",
-                  fontSize: "12px",
-                  fontWeight: "800",
-                  letterSpacing: "0.5px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}
-              >
-                <span>🎙️</span>
+            <div className="narration-unlocked-badge">
+              <span className="narration-unlocked-text">
+                <MicIcon className="narration-badge-icon" />
                 <span>NARRATION MODE (AI-TTS) ACTIVE</span>
               </span>
               <button
                 type="button"
                 onClick={handleDisableNarration}
-                style={{
-                  background: "rgba(239, 68, 68, 0.25)",
-                  border: "1px solid rgba(239, 68, 68, 0.6)",
-                  color: "#ffffff",
-                  borderRadius: "12px",
-                  padding: "3px 8px",
-                  fontSize: "11px",
-                  fontWeight: "700",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  lineHeight: "1.2",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(239, 68, 68, 0.5)";
-                  e.currentTarget.style.borderColor = "#ef4444";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(239, 68, 68, 0.25)";
-                  e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.6)";
-                }}
+                className="narration-disable-btn"
                 title="ナレーションモードを解除"
               >
-                ✕ 解除
+                <CloseIcon />
+                <span>解除</span>
               </button>
             </div>
           )}
 
-          {/* 漆黒×クローム光沢のエントリーコンソール */}
+          {/* 回答フリップ同色の白カード（terms / privacy 共通デザイン） */}
           <div className="join-card">
-            <div className="join-card-sheen" aria-hidden="true" />
             <div className="join-card-header">
               <span className="join-card-tag">ENTRY DESK</span>
               <h2 className="join-card-title">プレイヤー参戦登録</h2>
@@ -1338,63 +1682,36 @@ export default function App() {
                     onClick={regenerateRoomId}
                     title="ランダムな部屋IDを再生成"
                   >
-                    🎲 再生成
+                    <DiceIcon className="btn-action-icon" />
+                    <span>再生成</span>
                   </button>
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "10px", width: "100%" }}>
+              <div className="join-submit-container">
                 <button
                   type="button"
                   className="join-submit-btn"
-                  style={{ flex: 1 }}
                   onClick={() => connect()}
                   disabled={!name.trim()}
                   aria-label="大会に入場する"
                 >
-                  <span className="join-btn-sheen" aria-hidden="true" />
-                  <span className="join-btn-sub">ENTER ARENA</span>
-                  <span className="join-btn-main">入場する</span>
-                </button>
-                <button
-                  type="button"
-                  className="btn-copy-url"
-                  onClick={() => copyRoomUrl()}
-                  title="友達に共有するURLをコピー"
-                  style={{ padding: "0 14px", height: "auto" }}
-                >
-                  📋 URLコピー
+                  <div className="join-btn-body">
+                    <div className="join-btn-labels">
+                      <span className="join-btn-sub">ENTER ARENA</span>
+                      <span className="join-btn-main">入場する</span>
+                    </div>
+                    <EnterArenaIcon className="join-btn-arrow-icon" />
+                  </div>
                 </button>
               </div>
             </div>
 
             <div className="join-card-footer">
-              <span className="join-footer-hint">
-                URLを共有すると同じ部屋に対戦相手を招待できます
-              </span>
-              {(import.meta.env.DEV ||
-                (typeof window !== "undefined" &&
-                  (window.location.hostname === "localhost" ||
-                    window.location.hostname === "127.0.0.1"))) && (
-                <div style={{ marginTop: "12px", textAlign: "center" }}>
-                  <a
-                    href="/devtool"
-                    style={{
-                      fontSize: "12px",
-                      color: "#ffd200",
-                      textDecoration: "none",
-                      background: "rgba(255, 210, 0, 0.1)",
-                      border: "1px solid rgba(255, 210, 0, 0.3)",
-                      padding: "4px 10px",
-                      borderRadius: "12px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    🛠️ 演出デバッグツール (DevTool) を開く
-                  </a>
-                </div>
+              {!isDiscord && (
+                <span className="join-footer-hint">
+                  ※招待URLは入室後にコピーできます
+                </span>
               )}
             </div>
           </div>
@@ -1458,9 +1775,13 @@ export default function App() {
                     borderRadius: "10px",
                     fontSize: "10px",
                     fontWeight: "900",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px",
                   }}
                 >
-                  🎙️ AI NARRATION ON
+                  <MicIcon />
+                  <span>AI NARRATION ON</span>
                 </span>
               )}
             </div>
@@ -1472,15 +1793,34 @@ export default function App() {
             <div className="room-share-bar">
               <div className="room-share-info">
                 <span className="room-share-label">ROOM:</span>
-                <span className="room-share-id">{roomId}</span>
+                {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+                <span
+                  className="room-share-id"
+                  onClick={handleRoomIdClick}
+                  style={{ userSelect: "none" }}
+                >
+                  {roomId}
+                </span>
               </div>
-              <button
-                type="button"
-                className="btn-copy-url"
-                onClick={() => copyRoomUrl()}
-              >
-                📋 招待URLをコピー
-              </button>
+              {!isDiscord && (
+                <button
+                  type="button"
+                  className={`btn-copy-url ${copiedRoomUrl ? "is-copied" : ""}`}
+                  onClick={() => copyRoomUrl()}
+                >
+                  {copiedRoomUrl ? (
+                    <>
+                      <CheckIcon className="btn-action-icon" />
+                      <span>コピー完了</span>
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon className="btn-action-icon" />
+                      <span>招待URLをコピー</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
             <div className="waiting-players-section">
@@ -1496,7 +1836,15 @@ export default function App() {
                     className={`waiting-player-chip ${p.id === myPlayerId ? "is-me" : ""}`}
                   >
                     <div className="waiting-player-avatar">
-                      {p.name.charAt(0).toUpperCase()}
+                      {p.avatar_url ? (
+                        <img
+                          src={p.avatar_url}
+                          alt={p.name}
+                          className="waiting-player-avatar-img"
+                        />
+                      ) : (
+                        p.name.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <span className="waiting-player-name">
                       {p.name} {p.id === myPlayerId ? " (あなた)" : ""}
@@ -1512,15 +1860,19 @@ export default function App() {
                 className="btn-start-game"
                 onClick={startGame}
               >
-                ▶ ゲームを開始する
+                <PlayIcon className="btn-action-icon" />
+                <span>ゲームを開始する</span>
               </button>
-              <button
-                type="button"
-                className="btn-leave-room"
-                onClick={leaveRoom}
-              >
-                🚪 退出する
-              </button>
+              {!isDiscord && (
+                <button
+                  type="button"
+                  className="btn-leave-room"
+                  onClick={leaveRoom}
+                >
+                  <ExitIcon className="btn-action-icon" />
+                  <span>退出する</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1563,22 +1915,26 @@ export default function App() {
                   <div className="themeStage__controls">
                     <div className="themeStage__roomMeta">
                       <span className="themeStage__roomIdTag">{roomId}</span>
-                      <button
-                        type="button"
-                        className="themeStage__copyBtn"
-                        onClick={() => copyRoomUrl()}
-                        title="部屋URLをコピー"
-                      >
-                        📋 コピー
-                      </button>
-                      <button
-                        type="button"
-                        className="themeStage__leaveBtn"
-                        onClick={leaveRoom}
-                        title="部屋から退出"
-                      >
-                        🚪 退出
-                      </button>
+                      {!isDiscord && (
+                        <>
+                          <button
+                            type="button"
+                            className="themeStage__copyBtn"
+                            onClick={() => copyRoomUrl()}
+                            title="部屋URLをコピー"
+                          >
+                            📋 コピー
+                          </button>
+                          <button
+                            type="button"
+                            className="themeStage__leaveBtn"
+                            onClick={leaveRoom}
+                            title="部屋から退出"
+                          >
+                            🚪 退出
+                          </button>
+                        </>
+                      )}
                     </div>
 
                     <div
@@ -1647,8 +2003,25 @@ export default function App() {
                 />
 
                 <div className="answerArea">
-                  <div className="answerArea__player">
-                    {judging.player} の回答
+                  <div className="answerArea__player-wrapper">
+                    {(() => {
+                      const pObj = players.find(
+                        (pl) => pl.name === judging.player,
+                      );
+                      if (pObj?.avatar_url) {
+                        return (
+                          <img
+                            src={pObj.avatar_url}
+                            alt={judging.player}
+                            className="answerArea__avatar-img"
+                          />
+                        );
+                      }
+                      return null;
+                    })()}
+                    <div className="answerArea__player">
+                      {judging.player} の回答
+                    </div>
                   </div>
 
                   {/* 白フリップ */}
@@ -1705,7 +2078,20 @@ export default function App() {
                   className="player-score-card"
                   aria-label={`${p.name}: ${p.ippons} AI-PPON`}
                 >
-                  <span className="player-name">{p.name}</span>
+                  <div className="player-score-identity">
+                    <div className="player-mini-avatar">
+                      {p.avatar_url ? (
+                        <img
+                          src={p.avatar_url}
+                          alt={p.name}
+                          className="player-mini-avatar-img"
+                        />
+                      ) : (
+                        <span>{p.name.charAt(0).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <span className="player-name">{p.name}</span>
+                  </div>
                   <div
                     className="ippon-bars-container"
                     title={`${p.ippons} AI-PPON`}
@@ -1750,21 +2136,34 @@ export default function App() {
       )}
 
       {/* 3. Match Winner Overlay */}
-      {winner && (
-        <div className="overlay" role="dialog" aria-modal="true">
-          <div className="reveal-card">
-            <div className="ippon-banner" style={{ marginBottom: 24 }}>
-              🏆 {winner} 優勝!!
+      {winner &&
+        (() => {
+          const winPlayer = players.find((pl) => pl.name === winner);
+          return (
+            <div className="overlay" role="dialog" aria-modal="true">
+              <div className="reveal-card">
+                {winPlayer?.avatar_url && (
+                  <div className="winner-avatar-container">
+                    <img
+                      src={winPlayer.avatar_url}
+                      alt={winner}
+                      className="winner-avatar-img"
+                    />
+                  </div>
+                )}
+                <div className="ippon-banner" style={{ marginBottom: 24 }}>
+                  🏆 {winner} 優勝!!
+                </div>
+                <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>
+                  3本のAI-PPONを獲得して勝利しました！
+                </p>
+                <button className="submit-btn" onClick={restart}>
+                  もう一度遊ぶ
+                </button>
+              </div>
             </div>
-            <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>
-              3本のAI-PPONを獲得して勝利しました！
-            </p>
-            <button className="submit-btn" onClick={restart}>
-              もう一度遊ぶ
-            </button>
-          </div>
-        </div>
-      )}
+          );
+        })()}
 
       {/* トースト通知 */}
       {toast && (

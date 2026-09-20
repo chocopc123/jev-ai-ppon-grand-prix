@@ -399,6 +399,193 @@ type JudgingState = {
   done: boolean;
 };
 
+// ============================================================================
+// UI Icons (Premium Vector Icons)
+// ============================================================================
+function DiceIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="3.5" />
+      <circle cx="8" cy="8" r="1.4" fill="currentColor" />
+      <circle cx="16" cy="8" r="1.4" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+      <circle cx="8" cy="16" r="1.4" fill="currentColor" />
+      <circle cx="16" cy="16" r="1.4" fill="currentColor" />
+    </svg>
+  );
+}
+
+function CopyIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="9" y="9" width="13" height="13" rx="2.5" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function EnterArenaIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" opacity="0.25" />
+      <path d="M5 3l14 9-14 9V3z" />
+      <path d="M12 7l5 5-5 5" />
+    </svg>
+  );
+}
+
+function MicIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" y1="19" x2="12" y2="23" />
+      <line x1="8" y1="23" x2="16" y2="23" />
+    </svg>
+  );
+}
+
+function CloseIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+
+function AlertIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  );
+}
+
+function PlayIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+  );
+}
+
+function ExitIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  );
+}
+
 type DefaultArenaFrameProps = {
   variant: "theme" | "judgment";
 };
@@ -533,6 +720,7 @@ export default function App() {
     return generateRoomId();
   });
   const [toast, setToast] = useState<string | null>(null);
+  const [copiedRoomUrl, setCopiedRoomUrl] = useState<boolean>(false);
   const wsRef = useRef<WebSocket | null>(null);
 
   // Discord Activities 連携ステート
@@ -616,6 +804,8 @@ export default function App() {
     try {
       const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(target)}`;
       await navigator.clipboard.writeText(url);
+      setCopiedRoomUrl(true);
+      setTimeout(() => setCopiedRoomUrl(false), 2000);
       showToast("招待URLをコピーしました！");
     } catch (e) {
       console.warn("Copy failed:", e);
@@ -1268,7 +1458,10 @@ export default function App() {
       <div className="join-container">
         <div className="join-inner">
           {discordError && (
-            <div className="discord-error-banner">⚠️ {discordError}</div>
+            <div className="discord-error-banner">
+              <AlertIcon className="banner-alert-icon" />
+              <span>{discordError}</span>
+            </div>
           )}
           {/* 画像の色合い・質感を完全再現したベクタータイトルロゴ (5回連続タップでナレーション解禁) */}
           <div
@@ -1419,71 +1612,25 @@ export default function App() {
 
           {/* 隠しアンロック状態のインジケーター */}
           {ttsUnlocked && (
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "10px",
-                background: "linear-gradient(135deg, #11141a 0%, #1a1e29 100%)",
-                border: "1px solid #ffd700",
-                padding: "6px 14px",
-                borderRadius: "24px",
-                boxShadow:
-                  "0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 215, 0, 0.25)",
-                marginTop: "-10px",
-                marginBottom: "4px",
-                zIndex: 10,
-              }}
-            >
-              <span
-                style={{
-                  color: "#ffd700",
-                  fontSize: "12px",
-                  fontWeight: "800",
-                  letterSpacing: "0.5px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}
-              >
-                <span>🎙️</span>
+            <div className="narration-unlocked-badge">
+              <span className="narration-unlocked-text">
+                <MicIcon className="narration-badge-icon" />
                 <span>NARRATION MODE (AI-TTS) ACTIVE</span>
               </span>
               <button
                 type="button"
                 onClick={handleDisableNarration}
-                style={{
-                  background: "rgba(239, 68, 68, 0.25)",
-                  border: "1px solid rgba(239, 68, 68, 0.6)",
-                  color: "#ffffff",
-                  borderRadius: "12px",
-                  padding: "3px 8px",
-                  fontSize: "11px",
-                  fontWeight: "700",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  lineHeight: "1.2",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(239, 68, 68, 0.5)";
-                  e.currentTarget.style.borderColor = "#ef4444";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(239, 68, 68, 0.25)";
-                  e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.6)";
-                }}
+                className="narration-disable-btn"
                 title="ナレーションモードを解除"
               >
-                ✕ 解除
+                <CloseIcon />
+                <span>解除</span>
               </button>
             </div>
           )}
 
-          {/* 漆黒×クローム光沢のエントリーコンソール */}
+          {/* 回答フリップ同色の白カード（terms / privacy 共通デザイン） */}
           <div className="join-card">
-            <div className="join-card-sheen" aria-hidden="true" />
             <div className="join-card-header">
               <span className="join-card-tag">ENTRY DESK</span>
               <h2 className="join-card-title">プレイヤー参戦登録</h2>
@@ -1535,67 +1682,36 @@ export default function App() {
                     onClick={regenerateRoomId}
                     title="ランダムな部屋IDを再生成"
                   >
-                    🎲 再生成
+                    <DiceIcon className="btn-action-icon" />
+                    <span>再生成</span>
                   </button>
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "10px", width: "100%" }}>
+              <div className="join-submit-container">
                 <button
                   type="button"
                   className="join-submit-btn"
-                  style={{ flex: 1 }}
                   onClick={() => connect()}
                   disabled={!name.trim()}
                   aria-label="大会に入場する"
                 >
-                  <span className="join-btn-sheen" aria-hidden="true" />
-                  <span className="join-btn-sub">ENTER ARENA</span>
-                  <span className="join-btn-main">入場する</span>
+                  <div className="join-btn-body">
+                    <div className="join-btn-labels">
+                      <span className="join-btn-sub">ENTER ARENA</span>
+                      <span className="join-btn-main">入場する</span>
+                    </div>
+                    <EnterArenaIcon className="join-btn-arrow-icon" />
+                  </div>
                 </button>
-                {!isDiscord && (
-                  <button
-                    type="button"
-                    className="btn-copy-url"
-                    onClick={() => copyRoomUrl()}
-                    title="友達に共有するURLをコピー"
-                    style={{ padding: "0 14px", height: "auto" }}
-                  >
-                    📋 URLコピー
-                  </button>
-                )}
               </div>
             </div>
 
             <div className="join-card-footer">
               {!isDiscord && (
                 <span className="join-footer-hint">
-                  URLを共有すると同じ部屋に対戦相手を招待できます
+                  ※招待URLは入室後にコピーできます
                 </span>
-              )}
-              {(import.meta.env.DEV ||
-                (typeof window !== "undefined" &&
-                  (window.location.hostname === "localhost" ||
-                    window.location.hostname === "127.0.0.1"))) && (
-                <div style={{ marginTop: "12px", textAlign: "center" }}>
-                  <a
-                    href="/devtool"
-                    style={{
-                      fontSize: "12px",
-                      color: "#ffd200",
-                      textDecoration: "none",
-                      background: "rgba(255, 210, 0, 0.1)",
-                      border: "1px solid rgba(255, 210, 0, 0.3)",
-                      padding: "4px 10px",
-                      borderRadius: "12px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    🛠️ 演出デバッグツール (DevTool) を開く
-                  </a>
-                </div>
               )}
             </div>
           </div>
@@ -1659,9 +1775,13 @@ export default function App() {
                     borderRadius: "10px",
                     fontSize: "10px",
                     fontWeight: "900",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px",
                   }}
                 >
-                  🎙️ AI NARRATION ON
+                  <MicIcon />
+                  <span>AI NARRATION ON</span>
                 </span>
               )}
             </div>
@@ -1685,10 +1805,20 @@ export default function App() {
               {!isDiscord && (
                 <button
                   type="button"
-                  className="btn-copy-url"
+                  className={`btn-copy-url ${copiedRoomUrl ? "is-copied" : ""}`}
                   onClick={() => copyRoomUrl()}
                 >
-                  📋 招待URLをコピー
+                  {copiedRoomUrl ? (
+                    <>
+                      <CheckIcon className="btn-action-icon" />
+                      <span>コピー完了</span>
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon className="btn-action-icon" />
+                      <span>招待URLをコピー</span>
+                    </>
+                  )}
                 </button>
               )}
             </div>
@@ -1730,7 +1860,8 @@ export default function App() {
                 className="btn-start-game"
                 onClick={startGame}
               >
-                ▶ ゲームを開始する
+                <PlayIcon className="btn-action-icon" />
+                <span>ゲームを開始する</span>
               </button>
               {!isDiscord && (
                 <button
@@ -1738,7 +1869,8 @@ export default function App() {
                   className="btn-leave-room"
                   onClick={leaveRoom}
                 >
-                  🚪 退出する
+                  <ExitIcon className="btn-action-icon" />
+                  <span>退出する</span>
                 </button>
               )}
             </div>
