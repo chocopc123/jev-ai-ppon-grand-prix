@@ -586,6 +586,156 @@ function ExitIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function GrandPrixLogo({
+  onClick,
+  className = "join-logo-svg",
+}: {
+  onClick?: () => void;
+  className?: string;
+}) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 520 250"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="AI-PPON GRAND PRIX"
+      onClick={onClick}
+    >
+      <defs>
+        <linearGradient
+          id="chromeGradient"
+          x1="0%"
+          y1="0%"
+          x2="0%"
+          y2="100%"
+        >
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="35%" stopColor="#e2e8f0" />
+          <stop offset="48%" stopColor="#818ea3" />
+          <stop offset="50%" stopColor="#1e293b" />
+          <stop offset="53%" stopColor="#475569" />
+          <stop offset="85%" stopColor="#cbd5e1" />
+          <stop offset="100%" stopColor="#ffffff" />
+        </linearGradient>
+
+        <linearGradient id="barGloss" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+          <stop offset="5%" stopColor="#48382d" />
+          <stop offset="18%" stopColor="#251a14" />
+          <stop offset="50%" stopColor="#0c0907" />
+          <stop offset="85%" stopColor="#19120d" />
+          <stop offset="96%" stopColor="#3c2e25" />
+          <stop offset="100%" stopColor="#554236" />
+        </linearGradient>
+        <linearGradient
+          id="barBorderGrad"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="0%"
+        >
+          <stop offset="0%" stopColor="#b8bcc4" />
+          <stop offset="25%" stopColor="#ffffff" />
+          <stop offset="50%" stopColor="#8a8e98" />
+          <stop offset="75%" stopColor="#ffffff" />
+          <stop offset="100%" stopColor="#a0a4ae" />
+        </linearGradient>
+        <linearGradient
+          id="sheenGlow"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
+        >
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.32" />
+          <stop offset="35%" stopColor="#ffffff" stopOpacity="0.12" />
+          <stop offset="50%" stopColor="#ffffff" stopOpacity="0" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+
+        <filter
+          id="logoShadow"
+          x="-10%"
+          y="-10%"
+          width="120%"
+          height="125%"
+        >
+          <feDropShadow
+            dx="0"
+            dy="6"
+            stdDeviation="8"
+            floodColor="#000000"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+
+      <g filter="url(#logoShadow)">
+        {/* === 1. 極太ブラック「AI-PPON」 === */}
+        <text
+          x="8"
+          y="125"
+          fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
+          fontSize="122"
+          fontWeight="900"
+          letterSpacing="1"
+          textLength="504"
+          lengthAdjust="spacingAndGlyphs"
+          fill="#000000"
+        >
+          AI-PPON
+        </text>
+
+        {/* === 2. 極太ブラック「GRAND PRIX」 === */}
+        <text
+          x="8"
+          y="184"
+          fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
+          fontSize="62"
+          fontWeight="900"
+          letterSpacing="2"
+          textLength="500"
+          lengthAdjust="spacingAndGlyphs"
+          fill="#000000"
+        >
+          GRAND PRIX
+        </text>
+
+        {/* === 4. 下部ブラック光沢バー === */}
+        <g id="bottom-bar">
+          <rect
+            x="4"
+            y="196"
+            width="512"
+            height="46"
+            rx="3"
+            fill="url(#barGloss)"
+            stroke="url(#barBorderGrad)"
+            strokeWidth="1.6"
+          />
+          {/* ガラス反射の斜め光沢ハイライト */}
+          <polygon
+            points="4,196 290,196 150,242 4,242"
+            fill="url(#sheenGlow)"
+          />
+          {/* 上辺の極細ホワイト光彩ライン */}
+          <line
+            x1="6"
+            y1="198"
+            x2="514"
+            y2="198"
+            stroke="#ffffff"
+            strokeWidth="1.2"
+            strokeOpacity="0.9"
+          />
+        </g>
+      </g>
+    </svg>
+  );
+}
+
+
 type DefaultArenaFrameProps = {
   variant: "theme" | "judgment";
 };
@@ -1467,148 +1617,14 @@ export default function App() {
           <div
             className="join-logo-wrapper"
             aria-label="AI-PPON GRAND PRIX"
-            onClick={handleLogoClick}
-            style={{ cursor: "pointer", userSelect: "none" }}
             title="AI-PPON GRAND PRIX"
           >
-            <svg
+            <GrandPrixLogo
               className="join-logo-svg"
-              viewBox="0 0 520 250"
-              xmlns="http://www.w3.org/2000/svg"
-              role="img"
-              aria-label="AI-PPON GRAND PRIX"
-            >
-              <defs>
-                <linearGradient
-                  id="chromeGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="0%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="35%" stopColor="#e2e8f0" />
-                  <stop offset="48%" stopColor="#818ea3" />
-                  <stop offset="50%" stopColor="#1e293b" />
-                  <stop offset="53%" stopColor="#475569" />
-                  <stop offset="85%" stopColor="#cbd5e1" />
-                  <stop offset="100%" stopColor="#ffffff" />
-                </linearGradient>
-
-                <linearGradient id="barGloss" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
-                  <stop offset="5%" stopColor="#48382d" />
-                  <stop offset="18%" stopColor="#251a14" />
-                  <stop offset="50%" stopColor="#0c0907" />
-                  <stop offset="85%" stopColor="#19120d" />
-                  <stop offset="96%" stopColor="#3c2e25" />
-                  <stop offset="100%" stopColor="#554236" />
-                </linearGradient>
-                <linearGradient
-                  id="barBorderGrad"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="0%"
-                >
-                  <stop offset="0%" stopColor="#b8bcc4" />
-                  <stop offset="25%" stopColor="#ffffff" />
-                  <stop offset="50%" stopColor="#8a8e98" />
-                  <stop offset="75%" stopColor="#ffffff" />
-                  <stop offset="100%" stopColor="#a0a4ae" />
-                </linearGradient>
-                <linearGradient
-                  id="sheenGlow"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.32" />
-                  <stop offset="35%" stopColor="#ffffff" stopOpacity="0.12" />
-                  <stop offset="50%" stopColor="#ffffff" stopOpacity="0" />
-                  <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-                </linearGradient>
-
-                <filter
-                  id="logoShadow"
-                  x="-10%"
-                  y="-10%"
-                  width="120%"
-                  height="125%"
-                >
-                  <feDropShadow
-                    dx="0"
-                    dy="6"
-                    stdDeviation="8"
-                    floodColor="#000000"
-                    floodOpacity="0.22"
-                  />
-                </filter>
-              </defs>
-
-              <g filter="url(#logoShadow)">
-                {/* === 1. 極太ブラック「AI-PPON」 === */}
-                <text
-                  x="8"
-                  y="125"
-                  fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
-                  fontSize="122"
-                  fontWeight="900"
-                  letterSpacing="1"
-                  textLength="504"
-                  lengthAdjust="spacingAndGlyphs"
-                  fill="#000000"
-                >
-                  AI-PPON
-                </text>
-
-                {/* === 2. 極太ブラック「GRAND PRIX」 === */}
-                <text
-                  x="8"
-                  y="184"
-                  fontFamily="'Impact', 'Arial Black', 'Helvetica Neue', sans-serif"
-                  fontSize="62"
-                  fontWeight="900"
-                  letterSpacing="2"
-                  textLength="500"
-                  lengthAdjust="spacingAndGlyphs"
-                  fill="#000000"
-                >
-                  GRAND PRIX
-                </text>
-
-                {/* === 4. 下部ブラック光沢バー === */}
-                <g id="bottom-bar">
-                  <rect
-                    x="4"
-                    y="196"
-                    width="512"
-                    height="46"
-                    rx="3"
-                    fill="url(#barGloss)"
-                    stroke="url(#barBorderGrad)"
-                    strokeWidth="1.6"
-                  />
-                  {/* ガラス反射の斜め光沢ハイライト */}
-                  <polygon
-                    points="4,196 290,196 150,242 4,242"
-                    fill="url(#sheenGlow)"
-                  />
-                  {/* 上辺の極細ホワイト光彩ライン */}
-                  <line
-                    x1="6"
-                    y1="198"
-                    x2="514"
-                    y2="198"
-                    stroke="#ffffff"
-                    strokeWidth="1.2"
-                    strokeOpacity="0.9"
-                  />
-                </g>
-              </g>
-            </svg>
+              onClick={handleLogoClick}
+            />
           </div>
+
 
           {/* 隠しアンロック状態のインジケーター */}
           {ttsUnlocked && (
@@ -1629,41 +1645,42 @@ export default function App() {
             </div>
           )}
 
-          {/* 回答フリップ同色の白カード（terms / privacy 共通デザイン） */}
+          {/* 参加登録カード (洗練されたプロダクトUI) */}
           <div className="join-card">
             <div className="join-card-header">
-              <span className="join-card-tag">ENTRY DESK</span>
-              <h2 className="join-card-title">プレイヤー参戦登録</h2>
+              <h2 className="join-card-title">プレイヤーエントリー</h2>
+              <p className="join-card-desc">名前を入力して対戦アリーナに入場してください</p>
             </div>
 
             <div className="join-form">
               <div className="join-field">
                 <label htmlFor="player-name" className="join-field-label">
-                  <span className="label-en">PLAYER NAME</span>
-                  <span className="label-jp">あなたの名前</span>
+                  プレイヤー名
                 </label>
-                <input
-                  id="player-name"
-                  className="join-input"
-                  placeholder="回答者名を入力"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && connect()}
-                  aria-label="あなたの名前"
-                  autoComplete="off"
-                  autoFocus
-                />
+                <div className="join-input-wrapper">
+                  <input
+                    id="player-name"
+                    className="join-input"
+                    placeholder="例: 回答者A"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && connect()}
+                    aria-label="プレイヤー名"
+                    autoComplete="off"
+                    autoFocus
+                    maxLength={20}
+                  />
+                </div>
               </div>
 
               <div className="join-field">
                 <label htmlFor="room-id" className="join-field-label">
-                  <span className="label-en">ROOM ID</span>
-                  <span className="label-jp">対戦ルーム</span>
+                  対戦ルームID
                 </label>
                 <div className="room-input-group">
                   <input
                     id="room-id"
-                    className="join-input"
+                    className="join-input room-input"
                     placeholder="例: ABC123"
                     value={roomId}
                     onChange={(e) => {
@@ -1673,7 +1690,7 @@ export default function App() {
                       window.history.replaceState({}, "", newUrl);
                     }}
                     onKeyDown={(e) => e.key === "Enter" && connect()}
-                    aria-label="ルームID"
+                    aria-label="対戦ルームID"
                     autoComplete="off"
                   />
                   <button
@@ -1694,25 +1711,12 @@ export default function App() {
                   className="join-submit-btn"
                   onClick={() => connect()}
                   disabled={!name.trim()}
-                  aria-label="大会に入場する"
+                  aria-label="アリーナに入場する"
                 >
-                  <div className="join-btn-body">
-                    <div className="join-btn-labels">
-                      <span className="join-btn-sub">ENTER ARENA</span>
-                      <span className="join-btn-main">入場する</span>
-                    </div>
-                    <EnterArenaIcon className="join-btn-arrow-icon" />
-                  </div>
+                  <span className="join-btn-text">アリーナに入場する</span>
+                  <EnterArenaIcon className="join-btn-arrow-icon" />
                 </button>
               </div>
-            </div>
-
-            <div className="join-card-footer">
-              {!isDiscord && (
-                <span className="join-footer-hint">
-                  ※招待URLは入室後にコピーできます
-                </span>
-              )}
             </div>
           </div>
 
@@ -1760,120 +1764,130 @@ export default function App() {
     <div className="arena-container">
       {roomPhase === "waiting" ? (
         <div className="waiting-room-container">
-          <div className="waiting-card">
-            <div className="waiting-badge">
-              <span className="waiting-pulse-dot" />
-              <span>ENTRY OPEN</span>
-              {roomTtsEnabled && (
-                <span
-                  style={{
-                    marginLeft: "8px",
-                    background: "rgba(255, 215, 0, 0.2)",
-                    color: "#ffd700",
-                    border: "1px solid #ffd700",
-                    padding: "2px 8px",
-                    borderRadius: "10px",
-                    fontSize: "10px",
-                    fontWeight: "900",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "4px",
-                  }}
-                >
-                  <MicIcon />
-                  <span>AI NARRATION ON</span>
-                </span>
-              )}
+          <div className="waiting-room-inner">
+            <div className="waiting-logo-wrapper" aria-label="AI-PPON GRAND PRIX">
+              <GrandPrixLogo className="waiting-logo-svg" />
             </div>
-            <h1 className="waiting-title">参加者を待っています</h1>
-            <p className="waiting-desc">
-              参加メンバーが集まったら「ゲームを開始する」を押してください。
-            </p>
 
-            <div className="room-share-bar">
-              <div className="room-share-info">
-                <span className="room-share-label">ROOM:</span>
-                {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-                <span
-                  className="room-share-id"
-                  onClick={handleRoomIdClick}
-                  style={{ userSelect: "none" }}
-                >
-                  {roomId}
-                </span>
-              </div>
-              {!isDiscord && (
-                <button
-                  type="button"
-                  className={`btn-copy-url ${copiedRoomUrl ? "is-copied" : ""}`}
-                  onClick={() => copyRoomUrl()}
-                >
-                  {copiedRoomUrl ? (
-                    <>
-                      <CheckIcon className="btn-action-icon" />
-                      <span>コピー完了</span>
-                    </>
-                  ) : (
-                    <>
-                      <CopyIcon className="btn-action-icon" />
-                      <span>招待URLをコピー</span>
-                    </>
+            <div className="waiting-card">
+              <div className="waiting-card-header">
+                <div className="waiting-tag-row">
+                  <span className="waiting-card-tag">
+                    <span className="waiting-pulse-dot" />
+                    <span>WAITING LOBBY</span>
+                  </span>
+                  {roomTtsEnabled && (
+                    <span className="waiting-tts-badge">
+                      <MicIcon />
+                      <span>AI NARRATION ON</span>
+                    </span>
                   )}
-                </button>
-              )}
-            </div>
-
-            <div className="waiting-players-section">
-              <div className="waiting-players-header">
-                <span className="waiting-players-count">
-                  参加人数: <span>{players.length}</span> 名
-                </span>
+                </div>
+                <h1 className="waiting-card-title">参加者を待っています</h1>
+                <p className="waiting-desc">
+                  参加メンバーが集まったら「ゲームを開始する」を押してください。
+                </p>
               </div>
-              <div className="waiting-players-grid">
-                {players.map((p) => (
-                  <div
-                    key={p.id}
-                    className={`waiting-player-chip ${p.id === myPlayerId ? "is-me" : ""}`}
+
+              <div className="waiting-share-bar">
+                <div className="waiting-share-info">
+                  <span className="waiting-share-label">ROOM ID</span>
+                  {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+                  <span
+                    className="waiting-share-id"
+                    onClick={handleRoomIdClick}
+                    style={{ userSelect: "none" }}
+                    title="ルームID"
                   >
-                    <div className="waiting-player-avatar">
-                      {p.avatar_url ? (
-                        <img
-                          src={p.avatar_url}
-                          alt={p.name}
-                          className="waiting-player-avatar-img"
-                        />
-                      ) : (
-                        p.name.charAt(0).toUpperCase()
+                    {roomId}
+                  </span>
+                </div>
+                {!isDiscord && (
+                  <button
+                    type="button"
+                    className={`btn-waiting-copy ${copiedRoomUrl ? "is-copied" : ""}`}
+                    onClick={() => copyRoomUrl()}
+                  >
+                    {copiedRoomUrl ? (
+                      <>
+                        <CheckIcon className="btn-action-icon" />
+                        <span>コピー完了</span>
+                      </>
+                    ) : (
+                      <>
+                        <CopyIcon className="btn-action-icon" />
+                        <span>招待URLをコピー</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              <div className="waiting-players-section">
+                <div className="waiting-players-header">
+                  <span className="waiting-players-label">ENTRY LIST</span>
+                  <span className="waiting-players-count">
+                    参加者: <strong>{players.length}</strong> 名
+                  </span>
+                </div>
+                <div className="waiting-players-grid">
+                  {players.map((p) => (
+                    <div
+                      key={p.id}
+                      className={`waiting-player-chip ${p.id === myPlayerId ? "is-me" : ""}`}
+                    >
+                      <div className="waiting-player-avatar">
+                        {p.avatar_url ? (
+                          <img
+                            src={p.avatar_url}
+                            alt={p.name}
+                            className="waiting-player-avatar-img"
+                          />
+                        ) : (
+                          p.name.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <span className="waiting-player-name">{p.name}</span>
+                      {p.id === myPlayerId && (
+                        <span className="waiting-player-me-tag">あなた</span>
                       )}
                     </div>
-                    <span className="waiting-player-name">
-                      {p.name} {p.id === myPlayerId ? " (あなた)" : ""}
-                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="waiting-actions">
+                <button
+                  type="button"
+                  className="waiting-start-btn"
+                  onClick={startGame}
+                >
+                  <div className="waiting-start-btn-body">
+                    <div className="waiting-start-btn-labels">
+                      <span className="waiting-start-btn-sub">START GAME</span>
+                      <span className="waiting-start-btn-main">ゲームを開始する</span>
+                    </div>
+                    <PlayIcon className="waiting-start-btn-icon" />
                   </div>
-                ))}
+                </button>
+                {!isDiscord && (
+                  <button
+                    type="button"
+                    className="waiting-leave-btn"
+                    onClick={leaveRoom}
+                  >
+                    <ExitIcon className="waiting-leave-btn-icon" />
+                    <span>退出する</span>
+                  </button>
+                )}
               </div>
             </div>
 
-            <div className="waiting-actions">
-              <button
-                type="button"
-                className="btn-start-game"
-                onClick={startGame}
-              >
-                <PlayIcon className="btn-action-icon" />
-                <span>ゲームを開始する</span>
-              </button>
-              {!isDiscord && (
-                <button
-                  type="button"
-                  className="btn-leave-room"
-                  onClick={leaveRoom}
-                >
-                  <ExitIcon className="btn-action-icon" />
-                  <span>退出する</span>
-                </button>
-              )}
-            </div>
+            <footer className="waiting-page-footer">
+              <div className="waiting-copyright">
+                &copy; 2026 AI-PPON GRAND PRIX
+              </div>
+            </footer>
           </div>
         </div>
       ) : (
@@ -1914,38 +1928,48 @@ export default function App() {
 
                   <div className="themeStage__controls">
                     <div className="themeStage__roomMeta">
-                      <span className="themeStage__roomIdTag">{roomId}</span>
+                      {!isDiscord ? (
+                        <button
+                          type="button"
+                          className={`themeStage__roomIdBtn ${copiedRoomUrl ? "is-copied" : ""}`}
+                          onClick={() => copyRoomUrl()}
+                          title="クリックして部屋URLをコピー"
+                        >
+                          <span>{roomId}</span>
+                          {copiedRoomUrl ? (
+                            <CheckIcon className="themeStage__roomIdIcon" />
+                          ) : (
+                            <CopyIcon className="themeStage__roomIdIcon" />
+                          )}
+                        </button>
+                      ) : (
+                        <span className="themeStage__roomIdTag">{roomId}</span>
+                      )}
                       {!isDiscord && (
-                        <>
-                          <button
-                            type="button"
-                            className="themeStage__copyBtn"
-                            onClick={() => copyRoomUrl()}
-                            title="部屋URLをコピー"
-                          >
-                            📋 コピー
-                          </button>
-                          <button
-                            type="button"
-                            className="themeStage__leaveBtn"
-                            onClick={leaveRoom}
-                            title="部屋から退出"
-                          >
-                            🚪 退出
-                          </button>
-                        </>
+                        <button
+                          type="button"
+                          className="themeStage__leaveBtn"
+                          onClick={leaveRoom}
+                          title="部屋から退出"
+                        >
+                          <ExitIcon className="themeStage__leaveBtnIcon" />
+                          <span>退出</span>
+                        </button>
                       )}
                     </div>
 
-                    <div
+                    <button
+                      type="button"
                       className={`themeStage__timer ${isTimerPaused ? "themeStage__timer--paused" : ""}`}
-                      aria-label={`残り時間 ${formatTime(remaining)} ${isTimerPaused ? "（停止中）" : ""}`}
+                      onClick={toggleTimer}
+                      title={isTimerPaused ? "タイマーを再開" : "タイマーを一時停止"}
+                      aria-label={`残り時間 ${formatTime(remaining)} ${isTimerPaused ? "（停止中・クリックで再開）" : "（クリックで一時停止）"}`}
                     >
                       <span
                         className="themeStage__timerIcon"
                         aria-hidden="true"
                       >
-                        {isTimerPaused ? "⏸" : "◷"}
+                        {isTimerPaused ? "▶" : "⏸"}
                       </span>
                       <span>{formatTime(remaining)}</span>
                       {isTimerPaused && (
@@ -1953,17 +1977,6 @@ export default function App() {
                           停止中
                         </span>
                       )}
-                    </div>
-
-                    <button
-                      type="button"
-                      className={`themeStage__timerButton ${isTimerPaused ? "themeStage__timerButton--paused" : ""}`}
-                      onClick={toggleTimer}
-                      title={
-                        isTimerPaused ? "タイマーを再開" : "タイマーを停止"
-                      }
-                    >
-                      {isTimerPaused ? "▶ 再開" : "⏸ 停止"}
                     </button>
 
                     <button
