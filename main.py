@@ -169,7 +169,8 @@ DOCS_COMMON_STYLE = """
         position: relative;
         z-index: 2;
         padding: 0;
-        background: #e4e2d7; /* 選択中タブの角丸の隙間から奥のタブ色が見えるようにする */
+        background: #e4e2d7; /* 奥のタブの地色 */
+        border-top: 2px solid #111111; /* 奥のタブの天板（黒枠線）を全体に貫通させる */
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
     }
@@ -181,33 +182,28 @@ DOCS_COMMON_STYLE = """
         font-weight: 900;
         text-decoration: none;
         color: #71717a;
-        background: #e4e2d7;
-        border-top: 2px solid #111111;
-        border-left: 2px solid #111111;
-        border-right: 2px solid #111111;
-        border-bottom: none;
+        background: transparent; /* nav-tabsの背景色を活かす */
+        border: none;
         position: relative;
         transition: all 0.15s ease;
     }
-    .tab-btn:first-child {
-        border-top-left-radius: 12px;
-    }
-    .tab-btn:last-child {
-        border-top-right-radius: 12px;
-        margin-left: -2px; /* 中央境界線の重複解消 */
-    }
     .tab-btn:hover {
-        background: #edebe2;
+        background: rgba(255, 255, 255, 0.2);
         color: #111111;
     }
-    /* 選択中: 手前に重なる（左右両角の丸み12px＋手前への重なり表示） */
+    /* 選択中: 手前に重なる白いフリップタブ（両角丸12px、黒枠線付きで上に乗る） */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
+        border: 2px solid #111111;
+        border-bottom: none;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
+        margin-top: -2px; /* nav-tabsの天板の上に覆いかぶさる */
+        margin-left: -2px;
+        margin-right: -2px;
         z-index: 5;
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
     .tab-btn.is-active::after {
         content: "";
@@ -216,7 +212,7 @@ DOCS_COMMON_STYLE = """
         left: 0;
         right: 0;
         height: 4px;
-        background: #ffffff; /* カードの上枠線だけを純白で上書きして一体化 */
+        background: #ffffff; /* カードの上枠線だけを消して一体化 */
     }
     /* フリップ同色の白カード */
     .content-card {
