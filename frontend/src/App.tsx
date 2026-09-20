@@ -1893,7 +1893,7 @@ export default function App() {
                     )}
                   </div>
 
-                  <div className="themeStage__controls">
+                  <div className="themeStage__hudRight">
                     <div className="themeStage__roomMeta">
                       {!isDiscord ? (
                         <button
@@ -1925,34 +1925,36 @@ export default function App() {
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      className={`themeStage__timer ${isTimerPaused ? "themeStage__timer--paused" : ""}`}
-                      onClick={toggleTimer}
-                      title={isTimerPaused ? "タイマーを再開" : "タイマーを一時停止"}
-                      aria-label={`残り時間 ${formatTime(remaining)} ${isTimerPaused ? "（停止中・クリックで再開）" : "（クリックで一時停止）"}`}
-                    >
-                      <span
-                        className="themeStage__timerIcon"
-                        aria-hidden="true"
+                    <div className="themeStage__controls">
+                      <button
+                        type="button"
+                        className={`themeStage__timer ${isTimerPaused ? "themeStage__timer--paused" : ""}`}
+                        onClick={toggleTimer}
+                        title={isTimerPaused ? "タイマーを再開" : "タイマーを一時停止"}
+                        aria-label={`残り時間 ${formatTime(remaining)} ${isTimerPaused ? "（停止中・クリックで再開）" : "（クリックで一時停止）"}`}
                       >
-                        {isTimerPaused ? "▶" : "⏸"}
-                      </span>
-                      <span>{formatTime(remaining)}</span>
-                      {isTimerPaused && (
-                        <span className="themeStage__timerPausedTag">
-                          停止中
+                        <span
+                          className="themeStage__timerIcon"
+                          aria-hidden="true"
+                        >
+                          {isTimerPaused ? "▶" : "⏸"}
                         </span>
-                      )}
-                    </button>
+                        <span>{formatTime(remaining)}</span>
+                        {isTimerPaused && (
+                          <span className="themeStage__timerPausedTag">
+                            停止中
+                          </span>
+                        )}
+                      </button>
 
-                    <button
-                      type="button"
-                      className="themeStage__skipButton"
-                      onClick={skip}
-                    >
-                      スキップ
-                    </button>
+                      <button
+                        type="button"
+                        className="themeStage__skipButton"
+                        onClick={skip}
+                      >
+                        スキップ
+                      </button>
+                    </div>
                   </div>
                 </div>
 
