@@ -542,6 +542,16 @@ async def ws_endpoint(
                 room.next_theme("スキップされました")
             elif t == "START_GAME" and room.phase == "waiting":
                 room.start_theme()
+            elif t == "TOGGLE_TTS":
+                room.tts_enabled = not room.tts_enabled
+                pname = room.players.get(pid, {}).get("name", "プレイヤー")
+                print(f"[ROOM {room_id}] 🎙️ TTS toggled to {room.tts_enabled} by {pname}")
+                if room.tts_enabled and room.phase == "waiting" and (not room._pregen_task or room._pregen_task.done()):
+                    room.schedule_next_pregeneration()
+                room.broadcast({
+                    "type": "TTS_TOGGLED",
+                    "tts_enabled": room.tts_enabled,
+                })
             elif t == "RESTART":
                 room.reset_to_waiting()
             elif t == "LEAVE":

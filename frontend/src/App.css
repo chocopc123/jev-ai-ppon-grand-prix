@@ -1972,6 +1972,39 @@ body {
   color: #ff453a;
 }
 
+.btn-tts-toggle {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #a0a0b0;
+  font-family: var(--font-heavy);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-tts-toggle:hover {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+}
+
+.btn-tts-toggle.is-active {
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+}
+
+.btn-tts-toggle.is-active:hover {
+  background: rgba(255, 59, 48, 0.12);
+  border-color: rgba(255, 59, 48, 0.4);
+  color: #ff6b6b;
+}
+
 /* ゲーム内HUD追加ボタン (部屋共有・退出) */
 .themeStage__roomMeta {
   display: flex;

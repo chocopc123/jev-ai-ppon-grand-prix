@@ -567,6 +567,7 @@ export default function App() {
   });
   const [roomTtsEnabled, setRoomTtsEnabled] = useState<boolean>(false);
   const logoClickTimesRef = useRef<number[]>([]);
+  const roomIdClickTimesRef = useRef<number[]>([]);
 
   const handleLogoClick = () => {
     const now = Date.now();
@@ -919,6 +920,15 @@ export default function App() {
             setRoomTtsEnabled(Boolean(m.tts_enabled));
           }
           break;
+        case "TTS_TOGGLED":
+          setRoomTtsEnabled(Boolean(m.tts_enabled));
+          if (m.tts_enabled) {
+            sfx.unlock();
+            showToast("🎙️ AIナレーションがONになりました！");
+          } else {
+            showToast("🔇 AIナレーションがOFFになりました");
+          }
+          break;
         case "WAITING_LOBBY":
           pendingThemeStartedRef.current = null;
           setRoomPhase("waiting");
@@ -1069,6 +1079,22 @@ export default function App() {
   const skip = () => wsRef.current?.send(JSON.stringify({ type: "SKIP" }));
   const startGame = () => {
     wsRef.current?.send(JSON.stringify({ type: "START_GAME" }));
+  };
+  const toggleTts = () => {
+    wsRef.current?.send(JSON.stringify({ type: "TOGGLE_TTS" }));
+  };
+  // 隠し要素: 部屋IDを5回連続クリックでナレーション切り替え
+  const handleRoomIdClick = () => {
+    const now = Date.now();
+    const recent = [
+      ...roomIdClickTimesRef.current.filter((t) => now - t < 2000),
+      now,
+    ];
+    roomIdClickTimesRef.current = recent;
+    if (recent.length >= 5) {
+      roomIdClickTimesRef.current = [];
+      toggleTts();
+    }
   };
   const restart = () => {
     setStageMode("theme");
@@ -1621,7 +1647,14 @@ export default function App() {
             <div className="room-share-bar">
               <div className="room-share-info">
                 <span className="room-share-label">ROOM:</span>
-                <span className="room-share-id">{roomId}</span>
+                {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+                <span
+                  className="room-share-id"
+                  onClick={handleRoomIdClick}
+                  style={{ userSelect: "none" }}
+                >
+                  {roomId}
+                </span>
               </div>
               {!isDiscord && (
                 <button
