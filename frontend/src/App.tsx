@@ -1661,7 +1661,6 @@ export default function App() {
                   <input
                     id="player-name"
                     className="join-input"
-                    placeholder="例: 回答者A"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && connect()}

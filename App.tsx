@@ -1645,41 +1645,41 @@ export default function App() {
             </div>
           )}
 
-          {/* 回答フリップ同色の白カード（terms / privacy 共通デザイン） */}
+          {/* 参加登録カード (洗練されたプロダクトUI) */}
           <div className="join-card">
             <div className="join-card-header">
-              <span className="join-card-tag">ENTRY DESK</span>
-              <h2 className="join-card-title">プレイヤー参戦登録</h2>
+              <h2 className="join-card-title">プレイヤーエントリー</h2>
+              <p className="join-card-desc">名前を入力して対戦アリーナに入場してください</p>
             </div>
 
             <div className="join-form">
               <div className="join-field">
                 <label htmlFor="player-name" className="join-field-label">
-                  <span className="label-en">PLAYER NAME</span>
-                  <span className="label-jp">あなたの名前</span>
+                  プレイヤー名
                 </label>
-                <input
-                  id="player-name"
-                  className="join-input"
-                  placeholder="回答者名を入力"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && connect()}
-                  aria-label="あなたの名前"
-                  autoComplete="off"
-                  autoFocus
-                />
+                <div className="join-input-wrapper">
+                  <input
+                    id="player-name"
+                    className="join-input"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && connect()}
+                    aria-label="プレイヤー名"
+                    autoComplete="off"
+                    autoFocus
+                    maxLength={20}
+                  />
+                </div>
               </div>
 
               <div className="join-field">
                 <label htmlFor="room-id" className="join-field-label">
-                  <span className="label-en">ROOM ID</span>
-                  <span className="label-jp">対戦ルーム</span>
+                  対戦ルームID
                 </label>
                 <div className="room-input-group">
                   <input
                     id="room-id"
-                    className="join-input"
+                    className="join-input room-input"
                     placeholder="例: ABC123"
                     value={roomId}
                     onChange={(e) => {
@@ -1689,7 +1689,7 @@ export default function App() {
                       window.history.replaceState({}, "", newUrl);
                     }}
                     onKeyDown={(e) => e.key === "Enter" && connect()}
-                    aria-label="ルームID"
+                    aria-label="対戦ルームID"
                     autoComplete="off"
                   />
                   <button
@@ -1710,15 +1710,10 @@ export default function App() {
                   className="join-submit-btn"
                   onClick={() => connect()}
                   disabled={!name.trim()}
-                  aria-label="大会に入場する"
+                  aria-label="アリーナに入場する"
                 >
-                  <div className="join-btn-body">
-                    <div className="join-btn-labels">
-                      <span className="join-btn-sub">ENTER ARENA</span>
-                      <span className="join-btn-main">入場する</span>
-                    </div>
-                    <EnterArenaIcon className="join-btn-arrow-icon" />
-                  </div>
+                  <span className="join-btn-text">アリーナに入場する</span>
+                  <EnterArenaIcon className="join-btn-arrow-icon" />
                 </button>
               </div>
             </div>
