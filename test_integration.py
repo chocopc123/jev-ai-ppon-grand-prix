@@ -116,7 +116,7 @@ def test_full_scoring_flow():
 
             score = ws1.receive_json()
             assert score["type"] == "SCORE_REVEAL_START"
-            assert len(score["timeline"]) == 5
+            assert len(score["timeline"]) == 10
             print(f"[OK] Full judging flow: Total={score['total']}, IPPON={score['is_ippon']}")
 
             # 演出時間待機後のラウンド結果

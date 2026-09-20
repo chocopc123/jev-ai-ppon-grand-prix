@@ -281,12 +281,17 @@ async def gatekeep(theme: str, answer: str, recent_answers: list) -> tuple[bool,
 
 async def judge(theme: str, answer: str, recent_answers: list) -> dict:
     if answer.strip().lower() == MAGIC_IPPON_WORD:
-        # デバッグ・動作確認用: 確実に10点満点 (全審査員2点) で IPPON 判定
-        scores = [2, 2, 2, 2, 2]
+        # デバッグ・動作確認用: 確実に10点満点 (全10項目1点) で IPPON 判定
+        item_names = [
+            "お題適合", "オチの鮮やかさ", "発想の独自性", "情景描写・共感",
+            "言葉のキレ・語感", "脱ベタ・新鮮さ", "直感的な面白さ",
+            "突出したキレ味", "構成・完成度", "総合インパクト"
+        ]
+        scores = [1] * 10
         total = 10
         timeline = [
-            {"judge": label, "score": 2, "delay_ms": 300}
-            for label in JUDGE_LABELS
+            {"judge": name, "score": 1, "delay_ms": 0, "conf": 1.0}
+            for name in item_names
         ]
         return {
             "scores": scores,
@@ -331,72 +336,39 @@ async def judge(theme: str, answer: str, recent_answers: list) -> dict:
     conc     = sval("conciseness")
 
     # 尖り度（最高突出度）の算出
-    # どれか1つでも圧倒的に高ければ、全体のベース評価も底上げする
     peak_score = max(punch, nov, comp, conc, gut, (1 - cliche))
-    spike_bonus = 0.35 if peak_score >= 0.75 else (0.20 if peak_score >= 0.60 else 0.0)
 
-    # 5人の審査員：それぞれの専門分野が尖っていれば即2点満点を出す
-    def calc_judge_score(base_val: float, is_specialized_peak: bool) -> int:
-        if is_specialized_peak:
-            return 2
-        score_val = base_val * 2.0 + spike_bonus
-        if score_val >= 1.35:
-            return 2
-        elif score_val >= 0.55:
-            return 1
-        return 0
-
-    # 1. 王道派: オチが鮮やか、またはお題適合が綺麗
-    oudo_peak = punch >= 0.70 or (on_topic >= 0.75 and punch >= 0.55)
-    oudo_base = 0.5 * on_topic + 0.5 * punch
-    s_oudo = calc_judge_score(oudo_base, oudo_peak)
-
-    # 2. シュール派: 独自性・奇抜さが尖っていれば意味不明でも2点
-    surreal_peak = nov >= 0.65 or (nov >= 0.55 and gut >= 0.65)
-    surreal_base = 0.7 * nov + 0.3 * gut
-    s_surreal = calc_judge_score(surreal_base, surreal_peak)
-
-    # 3. 共感派: 「あるある！」「情景が浮かぶ」が尖っていれば2点
-    empathy_peak = comp >= 0.70 or (comp >= 0.60 and on_topic >= 0.60)
-    empathy_base = 0.6 * comp + 0.4 * on_topic
-    s_empathy = calc_judge_score(empathy_base, empathy_peak)
-
-    # 4. 勢い派: フレーズのキレ・語感・直感のウケが尖っていれば2点
-    momentum_peak = conc >= 0.65 or gut >= 0.65
-    momentum_base = 0.5 * conc + 0.5 * gut
-    s_momentum = calc_judge_score(momentum_base, momentum_peak)
-
-    # 5. 辛口派: ベタネタでなく新鮮な切り口があれば2点
-    sharp_peak = (nov >= 0.65 and cliche <= 0.45) or (1 - cliche >= 0.80)
-    sharp_base = 0.5 * (1 - cliche) + 0.5 * nov
-    s_sharp = calc_judge_score(sharp_base, sharp_peak)
-
-    scores = [s_oudo, s_surreal, s_empathy, s_momentum, s_sharp]
-    total = sum(scores)
-
-    # IPPON = 10点満点（5人全員が2点点灯）達成で確実に IPPON!
-    is_ippon = (total == 10)
-
-    # 各審査員の「確信度」
-    confs = [
-        (on_topic + punch) / 2,
-        (nov + gut) / 2,
-        (comp + on_topic) / 2,
-        (conc + gut) / 2,
-        ((1 - cliche) + nov) / 2,
+    # 10項目の独立評価（各項目が0点または1点、およびその確信度0.0〜1.0）
+    criteria_defs = [
+        {"name": "お題適合", "conf": on_topic, "pass": on_topic >= 0.50},
+        {"name": "オチの鮮やかさ", "conf": punch, "pass": punch >= 0.50},
+        {"name": "発想の独自性", "conf": nov, "pass": nov >= 0.50},
+        {"name": "情景描写・共感", "conf": comp, "pass": comp >= 0.50},
+        {"name": "言葉のキレ・語感", "conf": conc, "pass": conc >= 0.50},
+        {"name": "脱ベタ・新鮮さ", "conf": (1.0 - cliche), "pass": cliche <= 0.50},
+        {"name": "直感的な面白さ", "conf": gut, "pass": gut >= 0.50},
+        {"name": "突出したキレ味", "conf": peak_score, "pass": peak_score >= 0.65},
+        {"name": "構成・完成度", "conf": (on_topic + punch + comp) / 3.0, "pass": ((on_topic + punch + comp) / 3.0) >= 0.55},
+        {"name": "総合インパクト", "conf": (gut + nov + punch) / 3.0, "pass": ((gut + nov + punch) / 3.0) >= 0.60},
     ]
 
-    # 確信度連動の点灯タイムライン
+    # 確信度が高い順（降順）にソート: 高確度な項目から先に即決点灯し、迷う項目が後半に回る
+    sorted_criteria = sorted(criteria_defs, key=lambda x: x["conf"], reverse=True)
+
+    scores = [1 if c["pass"] else 0 for c in sorted_criteria]
+    total = sum(scores)
+    is_ippon = (total == 10)
+
+    # 10項目独立の点灯タイムライン (確信度1.0なら遅延0ms、最低遅延ゼロの電光石火仕様)
     timeline = []
-    running = 0
-    for i, (label, score) in enumerate(zip(JUDGE_LABELS, scores)):
-        running += score
-        tense = (running >= 7 and i >= 2) or (i == 4 and running >= 8)
-        if tense:
-            delay = int(1600 - confs[i] * 900)
-        else:
-            delay = int(500 - confs[i] * 250)
-        timeline.append({"judge": label, "score": int(score), "delay_ms": max(250, delay)})
+    for item in sorted_criteria:
+        delay = max(0, int((1.0 - item["conf"]) * 250))
+        timeline.append({
+            "judge": item["name"],
+            "score": 1 if item["pass"] else 0,
+            "delay_ms": delay,
+            "conf": round(item["conf"], 3),
+        })
 
     # 敗因フィードバック
     failed = []

@@ -103,19 +103,19 @@ class TestAsyncWorkflow(unittest.IsolatedAsyncioTestCase):
         result = await judge(theme, answer, [])
         
         self.assertIn("scores", result)
-        self.assertEqual(len(result["scores"]), 5)
+        self.assertEqual(len(result["scores"]), 10)
         self.assertIn("total", result)
         self.assertTrue(0 <= result["total"] <= 10)
         self.assertIn("is_ippon", result)
         self.assertIsInstance(result["is_ippon"], bool)
         self.assertIn("timeline", result)
-        self.assertEqual(len(result["timeline"]), 5)
+        self.assertEqual(len(result["timeline"]), 10)
         
         for item in result["timeline"]:
             self.assertIn("judge", item)
             self.assertIn("score", item)
             self.assertIn("delay_ms", item)
-            self.assertTrue(item["delay_ms"] >= 250)
+            self.assertTrue(item["delay_ms"] >= 0)
 
     async def test_magic_ippon_word(self):
         """魔法の言葉 (chair-man) で必ずIPPONになることの検証"""
@@ -129,8 +129,8 @@ class TestAsyncWorkflow(unittest.IsolatedAsyncioTestCase):
         result = await judge(theme, answer, [])
         self.assertTrue(result["is_ippon"])
         self.assertEqual(result["total"], 10)
-        self.assertEqual(result["scores"], [2, 2, 2, 2, 2])
-        self.assertEqual(len(result["timeline"]), 5)
+        self.assertEqual(result["scores"], [1] * 10)
+        self.assertEqual(len(result["timeline"]), 10)
 
 
 if __name__ == "__main__":

@@ -312,21 +312,19 @@ class Room:
                     })
 
                     # 演出時間ぶん待ってから状態更新
-                    # クライアント側アニメーション所要時間:
-                    # - 準備待ち: 350ms (フリップ前) + 400ms (フリップ後) = 750ms
-                    # - 審査員思考ディレイ: sum(delay_ms)
-                    # - フレーム点灯ディレイ:
-                    #     IPPON時(10点): 1~7点目(180ms*7=1260ms) + 8~9点目(380ms*2=760ms) = 2020ms
-                    #     演出完了までの合計 = sum(delay_ms) + 2770ms
-                    #     IPPON演出(ファンファーレ+文字)表示直後(~0.4秒後)に加算通知するため +3.2秒待機
-                    #     不成立時: 各点灯ディレイ + 不成立ウェイト(450ms)
+                    # クライアント側アニメーション所要時間 (案2: 電光石火仕様):
+                    # - 準備待ち: 350ms (フリップ前) + 50ms (フリップ後) = 400ms
+                    # - 各項目ディレイ: sum(delay_ms)
+                    # - 各点灯ディレイ: total * 80ms
+                    # - IPPON時: 10点目で即座にファンファーレ発動するため +2.6秒待機
+                    # - 不成立時: 終了ウェイト(300ms) + 結果確認(2.6秒)
                     anim_ms = sum(s["delay_ms"] for s in result["timeline"])
+                    total = result["total"]
+                    step_ms = total * 80
                     if result["is_ippon"]:
-                        await asyncio.sleep(anim_ms / 1000 + 3.2)
+                        await asyncio.sleep((anim_ms + 400 + step_ms) / 1000 + 2.6)
                     else:
-                        total = result["total"]
-                        step_ms = min(total, 7) * 180 + max(0, total - 7) * 380
-                        miss_wait = (anim_ms + 750 + step_ms + 450) / 1000 + 0.2
+                        miss_wait = (anim_ms + 400 + step_ms + 300) / 1000 + 2.6
                         await asyncio.sleep(miss_wait)
 
                     # 5) 結果処理
