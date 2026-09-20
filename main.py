@@ -102,52 +102,115 @@ async def get_theme_audio(text: str, voice: str = "Algieba"):
 
 @app.get("/terms", response_class=HTMLResponse)
 async def terms_of_service():
-    """Discord App Directory 審査対応の利用規約 (Terms of Service) ページ"""
+    """Discord App Directory 審査対応・全15条形式の利用規約"""
     html_content = """<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>利用規約 (Terms of Service) - AI-PPON GRAND PRIX</title>
+    <title>利用規約 - AI-PPON GRAND PRIX</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; max-width: 800px; margin: 0 auto; padding: 40px 20px; background: #0f1117; color: #e2e8f0; }
-        h1 { color: #ffd700; border-bottom: 2px solid #ffd700; padding-bottom: 12px; }
-        h2 { color: #f6ad55; margin-top: 30px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.8; max-width: 820px; margin: 0 auto; padding: 40px 20px; background: #0f1117; color: #e2e8f0; }
+        h1 { color: #ffd700; border-bottom: 2px solid #ffd700; padding-bottom: 12px; font-size: 26px; }
+        h2 { color: #f6ad55; margin-top: 32px; font-size: 19px; border-left: 4px solid #f6ad55; padding-left: 10px; }
         p, li { color: #cbd5e1; font-size: 15px; }
-        .date { color: #718096; font-size: 13px; margin-bottom: 30px; }
-        .lang-switch { margin-top: 40px; padding-top: 20px; border-top: 1px dashed #4a5568; }
+        ul, ol { padding-left: 20px; }
+        .date { color: #718096; font-size: 13px; margin-bottom: 24px; }
+        .lang-switch { margin-top: 45px; padding-top: 25px; border-top: 1px dashed #4a5568; }
     </style>
 </head>
 <body>
-    <h1>利用規約 (Terms of Service)</h1>
+    <h1>利用規約</h1>
     <div class="date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
+    <p>この利用規約（以下，「本規約」といいます。）は，AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）が提供するサービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）の利用条件を定めるものです。ユーザーの皆さま（以下，「ユーザー」といいます。）には，本規約に従って，本サービスをご利用いただきます。</p>
+
     <section>
-        <h2>1. 適用範囲</h2>
-        <p>本規約は、「AI-PPON GRAND PRIX」（以下「本アプリ」）の利用に関する条件を定めるものです。ユーザーは、本アプリを利用することにより、本規約に同意したものとみなされます。</p>
+        <h2>第1条（適用）</h2>
+        <p>1. 本規約は，ユーザーと当チームとの間の本サービスの利用に関わる一切の関係に適用されるものとします。<br>
+        2. 当チームは本サービスに関し，本規約のほか，ご利用にあたってのルール等，各種の定め（以下，「個別規定」といいます。）をすることがあります。これら個別規定はその名称のいかんに関わらず，本規約の一部を構成するものとします。<br>
+        3. 本規約の規定が個別規定の規定と矛盾する場合には，個別規定において特段の定めなき限り，個別規定の規定が優先されるものとします。</p>
 
-        <h2>2. サービスの提供</h2>
-        <p>本アプリは、Discordアクティビティ等の環境において、AIを活用した大喜利パーティゲーム体験を提供するものです。本アプリは現状有姿（AS IS）で提供され、機能の変更・中断・終了を行うことがあります。</p>
-
-        <h2>3. 禁止事項</h2>
-        <p>ユーザーは以下の行為を行ってはなりません：</p>
+        <h2>第2条（利用登録および認証）</h2>
+        <p>1. 本サービスは，Discord Embedded App SDK等を通じたアカウント認証により利用を開始することができます。<br>
+        2. 当チームは，ユーザーが以下の事由に該当すると判断した場合，本サービスの利用を承認しないことがあり，その理由については一切の開示義務を負わないものとします：</p>
         <ul>
-            <li>Discordの利用規約やコミュニティガイドラインに違反する行為</li>
-            <li>他者に対する嫌がらせ、誹謗中傷、差別的表現、公序良俗に反する回答の投稿</li>
-            <li>本アプリのサーバーやインフラに対する過度な負荷を与える行為、不正アクセス</li>
-            <li>営利目的の無断転載・再配信・リバースエンジニアリング</li>
+            <li>本規約に違反したことがある者からの利用である場合</li>
+            <li>Discordの利用規約またはコミュニティガイドラインに違反している場合</li>
+            <li>その他，当チームが利用を相当でないと判断した場合</li>
         </ul>
 
-        <h2>4. 免責事項</h2>
-        <p>本アプリ内でAIにより生成される回答・判定・音声等について、その完全性・正確性・妥当性を保証するものではありません。本アプリの利用により生じた損害について、開発者は一切の責任を負いません。</p>
+        <h2>第3条（Discordアカウントの管理）</h2>
+        <p>1. ユーザーは，自己の責任において，本サービスへのアクセスに用いるDiscordアカウントおよび認証情報を適切に管理するものとします。<br>
+        2. ユーザーは，いかなる場合にも，認証情報を第三者に譲渡または貸与し，もしくは第三者と共用することはできません。<br>
+        3. アカウントの不正利用等によって生じた損害について，当チームに故意または重大な過失がある場合を除き，当チームは一切の責任を負わないものとします。</p>
 
-        <h2>5. 規約の変更</h2>
-        <p>本規約は必要に応じて改定されることがあります。改定後の規約は本ページに掲載された時点で効力を生じます。</p>
+        <h2>第4条（利用料金）</h2>
+        <p>1. 本サービスは，原則として無料でご利用いただけます。<br>
+        2. 将来的に有料機能または追加コンテンツを提供する場合，利用料金および支払方法は本サービス上にて別途告知するものとします。</p>
+
+        <h2>第5条（禁止事項）</h2>
+        <p>ユーザーは，本サービスの利用にあたり，以下の行為をしてはなりません：</p>
+        <ol>
+            <li>法令または公序良俗に違反する行為</li>
+            <li>犯罪行為に関連する行為</li>
+            <li>Discordの利用規約またはコミュニティガイドラインに反する行為</li>
+            <li>他者に対する嫌がらせ，脅迫，中傷，差別的表現，わいせつな表現を含む大喜利回答等の投稿</li>
+            <li>当チーム，他のユーザー，または第三者のサーバー・ネットワーク・インフラの機能を破壊または妨害する行為</li>
+            <li>本サービスの運営を妨害するおそれのある行為、または過度なリクエストを送信する行為</li>
+            <li>不正アクセスをし，またはこれを試みる行為</li>
+            <li>他のユーザーの個人情報を無断で収集または蓄積する行為</li>
+            <li>他のユーザーに成りすます行為</li>
+            <li>当チームが許諾しない本サービス上での宣伝，広告，勧誘，または営業行為</li>
+            <li>反社会的勢力に対して直接または間接に利益を供与する行為</li>
+            <li>その他，当チームが不適切と判断する行為</li>
+        </ol>
+
+        <h2>第6条（本サービスの提供の停止等）</h2>
+        <p>1. 当チームは，以下のいずれかの事由があると判断した場合，ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします：</p>
+        <ul>
+            <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
+            <li>地震，落雷，火災，停電または天災などの不可抗力により，本サービスの提供が困難となった場合</li>
+            <li>コンピュータまたは通信回線，外部AI API等の障害により停止した場合</li>
+            <li>その他，当チームが本サービスの提供が困難と判断した場合</li>
+        </ul>
+        <p>2. 当チームは，本サービスの提供の停止または中断により，ユーザーまたは第三者が被ったいかなる不利益または損害についても，一切の責任を負わないものとします。</p>
+
+        <h2>第7条（利用制限等）</h2>
+        <p>当チームは，ユーザーが本規約のいずれかの条項に違反した場合，または当チームが利用を不適当と判断した場合には，事前の通知なく，当該ユーザーに対する本サービスの全部もしくは一部の利用を制限・遮断することができるものとします。</p>
+
+        <h2>第8条（利用終了）</h2>
+        <p>ユーザーは，Discordクライアント上で本アクティビティを閉じる，または連携を解除することにより，いつでも本サービスの利用を終了することができます。</p>
+
+        <h2>第9条（保証の否認および免責事項）</h2>
+        <p>1. 当チームは，本サービスに事実上または法律上の瑕疵（安全性，信頼性，正確性，完全性，有効性，特定の目的への適合性，セキュリティなどに関する欠陥，エラーやバグ，権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。<br>
+        2. 本サービス内でAI（人工知能）により生成・判定されるお題，音声，判定結果（一本等のユーモア評価）は娯楽目的のみで提供され，その正確性や妥当性を保証するものではありません。<br>
+        3. 当チームは，本サービスに起因してユーザーに生じたあらゆる損害について，当チームの故意または重過失による場合を除き，一切の責任を負いません。<br>
+        4. 当チームは，本サービスに関して，ユーザーと他のユーザーまたは第三者との間において生じた取引，連絡または紛争等について一切責任を負いません。</p>
+
+        <h2>第10条（サービス内容の変更等）</h2>
+        <p>当チームは，ユーザーへの事前の告知または本ウェブサイト上への掲載をもって，本サービスの内容を変更，追加または廃止することがあり，ユーザーはこれを承諾するものとします。</p>
+
+        <h2>第11条（利用規約の変更）</h2>
+        <p>当チームは，必要と判断した場合には，ユーザーへの個別の事前承諾を得ることなく，本ウェブサイト上に変更後の規約を掲示することにより本規約を変更できるものとします。変更後の規約は，本ウェブサイト上に表示された時点より効力を生じるものとします。</p>
+
+        <h2>第12条（個人情報の取扱い）</h2>
+        <p>当チームは，本サービスの利用によって取得する情報については，当チームが別途定める「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
+
+        <h2>第13条（通知または連絡）</h2>
+        <p>ユーザーと当チームとの間の通知または連絡は，Discord上のアナウンスまたは当チームが指定する方法により行うものとします。</p>
+
+        <h2>第14条（権利義務の譲渡の禁止）</h2>
+        <p>ユーザーは，当チームの書面による事前の承諾なく，利用契約上の地位または本規約に基づく権利もしくは義務を第三者に譲渡し，または担保に供することはできません。</p>
+
+        <h2>第15条（準拠法・裁判管轄）</h2>
+        <p>1. 本規約の解釈にあたっては，日本法を準拠法とします。<br>
+        2. 本サービスに関して紛争が生じた場合には，日本国内の東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
     </section>
 
     <div class="lang-switch">
-        <h2>English Summary</h2>
-        <p><strong>Terms of Service:</strong> By using "AI-PPON GRAND PRIX", you agree to follow Discord's Community Guidelines and Terms of Service. Do not submit harmful, harassing, or illegal content. The service is provided "AS IS" without warranty of any kind. AI-generated judgments, voices, and themes are for entertainment purposes only.</p>
+        <h2>English Summary (for Discord Verification)</h2>
+        <p><strong>Terms of Service Summary:</strong> "AI-PPON GRAND PRIX" is a free entertainment party game provided "AS IS". Users must adhere to Discord Community Guidelines and Terms of Service. Harmful, abusive, or infringing content is strictly prohibited. AI judgments, voices, and generated content are for amusement purposes only with no warranty. The service may be modified or discontinued at any time.</p>
     </div>
 </body>
 </html>"""
