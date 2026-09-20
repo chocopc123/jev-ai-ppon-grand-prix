@@ -120,7 +120,7 @@ async def terms_of_service():
 </head>
 <body>
     <h1>利用規約 (Terms of Service)</h1>
-    <div class="date">制定日: 2026年3月20日 / Last Updated: March 20, 2026</div>
+    <div class="date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
     <section>
         <h2>1. 適用範囲</h2>
@@ -176,7 +176,7 @@ async def privacy_policy():
 </head>
 <body>
     <h1>プライバシーポリシー</h1>
-    <div class="date">制定日: 2026年3月20日 / Last Updated: March 20, 2026</div>
+    <div class="date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
     <p>AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）は，本サービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）におけるユーザーの個人情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。</p>
 
