@@ -108,13 +108,13 @@ DOCS_COMMON_STYLE = """
     body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
         line-height: 1.8;
-        background: radial-gradient(circle at 50% 35%, #ffef40 0%, #ffdc00 50%, #e6c600 100%) fixed;
+        background: radial-gradient(circle at 50% 30%, #ffef4a 0%, #ffd000 55%, #e6b800 100%) fixed;
         color: #111111;
-        padding: 24px 16px 60px;
+        padding: 28px 16px 64px;
         min-height: 100vh;
     }
     .page-wrapper {
-        max-width: 880px;
+        max-width: 840px;
         margin: 0 auto;
     }
     .brand-header {
@@ -122,7 +122,7 @@ DOCS_COMMON_STYLE = """
         align-items: center;
         justify-content: space-between;
         margin-bottom: 20px;
-        padding-bottom: 12px;
+        padding-bottom: 10px;
     }
     .brand-logo-link {
         display: inline-block;
@@ -130,13 +130,13 @@ DOCS_COMMON_STYLE = """
         transition: transform 0.15s ease;
     }
     .brand-logo-link:hover {
-        transform: scale(1.03);
+        transform: scale(1.02);
     }
     .brand-logo-svg {
-        width: 170px;
+        width: 160px;
         height: auto;
         display: block;
-        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
     }
     .back-btn {
         display: inline-flex;
@@ -144,137 +144,114 @@ DOCS_COMMON_STYLE = """
         gap: 6px;
         color: #111;
         font-size: 13.5px;
-        font-weight: 900;
+        font-weight: 800;
         text-decoration: none;
-        background: #fff;
-        border: 2px solid #111;
-        box-shadow: 0 4px 0 #111;
-        padding: 8px 16px;
-        border-radius: 8px;
-        transition: all 0.15s ease;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 8px 18px;
+        border-radius: 9999px;
+        transition: all 0.2s ease;
     }
     .back-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 0 #111;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+        background: #fafafa;
     }
     .back-btn:active {
-        transform: translateY(2px);
-        box-shadow: 0 2px 0 #111;
+        transform: translateY(1px);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     }
-    /* フリップ同色の白カード（外周全体を完全な1本の黒線で囲む） */
-    /* タブバー (親コンテナは透明にし、下地グレーの透け・漏れを完全排除) */
+
+    /* モダンなセグメント・コントロール（ピル型タブ切替） */
     .nav-tabs {
         display: flex;
-        position: relative;
-        background: transparent;
-        border: none;
-        margin-bottom: 0;
-        z-index: 1;
+        background: rgba(0, 0, 0, 0.08);
+        padding: 5px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        gap: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
     .tab-btn {
         flex: 1;
         text-align: center;
-        padding: 13px 20px;
-        font-size: 15px;
-        font-weight: 900;
+        padding: 11px 20px;
+        font-size: 14.5px;
+        font-weight: 800;
         text-decoration: none;
-        position: relative;
-        transition: color 0.15s ease;
+        border-radius: 10px;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    /* 非選択タブ: 奥のグレーフリップ（全周枠線＋角丸＋下線） */
+    /* 非選択タブ */
     .tab-btn:not(.is-active) {
-        background: #dedcd3;
-        color: #71717a;
-        border-top: 2px solid #111111;
-        border-left: 2px solid #111111;
-        border-right: 2px solid #111111;
-        border-bottom: 2px solid #111111;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        z-index: 1;
+        color: #4b5563;
+        background: transparent;
     }
     .tab-btn:not(.is-active):hover {
         color: #111111;
+        background: rgba(255, 255, 255, 0.45);
     }
-    /* 選択中タブ: 一切の効果・影・グラデーション・背後色なしの完全純白(#ffffff) */
+    /* 選択中タブ: 白いフローティングピル */
     .tab-btn.is-active {
-        background: #ffffff !important;
-        background-color: #ffffff !important;
-        background-image: none !important;
-        color: #111111 !important;
-        border-top: 2px solid #111111 !important;
-        border-left: 2px solid #111111 !important;
-        border-right: 2px solid #111111 !important;
-        border-bottom: 2px solid #ffffff !important; /* 下枠線を白にしカード天板とシームレスに直結 */
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        margin-bottom: -2px; /* 下のカード境界に2pxかぶせて隙間ゼロ結合 */
-        box-shadow: none !important;
-        filter: none !important;
-        backdrop-filter: none !important;
-        isolation: isolate;
-        z-index: 5;
-    }
-    /* 左端と右端のタブの境界線の重なり調整 */
-    .tab-btn:last-child {
-        margin-left: -2px;
+        color: #111111;
+        background: #ffffff;
+        font-weight: 900;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
-    /* フリップ同色の白カード本体（border-topは削除し、右上と左上は直角） */
+    /* モダンなコンテンツカード（四隅角丸・美しいソフトシャドウ） */
     .content-card {
         width: 100%;
-        background-color: #ffffff !important;
-        background-image: none !important;
+        background: #ffffff;
         color: #111111;
-        border-left: 2px solid #111111;
-        border-right: 2px solid #111111;
-        border-bottom: 2px solid #111111;
-        border-top: none; /* カードについてるborder-topは削除 */
-        border-radius: 0 0 14px 14px; /* 右上・左上は丸めない（直角） */
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
         box-shadow:
-            0 8px 0 #1b1b1b,
-            0 20px 48px rgba(0, 0, 0, 0.25);
-        padding: 36px 36px 40px;
-        position: relative;
-        z-index: 2;
+            0 20px 48px -8px rgba(0, 0, 0, 0.16),
+            0 8px 16px -4px rgba(0, 0, 0, 0.06);
+        padding: 40px 44px 48px;
     }
     h1 {
         color: #111;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 900;
         margin: 0 0 6px 0;
-        letter-spacing: 0.5px;
-        border-bottom: 3px solid #111;
-        padding-bottom: 8px;
+        letter-spacing: -0.01em;
+        border-bottom: 2px solid #f0f0f2;
+        padding-bottom: 12px;
     }
     .meta-date {
-        color: #555;
+        color: #6b7280;
         font-size: 13px;
-        margin-top: 6px;
+        margin-top: 8px;
         margin-bottom: 24px;
         font-weight: 600;
     }
     .disclaimer-box {
-        background: #fff9db;
-        border: 2px solid #f59f00;
-        border-radius: 8px;
-        padding: 14px 18px;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-left: 4px solid #f59e0b;
+        border-radius: 10px;
+        padding: 16px 20px;
         margin-bottom: 28px;
-        box-shadow: 0 2px 0 rgba(0,0,0,0.08);
     }
     h2 {
         color: #111;
-        font-size: 18px;
+        font-size: 17px;
         font-weight: 900;
         margin-top: 32px;
         margin-bottom: 12px;
-        border-left: 5px solid #ffcc00;
-        background: #fdfaf0;
-        padding: 6px 12px;
-        border-radius: 0 6px 6px 0;
+        border-left: 4px solid #ffd000;
+        background: #fffdf5;
+        padding: 8px 14px;
+        border-radius: 0 8px 8px 0;
     }
     p, li {
-        color: #222;
+        color: #27272a;
         font-size: 15px;
         margin: 6px 0;
     }
@@ -286,11 +263,11 @@ DOCS_COMMON_STYLE = """
         margin: 4px 0;
     }
     .contact-box {
-        background: #f8f9fa;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        padding: 16px 20px;
-        margin-top: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-top: 16px;
     }
     .contact-box p {
         margin: 4px 0;
@@ -298,7 +275,7 @@ DOCS_COMMON_STYLE = """
     .lang-switch {
         margin-top: 48px;
         padding-top: 24px;
-        border-top: 2px dashed #ddd;
+        border-top: 2px dashed #e5e7eb;
     }
     .lang-switch h2 {
         border-left-color: #3b82f6;
@@ -306,13 +283,13 @@ DOCS_COMMON_STYLE = """
     }
     .footer {
         text-align: center;
-        color: #444;
+        color: #52525b;
         font-size: 13px;
         font-weight: 700;
-        margin-top: 28px;
+        margin-top: 32px;
     }
     @media (max-width: 640px) {
-        .content-card { padding: 24px 18px; }
+        .content-card { padding: 26px 20px 32px; border-radius: 16px; }
         .brand-header { flex-direction: column; gap: 12px; align-items: flex-start; }
     }
 """
