@@ -528,6 +528,15 @@ export default function App() {
     }
   };
 
+  const handleDisableNarration = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTtsUnlocked(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ai_ppon_tts_unlocked", "false");
+    }
+    showToast("🎙️ ナレーションモードを解除しました");
+  };
+
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => {
@@ -1096,21 +1105,60 @@ export default function App() {
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "6px",
-                background: "linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2))",
+                gap: "10px",
+                background: "linear-gradient(135deg, #11141a 0%, #1a1e29 100%)",
                 border: "1px solid #ffd700",
-                padding: "4px 12px",
-                borderRadius: "20px",
-                color: "#ffd700",
-                fontSize: "12px",
-                fontWeight: "900",
-                letterSpacing: "1px",
-                boxShadow: "0 0 10px rgba(255, 215, 0, 0.3)",
+                padding: "6px 14px",
+                borderRadius: "24px",
+                boxShadow: "0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 215, 0, 0.25)",
                 marginTop: "-10px",
                 marginBottom: "4px",
+                zIndex: 10,
               }}
             >
-              <span>🎙️ NARRATION MODE (AI-TTS) ACTIVE</span>
+              <span
+                style={{
+                  color: "#ffd700",
+                  fontSize: "12px",
+                  fontWeight: "800",
+                  letterSpacing: "0.5px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <span>🎙️</span>
+                <span>NARRATION MODE (AI-TTS) ACTIVE</span>
+              </span>
+              <button
+                type="button"
+                onClick={handleDisableNarration}
+                style={{
+                  background: "rgba(239, 68, 68, 0.25)",
+                  border: "1px solid rgba(239, 68, 68, 0.6)",
+                  color: "#ffffff",
+                  borderRadius: "12px",
+                  padding: "3px 8px",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  lineHeight: "1.2",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(239, 68, 68, 0.5)";
+                  e.currentTarget.style.borderColor = "#ef4444";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(239, 68, 68, 0.25)";
+                  e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.6)";
+                }}
+                title="ナレーションモードを解除"
+              >
+                ✕ 解除
+              </button>
             </div>
           )}
 
