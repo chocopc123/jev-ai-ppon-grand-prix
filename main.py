@@ -162,15 +162,13 @@ DOCS_COMMON_STYLE = """
         box-shadow: 0 2px 0 #111;
     }
     /* フリップ同色の白カード（外周全体を完全な1本の黒線で囲む） */
-    /* タブバー (非選択タブはカードと同じ横幅のベース天板) */
+    /* タブバー (親コンテナは透明にし、下地グレーの透け・漏れを完全排除) */
     .nav-tabs {
         display: flex;
         position: relative;
-        background: #dedcd3;
-        border: 2px solid #111111;
-        border-bottom: none; /* 下のボーダーは各タブ側で制御 */
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
+        background: transparent;
+        border: none;
+        margin-bottom: 0;
         z-index: 1;
     }
     .tab-btn {
@@ -180,44 +178,46 @@ DOCS_COMMON_STYLE = """
         font-size: 15px;
         font-weight: 900;
         text-decoration: none;
-        color: #71717a;
-        background: transparent;
-        border: none;
         position: relative;
         transition: color 0.15s ease;
     }
-    /* 非選択タブの下のみに境界線（ボーダー）を表示 */
+    /* 非選択タブ: 奥のグレーフリップ（全周枠線＋角丸＋下線） */
     .tab-btn:not(.is-active) {
+        background: #dedcd3;
+        color: #71717a;
+        border-top: 2px solid #111111;
+        border-left: 2px solid #111111;
+        border-right: 2px solid #111111;
         border-bottom: 2px solid #111111;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        z-index: 1;
     }
-    .tab-btn:hover {
+    .tab-btn:not(.is-active):hover {
         color: #111111;
     }
-    /* 選択中タブ: 一切の効果・影・グラデーションを排除した完全純白(#ffffff) */
+    /* 選択中タブ: 一切の効果・影・グラデーション・背後色なしの完全純白(#ffffff) */
     .tab-btn.is-active {
+        background: #ffffff !important;
         background-color: #ffffff !important;
         background-image: none !important;
         color: #111111 !important;
         border-top: 2px solid #111111 !important;
         border-left: 2px solid #111111 !important;
         border-right: 2px solid #111111 !important;
-        border-bottom: 2px solid #ffffff !important; /* 下側を純白にしてカード本体に完全に溶け込ませる */
+        border-bottom: 2px solid #ffffff !important; /* 下枠線を白にしカード天板とシームレスに直結 */
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
-        margin-top: -2px; /* 天板の上に覆いかぶさる */
-        margin-bottom: -2px; /* カードとの境界を完全に白で埋める */
+        margin-bottom: -2px; /* 下のカード境界に2pxかぶせて隙間ゼロ結合 */
         box-shadow: none !important;
         filter: none !important;
         backdrop-filter: none !important;
         isolation: isolate;
         z-index: 5;
     }
-    /* 左端・右端のタブ選択時にベースの外枠とピッタリ重なるようオフセット */
-    .tab-btn.is-active:first-child {
+    /* 左端と右端のタブの境界線の重なり調整 */
+    .tab-btn:last-child {
         margin-left: -2px;
-    }
-    .tab-btn.is-active:last-child {
-        margin-right: -2px;
     }
 
     /* フリップ同色の白カード本体（border-topは削除し、右上と左上は直角） */
