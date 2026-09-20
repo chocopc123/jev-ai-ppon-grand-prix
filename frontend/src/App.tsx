@@ -1527,22 +1527,26 @@ export default function App() {
                   <span className="join-btn-sub">ENTER ARENA</span>
                   <span className="join-btn-main">入場する</span>
                 </button>
-                <button
-                  type="button"
-                  className="btn-copy-url"
-                  onClick={() => copyRoomUrl()}
-                  title="友達に共有するURLをコピー"
-                  style={{ padding: "0 14px", height: "auto" }}
-                >
-                  📋 URLコピー
-                </button>
+                {!isDiscord && (
+                  <button
+                    type="button"
+                    className="btn-copy-url"
+                    onClick={() => copyRoomUrl()}
+                    title="友達に共有するURLをコピー"
+                    style={{ padding: "0 14px", height: "auto" }}
+                  >
+                    📋 URLコピー
+                  </button>
+                )}
               </div>
             </div>
 
             <div className="join-card-footer">
-              <span className="join-footer-hint">
-                URLを共有すると同じ部屋に対戦相手を招待できます
-              </span>
+              {!isDiscord && (
+                <span className="join-footer-hint">
+                  URLを共有すると同じ部屋に対戦相手を招待できます
+                </span>
+              )}
               {(import.meta.env.DEV ||
                 (typeof window !== "undefined" &&
                   (window.location.hostname === "localhost" ||
@@ -1619,13 +1623,15 @@ export default function App() {
                 <span className="room-share-label">ROOM:</span>
                 <span className="room-share-id">{roomId}</span>
               </div>
-              <button
-                type="button"
-                className="btn-copy-url"
-                onClick={() => copyRoomUrl()}
-              >
-                📋 招待URLをコピー
-              </button>
+              {!isDiscord && (
+                <button
+                  type="button"
+                  className="btn-copy-url"
+                  onClick={() => copyRoomUrl()}
+                >
+                  📋 招待URLをコピー
+                </button>
+              )}
             </div>
 
             <div className="waiting-players-section">
@@ -1667,13 +1673,15 @@ export default function App() {
               >
                 ▶ ゲームを開始する
               </button>
-              <button
-                type="button"
-                className="btn-leave-room"
-                onClick={leaveRoom}
-              >
-                🚪 退出する
-              </button>
+              {!isDiscord && (
+                <button
+                  type="button"
+                  className="btn-leave-room"
+                  onClick={leaveRoom}
+                >
+                  🚪 退出する
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1716,22 +1724,26 @@ export default function App() {
                   <div className="themeStage__controls">
                     <div className="themeStage__roomMeta">
                       <span className="themeStage__roomIdTag">{roomId}</span>
-                      <button
-                        type="button"
-                        className="themeStage__copyBtn"
-                        onClick={() => copyRoomUrl()}
-                        title="部屋URLをコピー"
-                      >
-                        📋 コピー
-                      </button>
-                      <button
-                        type="button"
-                        className="themeStage__leaveBtn"
-                        onClick={leaveRoom}
-                        title="部屋から退出"
-                      >
-                        🚪 退出
-                      </button>
+                      {!isDiscord && (
+                        <>
+                          <button
+                            type="button"
+                            className="themeStage__copyBtn"
+                            onClick={() => copyRoomUrl()}
+                            title="部屋URLをコピー"
+                          >
+                            📋 コピー
+                          </button>
+                          <button
+                            type="button"
+                            className="themeStage__leaveBtn"
+                            onClick={leaveRoom}
+                            title="部屋から退出"
+                          >
+                            🚪 退出
+                          </button>
+                        </>
+                      )}
                     </div>
 
                     <div
