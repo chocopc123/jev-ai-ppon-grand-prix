@@ -135,7 +135,7 @@ function playIpponVoice() {
   }
 }
 
-const sfx = {
+export const sfx = {
   pingpong() {
     const a = audio();
     const now = a.currentTime;
@@ -202,10 +202,10 @@ const sfx = {
     const a = audio();
     const now = a.currentTime;
 
-    // IPPONボイスを即時先行再生（ファンファーレ演出より0.3秒早く立ち上がる）
+    // 10個目の点灯音と同時にIPPONボイスとファンファーレ効果音を再生
     playIpponVoice();
 
-    const fanfareStart = now + 0.30;
+    const fanfareStart = now;
 
     // 1. 神聖で深みのある低音パッド（柔らかなアタックで包み込む）
     const bass = a.createOscillator();
@@ -579,17 +579,15 @@ export default function App() {
 
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  function getFrameDelay(score: number): number {
-    if (score === 10) return 600; // 10本目は最大のタメ
-    if (score >= 8) return 380;   // 8〜9本目は緊張感の延長
-    return 180;                   // 1〜7本目はテンポよく
+  function getFrameDelay(_score: number): number {
+    return 80; // 電光石火: 80ms間隔でタタタタッと点灯
   }
 
   async function runJudgmentAnimation(judgement: JudgingState) {
     let scoreSoFar = 0;
 
-    // 白フリップ表示後の「間」
-    await wait(400);
+    // 白フリップ表示後の「間」 (案2: 50ms)
+    await wait(50);
 
     for (let judgeIdx = 0; judgeIdx < judgement.timeline.length; judgeIdx++) {
       const judgeItem = judgement.timeline[judgeIdx];
@@ -1055,6 +1053,27 @@ export default function App() {
 
             <div className="join-card-footer">
               <span className="join-footer-hint">URLを共有すると同じ部屋に対戦相手を招待できます</span>
+              {(import.meta.env.DEV || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) && (
+                <div style={{ marginTop: "12px", textAlign: "center" }}>
+                  <a
+                    href="/devtool"
+                    style={{
+                      fontSize: "12px",
+                      color: "#ffd200",
+                      textDecoration: "none",
+                      background: "rgba(255, 210, 0, 0.1)",
+                      border: "1px solid rgba(255, 210, 0, 0.3)",
+                      padding: "4px 10px",
+                      borderRadius: "12px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px"
+                    }}
+                  >
+                    🛠️ 演出デバッグツール (DevTool) を開く
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
