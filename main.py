@@ -219,7 +219,7 @@ async def terms_of_service():
 
 @app.get("/privacy", response_class=HTMLResponse)
 async def privacy_policy():
-    """Discord App Directory 審査対応・個人情報保護法準拠のプライバシーポリシー（Web/Discord両対応）"""
+    """Discord App Directory 審査対応・個人情報保護法準拠・Developer Policy準拠のプライバシーポリシー（Web/Discord両対応）"""
     html_content = """<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -234,6 +234,7 @@ async def privacy_policy():
         ul { padding-left: 20px; }
         .date { color: #718096; font-size: 13px; margin-bottom: 24px; }
         .contact-box { background: rgba(255, 255, 255, 0.05); border: 1px solid #4a5568; border-radius: 8px; padding: 16px 20px; margin-top: 10px; }
+        .notice-box { background: rgba(246, 173, 85, 0.1); border-left: 3px solid #f6ad55; padding: 10px 14px; margin-top: 8px; font-size: 14px; }
         .lang-switch { margin-top: 45px; padding-top: 25px; border-top: 1px dashed #4a5568; }
     </style>
 </head>
@@ -275,7 +276,7 @@ async def privacy_policy():
         <ul>
             <li>本サービスにおけるゲームセッションの作成・マッチングおよび対戦運営のため</li>
             <li>ゲームルーム内における参加プレイヤーの識別，スコア集計および勝敗判定の表示のため</li>
-            <li>ユーザーが入力した回答に対するAIによる審査・採点処理の実行のため</li>
+            <li>ユーザーが入力した回答に対するAIによるリアルタイム審査・採点処理の実行のため</li>
             <li>不正行為・利用規約違反行為の防止および調査のため</li>
             <li>ユーザーからのお問い合わせに対応するため</li>
         </ul>
@@ -283,39 +284,50 @@ async def privacy_policy():
         <h2>第4条（利用目的の変更）</h2>
         <p>当チームは，利用目的が変更前と関連性を有すると合理的に認められる場合に限り，個人情報の利用目的を変更するものとします。変更を行った場合には，変更後の目的について本ウェブサイト上に公表します。</p>
 
-        <h2>第5条（個人情報の第三者提供および外部連携）</h2>
+        <h2>第5条（個人情報の第三者提供・外部連携およびAI学習の禁止）</h2>
         <p>1. 当チームは，次に掲げる場合を除いて，あらかじめユーザーの同意を得ることなく第三者に個人情報を提供することはありません：</p>
         <ul>
             <li>人の生命，身体または財産の保護のために必要がある場合</li>
             <li>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合</li>
             <li>法令に基づく場合</li>
         </ul>
-        <p>2. （AI審査機能における外部サービス連携）本サービスは，回答のユーモア判定・審査のためにGoogle LLC等の提供するAIサービス（Gemini API等）とテキスト連携を行います。当該送信には回答テキストおよびお題のみが含まれ，個人を特定可能な情報（個人名や連絡先等）は含まれません。</p>
+        <p>2. （AI審査機能における外部サービス連携）本サービスは，回答のユーモア判定・審査のためにGoogle LLC等の提供するAIサービス（Gemini API等）とテキスト連携を行います。当該送信には回答テキストおよびお題のみが含まれ，個人を特定可能な情報（個人名や連絡先等）は含まれません。<br>
+        3. （AI学習・トレーニングの禁止 / Discord Developer Policy準拠）本サービスを通じて取得したDiscordユーザーデータおよび回答テキストは，ゲーム内でのリアルタイム判定および演出の目的のみに使用され，<strong>AI・機械学習モデルのトレーニング・追加学習データとして使用・提供されることは一切ありません</strong>。</p>
 
         <h2>第6条（データの管理と保持期間）</h2>
         <p>本サービスで送受信されるユーザー情報および回答データは，ゲームセッション（ルーム）の進行中のみサーバーの揮発性メモリ上に一時保持されます。ゲームセッションの終了または切断後，当該データは自動的に消去され，永続的なデータベース等への保存は行いません。</p>
 
         <h2>第7条（個人情報の開示・訂正・削除）</h2>
-        <p>ユーザーは，当チームの保有する自己の個人情報について開示・訂正・削除を請求することができます。当チームは，ユーザー本人からの請求であることを確認の上，遅滞なく対応を行います。</p>
+        <p>1. ユーザーは，当チームの保有する自己の個人情報について開示・訂正・削除を請求することができます。当チームは，ユーザー本人からの請求であることを確認の上，遅滞なく対応を行います。<br>
+        2. <strong>（データ非保持に関する特記事項）</strong>当チームは第6条に定めるとおり，ユーザーデータをサーバー上に永続保持せず，ゲームセッション終了後にすべて自動消去いたします。そのため，セッション終了後における開示・訂正・削除のご請求については，当チーム側に保有する対象データが存在しないため，対応いたしかねる旨をあらかじめご了承ください。</p>
 
         <h2>第8条（個人情報の利用停止等）</h2>
-        <p>当チームは，本人から個人情報が利用目的の範囲を超えて取り扱われている等の理由により利用停止を求められた場合には，遅滞なく必要な調査を行い，その結果に基づき利用停止等の措置を講じます。</p>
+        <p>1. 当チームは，本人から個人情報が利用目的の範囲を超えて取り扱われている等の理由により利用停止を求められた場合には，遅滞なく必要な調査を行い，その結果に基づき利用停止等の措置を講じます。<br>
+        2. 第7条第2項と同様に，セッション終了後は対象データが既に自動破棄されているため，利用停止措置を行うべきデータが存在しない状態となります。</p>
 
-        <h2>第9条（プライバシーポリシーの変更）</h2>
+        <h2>第9条（未成年者・児童のプライバシー保護）</h2>
+        <p>本サービスは，13歳未満（または利用者の居住地域の法令が定める年齢未満）の児童を対象としておらず，13歳未満の児童から意図して個人情報を収集することはありません。13歳未満のお子様が本サービスを利用されたことが判明した場合，速やかに関連する一時データを破棄します。</p>
+
+        <h2>第10条（プライバシーポリシーの変更）</h2>
         <p>本ポリシーの内容は，法令その他本ポリシーに別段の定めのある事項を除いて，ユーザーに通知することなく変更することができるものとします。変更後のプライバシーポリシーは，本ウェブサイトに掲載したときから効力を生じるものとします。</p>
 
-        <h2>第10条（お問い合わせ窓口）</h2>
-        <p>本ポリシーに関するお問い合わせ・苦情・削除要請等は，以下の窓口までご連絡ください。</p>
+        <h2>第11条（お問い合わせ窓口）</h2>
+        <p>本ポリシーに関するお問い合わせ・苦情・ご質問等は，以下の窓口までご連絡ください。Discordアカウントをお持ちでないWebユーザーの方もメールまたはお問い合わせフォームよりご連絡いただけます。</p>
         <div class="contact-box">
             <p style="margin: 4px 0;"><strong>サービス名：</strong> AI-PPON GRAND PRIX</p>
-            <p style="margin: 4px 0;"><strong>運営組織：</strong> AI-PPON GRAND PRIX 開発チーム</p>
-            <p style="margin: 4px 0;"><strong>連絡先：</strong> Discord Application Support / 公式サーバーまたは開発者DM</p>
+            <p style="margin: 4px 0;"><strong>運営組織：</strong> AI-PPON GRAND PRIX 開発運営チーム</p>
+            <p style="margin: 4px 0;"><strong>Discordサポート：</strong> 公式Discordサーバーまたは開発者DM</p>
+            <p style="margin: 4px 0;"><strong>Web・メール窓口：</strong> <a href="mailto:support@ai-ppon.internal" style="color: #ffd700;">support@ai-ppon.internal</a> （またはアプリ公式お問い合わせフォーム）</p>
         </div>
     </section>
 
     <div class="lang-switch">
-        <h2>English Summary (for Discord Verification & Web Users)</h2>
-        <p><strong>Privacy Policy Summary:</strong> "AI-PPON GRAND PRIX" operates both on web browsers and as a Discord Activity. Via Discord, we access your Discord User ID, username, and avatar URL to display your player status and score. Via web browsers, only your self-chosen nickname and temporary random session IDs are used. Submitted answers are evaluated in-memory by AI APIs (e.g. Gemini) strictly for gameplay judgment. No passwords, emails, or personal identification details are collected or permanently stored. All session data is discarded when the room closes.</p>
+        <h2>English Summary (for Discord Verification & Compliance)</h2>
+        <p><strong>Privacy Policy Summary:</strong> "AI-PPON GRAND PRIX" operates via web browsers and as a Discord Activity. Via Discord, we only access public profile details (User ID, username, avatar URL) to display scores. Via web, only self-assigned nicknames and temporary local storage session tokens are used.<br>
+        <strong>Zero Data Retention:</strong> All user information and submitted game answers are strictly processed in-memory during an active session and are permanently wiped immediately upon session closure. Thus, no persistent personal data is stored on disk.<br>
+        <strong>No AI Model Training:</strong> In compliance with Discord Developer Policy (Rule 21), user data and answers are NEVER used to train, tune, or improve machine learning or AI models.<br>
+        <strong>Children's Privacy:</strong> The service is not directed at children under the age of 13, and does not knowingly collect personal data from them.<br>
+        <strong>Contact:</strong> For privacy inquiries, please contact our support desk via Discord or support email.</p>
     </div>
 </body>
 </html>"""
