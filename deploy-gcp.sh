@@ -17,10 +17,15 @@ fi
 echo -e "\033[32m現在のGCPプロジェクト: $CURRENT_PROJECT\033[0m"
 echo ""
 
-# 2. API キーの取得 (.env から読み込み、無ければ入力プロンプト)
+# 2. API キーと Discord 設定の取得 (.env から読み込み、無ければ入力プロンプト)
 API_KEY=""
+DISCORD_CLIENT_ID=""
+DISCORD_CLIENT_SECRET=""
+
 if [ -f ".env" ]; then
     API_KEY=$(grep -E '^OPENROUTER_API_KEY=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
+    DISCORD_CLIENT_ID=$(grep -E '^DISCORD_CLIENT_ID=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
+    DISCORD_CLIENT_SECRET=$(grep -E '^DISCORD_CLIENT_SECRET=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
 fi
 
 if [ -z "$API_KEY" ]; then
@@ -58,6 +63,14 @@ fi
 echo ""
 echo -e "\033[36m[3/3] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)...\033[0m"
 
+ENV_VARS="OPENROUTER_API_KEY=${API_KEY},THEME_TIME_LIMIT=150,TARGET_IPPON=3"
+if [ -n "$DISCORD_CLIENT_ID" ]; then
+    ENV_VARS="${ENV_VARS},DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}"
+fi
+if [ -n "$DISCORD_CLIENT_SECRET" ]; then
+    ENV_VARS="${ENV_VARS},DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}"
+fi
+
 gcloud run deploy ai-ppon-grand-prix \
   --source . \
   --region asia-northeast1 \
@@ -69,7 +82,7 @@ gcloud run deploy ai-ppon-grand-prix \
   --memory 512Mi \
   --timeout 3600 \
   --concurrency 80 \
-  --set-env-vars "OPENROUTER_API_KEY=${API_KEY},THEME_TIME_LIMIT=150,TARGET_IPPON=3" \
+  --set-env-vars "${ENV_VARS}" \
   ${SECRET_FLAG}
 
 echo ""

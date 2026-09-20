@@ -18,12 +18,21 @@ if ([string]::IsNullOrWhiteSpace($currentProject) -or $currentProject -like "*un
 Write-Host "現在のGCPプロジェクト: $currentProject" -ForegroundColor Green
 Write-Host ""
 
-# 2. API キーの取得 (.env から読み込み、無ければ入力プロンプト)
+# 2. API キーと Discord 設定の取得 (.env から読み込み、無ければ入力プロンプト)
 $apiKey = ""
+$discordClientId = ""
+$discordClientSecret = ""
+
 if (Test-Path ".env") {
     Get-Content ".env" | ForEach-Object {
         if ($_ -match "^\s*OPENROUTER_API_KEY\s*=\s*(.+)$") {
             $apiKey = $matches[1].Trim().Trim('"').Trim("'")
+        }
+        if ($_ -match "^\s*DISCORD_CLIENT_ID\s*=\s*(.+)$") {
+            $discordClientId = $matches[1].Trim().Trim('"').Trim("'")
+        }
+        if ($_ -match "^\s*DISCORD_CLIENT_SECRET\s*=\s*(.+)$") {
+            $discordClientSecret = $matches[1].Trim().Trim('"').Trim("'")
         }
     }
 }
@@ -63,7 +72,14 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host ""
 Write-Host "[3/3] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)..." -ForegroundColor Cyan
 
-$envVars = "OPENROUTER_API_KEY=$apiKey,THEME_TIME_LIMIT=150,TARGET_IPPON=3"
+$envVarsList = @("OPENROUTER_API_KEY=$apiKey", "THEME_TIME_LIMIT=150", "TARGET_IPPON=3")
+if ($discordClientId) {
+    $envVarsList += "DISCORD_CLIENT_ID=$discordClientId"
+}
+if ($discordClientSecret) {
+    $envVarsList += "DISCORD_CLIENT_SECRET=$discordClientSecret"
+}
+$envVars = $envVarsList -join ","
 
 $deployArgs = @(
   "run", "deploy", "ai-ppon-grand-prix",
