@@ -169,6 +169,9 @@ DOCS_COMMON_STYLE = """
         position: relative;
         z-index: 2;
         padding: 0;
+        background: #e4e2d7; /* 選択中タブの角丸の隙間から奥のタブ色が見えるようにする */
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
     }
     .tab-btn {
         flex: 1;
@@ -182,7 +185,7 @@ DOCS_COMMON_STYLE = """
         border-top: 2px solid #111111;
         border-left: 2px solid #111111;
         border-right: 2px solid #111111;
-        border-bottom: none; /* 下ボーダーはカードの上枠線を利用するため一切はみ出さない */
+        border-bottom: none;
         position: relative;
         transition: all 0.15s ease;
     }
@@ -197,13 +200,14 @@ DOCS_COMMON_STYLE = """
         background: #edebe2;
         color: #111111;
     }
-    /* 選択中: カードと一体化（左右両角に丸み12px＋白いオーバーレイでカード上枠線を覆い隠す） */
+    /* 選択中: 手前に重なる（左右両角の丸み12px＋手前への重なり表示） */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         z-index: 5;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
     }
     .tab-btn.is-active::after {
         content: "";
