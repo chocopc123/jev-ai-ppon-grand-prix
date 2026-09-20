@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { DiscordSDK } from "@discord/embedded-app-sdk";
 import "./App.css";
 
-type Player = { id: string; name: string; ippons: number };
+type Player = { id: string; name: string; ippons: number; avatar_url?: string | null };
 type TimelineItem = { judge: string; score: number; delay_ms: number };
 
 type FeedItem = { key: number; text: string; kind: "info" | "miss" | "reject" | "ippon" };
@@ -455,6 +456,8 @@ function generateRoomId(): string {
   return res;
 }
 
+const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "";
+
 export default function App() {
   const [screen, setScreen] = useState<"join" | "game">("join");
   const [roomPhase, setRoomPhase] = useState<"waiting" | "theme" | "transition" | "match_win">("waiting");
@@ -478,6 +481,12 @@ export default function App() {
   });
   const [toast, setToast] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+
+  // Discord Activities 連携ステート
+  const [isDiscord, setIsDiscord] = useState<boolean>(false);
+  const [discordLoading, setDiscordLoading] = useState<boolean>(false);
+  const [discordError, setDiscordError] = useState<string | null>(null);
+  const [myAvatarUrl, setMyAvatarUrl] = useState<string | null>(null);
 
   const [players, setPlayers] = useState<Player[]>([]);
   const [theme, setTheme] = useState("");
@@ -768,7 +777,12 @@ export default function App() {
     }
   }
 
-  const connect = (targetRoomId?: string, targetName?: string, targetPid?: string) => {
+  const connect = (
+    targetRoomId?: string,
+    targetName?: string,
+    targetPid?: string,
+    targetAvatarUrl?: string,
+  ) => {
     const rId = (targetRoomId || roomId || "").trim();
     const pName = (targetName || name || "").trim();
     if (!pName || !rId) return;
@@ -778,10 +792,12 @@ export default function App() {
     window.history.replaceState({}, "", newUrl);
 
     const pidToUse = targetPid || myPlayerId || localStorage.getItem("oogiri_player_id");
+    const avatarToUse = targetAvatarUrl !== undefined ? targetAvatarUrl : myAvatarUrl;
     const proto = location.protocol === "https:" ? "wss" : "ws";
     const queryParts = [];
     if (pidToUse) queryParts.push(`player_id=${encodeURIComponent(pidToUse)}`);
     if (ttsUnlocked) queryParts.push(`enable_tts=true`);
+    if (avatarToUse) queryParts.push(`avatar_url=${encodeURIComponent(avatarToUse)}`);
     const queryParam = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
     const ws = new WebSocket(`${proto}://${location.host}/ws/${encodeURIComponent(rId)}/${encodeURIComponent(pName)}${queryParam}`);
     wsRef.current = ws;
@@ -987,12 +1003,126 @@ export default function App() {
   };
 
   // --------------------------------------------------------------------------
+  // Discord Activity 初期化・自動認証フロー
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const isDiscordFrame = params.has("frame_id");
+
+    if (!isDiscordFrame) {
+      // 通常ブラウザアクセス: 何もしない (手動ロビー画面を表示)
+      return;
+    }
+
+    setIsDiscord(true);
+    if (!DISCORD_CLIENT_ID) {
+      console.warn("[Discord SDK] VITE_DISCORD_CLIENT_ID が設定されていません。手動モードで続行します。");
+      setDiscordError("Discord クライアントIDが未設定です。下のフォームから手動で参加できます。");
+      return;
+    }
+
+    let isMounted = true;
+    const initDiscord = async () => {
+      try {
+        setDiscordLoading(true);
+        const discordSdk = new DiscordSDK(DISCORD_CLIENT_ID);
+        await discordSdk.ready();
+
+        // 1. 認可コード取得
+        const { code } = await discordSdk.commands.authorize({
+          client_id: DISCORD_CLIENT_ID,
+          response_type: "code",
+          state: "",
+          prompt: "none",
+          scope: ["identify", "guilds"],
+        });
+
+        // 2. バックエンドで access_token と交換
+        const tokenRes = await fetch("/api/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        });
+
+        if (!tokenRes.ok) {
+          throw new Error(`トークン交換失敗 (${tokenRes.status})`);
+        }
+
+        const { access_token } = await tokenRes.json();
+
+        // 3. SDK 認証
+        const auth = await discordSdk.commands.authenticate({ access_token });
+        if (!isMounted) return;
+
+        const user = auth.user;
+        const displayName = user.global_name || user.username || "名無し";
+        let avatarUrl = "";
+        if (user.avatar) {
+          avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
+        } else {
+          try {
+            const defaultIdx = Number((BigInt(user.id) >> 22n) % 6n);
+            avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultIdx}.png`;
+          } catch {
+            avatarUrl = "https://cdn.discordapp.com/embed/avatars/0.png";
+          }
+        }
+
+        // 4. 部屋ID: DSC-プレフィックス + channelId (または instanceId)
+        const channelId = discordSdk.channelId || discordSdk.instanceId || "room";
+        const discordRoomId = `DSC-${channelId}`;
+
+        setName(displayName);
+        setRoomId(discordRoomId);
+        setMyAvatarUrl(avatarUrl);
+
+        // 5. 自動接続
+        connect(discordRoomId, displayName, user.id, avatarUrl);
+      } catch (err: any) {
+        console.error("[Discord SDK Error]", err);
+        if (isMounted) {
+          setDiscordError(`Discord連携エラー: ${err.message || err}`);
+        }
+      } finally {
+        if (isMounted) {
+          setDiscordLoading(false);
+        }
+      }
+    };
+
+    initDiscord();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // --------------------------------------------------------------------------
   // Join Screen
   // --------------------------------------------------------------------------
   if (screen === "join") {
+    if (discordLoading) {
+      return (
+        <div className="join-container">
+          <div className="join-inner">
+            <div className="discord-loading-card">
+              <div className="discord-loading-spinner" />
+              <h2 className="discord-loading-title">Discord 連携中...</h2>
+              <p className="discord-loading-desc">チャンネル情報とアカウントを確認しています</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="join-container">
         <div className="join-inner">
+          {discordError && (
+            <div className="discord-error-banner">
+              ⚠️ {discordError}
+            </div>
+          )}
           {/* 画像の色合い・質感を完全再現したベクタータイトルロゴ (5回連続タップでナレーション解禁) */}
           <div
             className="join-logo-wrapper"
@@ -1337,7 +1467,11 @@ export default function App() {
                     className={`waiting-player-chip ${p.id === myPlayerId ? "is-me" : ""}`}
                   >
                     <div className="waiting-player-avatar">
-                      {p.name.charAt(0).toUpperCase()}
+                      {p.avatar_url ? (
+                        <img src={p.avatar_url} alt={p.name} className="waiting-player-avatar-img" />
+                      ) : (
+                        p.name.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <span className="waiting-player-name">
                       {p.name} {p.id === myPlayerId ? " (あなた)" : ""}
@@ -1461,7 +1595,22 @@ export default function App() {
                 />
 
                 <div className="answerArea">
-                  <div className="answerArea__player">{judging.player} の回答</div>
+                  <div className="answerArea__player-wrapper">
+                    {(() => {
+                      const pObj = players.find((pl) => pl.name === judging.player);
+                      if (pObj?.avatar_url) {
+                        return (
+                          <img
+                            src={pObj.avatar_url}
+                            alt={judging.player}
+                            className="answerArea__avatar-img"
+                          />
+                        );
+                      }
+                      return null;
+                    })()}
+                    <div className="answerArea__player">{judging.player} の回答</div>
+                  </div>
 
                   {/* 白フリップ */}
                   <div className={`answerFlip ${judging.done && judging.isIppon ? "answerFlip--ippon" : ""}`}>
@@ -1500,7 +1649,16 @@ export default function App() {
             <section className="player-scoreboard" aria-label="出場者一覧と得点">
               {players.map((p) => (
                 <div key={p.id} className="player-score-card" aria-label={`${p.name}: ${p.ippons} IPPON`}>
-                  <span className="player-name">{p.name}</span>
+                  <div className="player-score-identity">
+                    <div className="player-mini-avatar">
+                      {p.avatar_url ? (
+                        <img src={p.avatar_url} alt={p.name} className="player-mini-avatar-img" />
+                      ) : (
+                        <span>{p.name.charAt(0).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <span className="player-name">{p.name}</span>
+                  </div>
                   <div className="ippon-bars-container" title={`${p.ippons} IPPON`}>
                     {[0, 1, 2].map((idx) => (
                       <div key={idx} className={`ippon-bar ${idx < p.ippons ? "active" : ""}`} />
@@ -1539,19 +1697,27 @@ export default function App() {
       )}
 
       {/* 3. Match Winner Overlay */}
-      {winner && (
-        <div className="overlay" role="dialog" aria-modal="true">
-          <div className="reveal-card">
-            <div className="ippon-banner" style={{ marginBottom: 24 }}>
-              🏆 {winner} 優勝!!
+      {winner && (() => {
+        const winPlayer = players.find((pl) => pl.name === winner);
+        return (
+          <div className="overlay" role="dialog" aria-modal="true">
+            <div className="reveal-card">
+              {winPlayer?.avatar_url && (
+                <div className="winner-avatar-container">
+                  <img src={winPlayer.avatar_url} alt={winner} className="winner-avatar-img" />
+                </div>
+              )}
+              <div className="ippon-banner" style={{ marginBottom: 24 }}>
+                🏆 {winner} 優勝!!
+              </div>
+              <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>3本のIPPONを獲得して勝利しました！</p>
+              <button className="submit-btn" onClick={restart}>
+                もう一度遊ぶ
+              </button>
             </div>
-            <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>3本のIPPONを獲得して勝利しました！</p>
-            <button className="submit-btn" onClick={restart}>
-              もう一度遊ぶ
-            </button>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* トースト通知 */}
       {toast && (

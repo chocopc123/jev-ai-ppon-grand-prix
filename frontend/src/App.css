@@ -2088,4 +2088,153 @@ body {
   border-color: var(--color-gold);
 }
 
+/* ==========================================================================
+   Discord Activity & Avatar Styling
+   ========================================================================== */
+
+/* 待機室アバター画像 */
+.waiting-player-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* スコアボード内プレイヤー情報 & ミニロゴ */
+.player-score-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.player-mini-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.player-mini-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 回答発表エリアのアバター */
+.answerArea__player-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.answerArea__avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-gold);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  object-fit: cover;
+}
+
+/* 勝者オーバーレイのアバター */
+.winner-avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.winner-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 24px rgba(255, 215, 0, 0.6);
+  object-fit: cover;
+  animation: pulseAvatar 2s infinite ease-in-out;
+}
+
+@keyframes pulseAvatar {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 36px rgba(255, 215, 0, 0.9);
+  }
+}
+
+/* Discord ローディングカード */
+.discord-loading-card {
+  background: rgba(18, 18, 24, 0.92);
+  border: 1px solid rgba(88, 101, 242, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(88, 101, 242, 0.2);
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 440px;
+  margin: 60px auto;
+  backdrop-filter: blur(12px);
+  animation: toastPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.discord-loading-spinner {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 20px;
+  border: 4px solid rgba(88, 101, 242, 0.2);
+  border-top-color: #5865f2;
+  border-radius: 50%;
+  animation: discordSpin 0.9s linear infinite;
+}
+
+@keyframes discordSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.discord-loading-title {
+  font-family: var(--font-heavy);
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.discord-loading-desc {
+  font-size: 13px;
+  color: #949ba4;
+  line-height: 1.5;
+}
+
+/* Discord エラーバナー */
+.discord-error-banner {
+  background: rgba(237, 66, 69, 0.15);
+  border: 1px solid rgba(237, 66, 69, 0.4);
+  color: #ff8587;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(237, 66, 69, 0.2);
+}
+
 

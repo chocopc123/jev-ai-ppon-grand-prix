@@ -14,6 +14,14 @@ def test_static_files():
     print("[OK] Static file (index.html) served successfully")
 
 
+def recv_ignore_timer(ws):
+    """タイマー停止・再開などの付随メッセージを読み飛ばし、メインのゲームイベントを取得する。"""
+    while True:
+        msg = ws.receive_json()
+        if msg.get("type") not in ("TIMER_PAUSED", "TIMER_RESUMED"):
+            return msg
+
+
 def test_websocket_gameplay():
     from unittest.mock import patch
     client = TestClient(app)
@@ -56,38 +64,38 @@ def test_websocket_gameplay():
                 ws2_pj = ws2.receive_json()
                 # プレイヤー1が回答を送信 (1回目)
                 ws1.send_json({"type": "SUBMIT", "answer": "回答1"})
-                ws1.receive_json()  # SUBMIT_ACK
-                ws1.receive_json()  # ANSWER_REVEALED
-                ws2.receive_json()
+                assert recv_ignore_timer(ws1)["type"] == "SUBMIT_ACK"
+                assert recv_ignore_timer(ws1)["type"] == "ANSWER_REVEALED"
+                assert recv_ignore_timer(ws2)["type"] == "ANSWER_REVEALED"
 
-                score1 = ws1.receive_json()
-                ws2.receive_json()
+                score1 = recv_ignore_timer(ws1)
+                assert recv_ignore_timer(ws2)["type"] == "SCORE_REVEAL_START"
                 assert score1["type"] == "SCORE_REVEAL_START"
-                ws1.receive_json()  # ROUND_RESULT
-                ws2.receive_json()
+                assert recv_ignore_timer(ws1)["type"] == "ROUND_RESULT"
+                assert recv_ignore_timer(ws2)["type"] == "ROUND_RESULT"
                 print("[OK] 1st answer scored")
 
                 # プレイヤー1が2回目の回答を送信
                 ws1.send_json({"type": "SUBMIT", "answer": "回答2"})
-                ws1.receive_json()  # SUBMIT_ACK
-                ws1.receive_json()  # ANSWER_REVEALED
-                ws2.receive_json()
+                assert recv_ignore_timer(ws1)["type"] == "SUBMIT_ACK"
+                assert recv_ignore_timer(ws1)["type"] == "ANSWER_REVEALED"
+                assert recv_ignore_timer(ws2)["type"] == "ANSWER_REVEALED"
 
-                score2 = ws1.receive_json()
-                ws2.receive_json()
+                score2 = recv_ignore_timer(ws1)
+                assert recv_ignore_timer(ws2)["type"] == "SCORE_REVEAL_START"
                 assert score2["type"] == "SCORE_REVEAL_START"
-                ws1.receive_json()  # ROUND_RESULT
-                ws2.receive_json()
+                assert recv_ignore_timer(ws1)["type"] == "ROUND_RESULT"
+                assert recv_ignore_timer(ws2)["type"] == "ROUND_RESULT"
                 print("[OK] 2nd answer scored")
 
                 # プレイヤー1が3回目の同一回答を送信
                 ws1.send_json({"type": "SUBMIT", "answer": "回答2"})
-                ws1.receive_json()  # SUBMIT_ACK
-                ws1.receive_json()  # ANSWER_REVEALED
-                ws2.receive_json()
+                assert recv_ignore_timer(ws1)["type"] == "SUBMIT_ACK"
+                assert recv_ignore_timer(ws1)["type"] == "ANSWER_REVEALED"
+                assert recv_ignore_timer(ws2)["type"] == "ANSWER_REVEALED"
 
-                reject1 = ws1.receive_json()
-                ws2.receive_json()
+                reject1 = recv_ignore_timer(ws1)
+                assert recv_ignore_timer(ws2)["type"] == "GATEKEEP_REJECTED"
                 assert reject1["type"] == "GATEKEEP_REJECTED"
                 assert "重複" in reject1["reason"]
                 print(f"[OK] 3rd duplicate answer correctly rejected: {reject1['reason']}")
@@ -111,16 +119,16 @@ def test_full_scoring_flow():
             ack = ws1.receive_json()
             assert ack["type"] == "SUBMIT_ACK"
 
-            ans = ws1.receive_json()
+            ans = recv_ignore_timer(ws1)
             assert ans["type"] == "ANSWER_REVEALED"
 
-            score = ws1.receive_json()
+            score = recv_ignore_timer(ws1)
             assert score["type"] == "SCORE_REVEAL_START"
             assert len(score["timeline"]) == 10
             print(f"[OK] Full judging flow: Total={score['total']}, IPPON={score['is_ippon']}")
 
             # 演出時間待機後のラウンド結果
-            res = ws1.receive_json()
+            res = recv_ignore_timer(ws1)
             assert res["type"] == "ROUND_RESULT"
             print(f"[OK] Full flow ROUND_RESULT received: is_ippon={res['is_ippon']}")
 
@@ -201,10 +209,51 @@ def test_reconnect_and_leave():
     print("[OK] Left room successfully via LEAVE message")
 
 
+def test_discord_token_endpoint():
+    from unittest.mock import patch, AsyncMock
+    client = TestClient(app)
+
+    # 認証情報が未設定の場合は 500 エラーになること
+    with patch("main.DISCORD_CLIENT_ID", ""), patch("main.DISCORD_CLIENT_SECRET", ""):
+        res = client.post("/api/token", json={"code": "dummy_code"})
+        assert res.status_code == 500
+        assert "not configured" in res.json()["detail"]
+
+    # 認証情報が設定されている場合のモックテスト
+    with patch("main.DISCORD_CLIENT_ID", "dummy_id"), patch("main.DISCORD_CLIENT_SECRET", "dummy_secret"):
+        with patch("httpx.AsyncClient.post") as mock_post:
+            mock_post.return_value = AsyncMock(
+                status_code=200,
+                json=lambda: {"access_token": "mock_access_token_123", "token_type": "Bearer"}
+            )
+            res = client.post("/api/token", json={"code": "test_valid_code"})
+            assert res.status_code == 200
+            assert res.json()["access_token"] == "mock_access_token_123"
+            print("[OK] Discord token exchange API passed")
+
+
+def test_websocket_with_avatar():
+    client = TestClient(app)
+    ROOMS.clear()
+
+    avatar_url = "https://cdn.discordapp.com/avatars/123/abc.png"
+    with client.websocket_connect(f"/ws/DSC-channel123/TestDiscordUser?avatar_url={avatar_url}") as ws:
+        msg = ws.receive_json()
+        assert msg["type"] == "JOINED"
+        assert msg["room"] == "DSC-channel123"
+        players = msg["players"]
+        assert len(players) == 1
+        assert players[0]["name"] == "TestDiscordUser"
+        assert players[0]["avatar_url"] == avatar_url
+        print("[OK] WebSocket connection with avatar_url in DSC room passed")
+
+
 if __name__ == "__main__":
     test_static_files()
     test_websocket_gameplay()
     test_full_scoring_flow()
     test_timer_pause_resume()
     test_reconnect_and_leave()
+    test_discord_token_endpoint()
+    test_websocket_with_avatar()
     print("=== All integration tests passed successfully ===")

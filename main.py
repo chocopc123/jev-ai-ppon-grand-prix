@@ -15,14 +15,19 @@ import time
 import datetime
 import uuid
 
+import httpx
 from dotenv import load_dotenv
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from jev_client import gatekeep, judge, generate_theme, generate_theme_audio
 
 load_dotenv()
+
+DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID", "")
+DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET", "")
 
 def log_answer(room_id: str, theme: str, player: str, answer: str, gatekeep_ok: bool, gatekeep_reason: str = "", judge_result: dict = None):
     """解答履歴をコンソールに出力する。"""
@@ -37,6 +42,43 @@ def log_answer(room_id: str, theme: str, player: str, answer: str, gatekeep_ok: 
 
 
 app = FastAPI(title="AI-PPON GRAND PRIX Web")
+
+@app.middleware("http")
+async def add_discord_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    # Discord Activity の iframe 埋め込みを許可
+    response.headers["Content-Security-Policy"] = (
+        "frame-ancestors 'self' https://*.discordsays.com https://discord.com https://*.discord.com;"
+    )
+    return response
+
+
+class DiscordTokenRequest(BaseModel):
+    code: str
+
+
+@app.post("/api/token")
+async def exchange_discord_token(req: DiscordTokenRequest):
+    """Discord Embedded App SDK から届いた認証コードを Discord API で access_token に交換する。"""
+    if not DISCORD_CLIENT_ID or not DISCORD_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=500,
+            detail="Discord credentials (DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET) are not configured on server"
+        )
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://discord.com/api/oauth2/token",
+            data={
+                "client_id": DISCORD_CLIENT_ID,
+                "client_secret": DISCORD_CLIENT_SECRET,
+                "grant_type": "authorization_code",
+                "code": req.code,
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+    if resp.status_code != 200:
+        raise HTTPException(status_code=resp.status_code, detail=f"Discord token exchange failed: {resp.text}")
+    return resp.json()
 
 @app.get("/api/tts/theme")
 async def get_theme_audio(text: str, voice: str = "Algieba"):
@@ -80,7 +122,12 @@ class Room:
 
     def roster(self):
         return [
-            {"id": pid, "name": p["name"], "ippons": p["ippons"]}
+            {
+                "id": pid,
+                "name": p["name"],
+                "ippons": p["ippons"],
+                "avatar_url": p.get("avatar_url"),
+            }
             for pid, p in self.players.items()
         ]
 
@@ -414,6 +461,7 @@ async def ws_endpoint(
     player_name: str,
     player_id: str | None = None,
     enable_tts: bool = False,
+    avatar_url: str | None = None,
 ):
     await ws.accept()
     room = ROOMS.setdefault(room_id, Room(room_id))
@@ -438,6 +486,8 @@ async def ws_endpoint(
         p["ws"] = ws
         if player_name:
             p["name"] = player_name
+        if avatar_url:
+            p["avatar_url"] = avatar_url
         p["connected"] = True
     else:
         room.players[pid] = {
@@ -446,6 +496,7 @@ async def ws_endpoint(
             "ippons": 0,
             "connected": True,
             "disconnect_task": None,
+            "avatar_url": avatar_url,
         }
 
     await ws.send_json({
