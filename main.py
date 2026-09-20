@@ -101,150 +101,156 @@ async def get_theme_audio(text: str, voice: str = "Algieba"):
 
 
 # --------------------------------------------------------------------------
-# 公式・審査用ドキュメントページ共通スタイル
+# 公式・審査用ドキュメントページ共通スタイル (TOP準拠: 黄色背景×白フリップカード)
 # --------------------------------------------------------------------------
 DOCS_COMMON_STYLE = """
-    :root {
-        --bg-main: #0a0b10;
-        --bg-card: #131722;
-        --border-color: rgba(255, 215, 0, 0.2);
-        --text-primary: #f1f5f9;
-        --text-secondary: #94a3b8;
-        --gold-primary: #ffd700;
-        --gold-hover: #ffaa00;
-        --font-heavy: "Impact", "Arial Black", "Noto Sans JP", sans-serif;
-    }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans JP', sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
         line-height: 1.8;
-        background: var(--bg-main) radial-gradient(circle at 50% 0%, #1c2033 0%, #0a0b10 85%);
-        color: var(--text-primary);
-        margin: 0;
+        background: radial-gradient(circle at 50% 35%, #ffef40 0%, #ffdc00 50%, #e6c600 100%) fixed;
+        color: #111111;
         padding: 24px 16px 60px;
         min-height: 100vh;
     }
     .page-wrapper {
-        max-width: 860px;
+        max-width: 880px;
         margin: 0 auto;
     }
     .brand-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+        padding-bottom: 12px;
     }
-    .brand-logo {
-        display: inline-flex;
-        align-items: center;
-        background: #ffe212;
-        color: #000;
-        font-family: var(--font-heavy);
-        font-weight: 900;
-        font-size: 15px;
-        padding: 5px 12px;
-        border-radius: 4px;
-        letter-spacing: 0.5px;
+    .brand-logo-link {
+        display: inline-block;
         text-decoration: none;
-        box-shadow: 0 2px 10px rgba(255, 226, 18, 0.3);
+        transition: transform 0.15s ease;
+    }
+    .brand-logo-link:hover {
+        transform: scale(1.03);
+    }
+    .brand-logo-svg {
+        width: 170px;
+        height: auto;
+        display: block;
+        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
     }
     .back-btn {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        color: var(--gold-primary);
-        font-size: 13px;
-        font-weight: 700;
+        color: #111;
+        font-size: 13.5px;
+        font-weight: 900;
         text-decoration: none;
-        background: rgba(255, 215, 0, 0.08);
-        border: 1px solid rgba(255, 215, 0, 0.25);
-        padding: 6px 14px;
-        border-radius: 6px;
-        transition: all 0.2s ease;
+        background: #fff;
+        border: 2px solid #111;
+        box-shadow: 0 4px 0 #111;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.15s ease;
     }
     .back-btn:hover {
-        background: rgba(255, 215, 0, 0.16);
-        border-color: var(--gold-primary);
-        transform: translateX(-2px);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 #111;
+    }
+    .back-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #111;
     }
     .nav-tabs {
         display: flex;
-        gap: 8px;
-        margin-bottom: 20px;
+        gap: 10px;
+        margin-bottom: 16px;
     }
     .tab-btn {
         flex: 1;
         text-align: center;
         padding: 12px 16px;
-        font-size: 14px;
-        font-weight: 700;
+        font-size: 15px;
+        font-weight: 900;
         text-decoration: none;
         border-radius: 8px;
-        color: var(--text-secondary);
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        transition: all 0.2s;
+        color: #111;
+        background: rgba(255, 255, 255, 0.7);
+        border: 2px solid #111;
+        box-shadow: 0 3px 0 #111;
+        transition: all 0.15s;
     }
     .tab-btn:hover {
-        color: #fff;
-        background: rgba(255, 255, 255, 0.08);
+        background: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 0 #111;
     }
     .tab-btn.is-active {
-        color: #000;
-        background: linear-gradient(180deg, #ffd700 0%, #ffaa00 100%);
-        border-color: #ffd700;
-        box-shadow: 0 4px 16px rgba(255, 215, 0, 0.25);
+        background: #111;
+        color: #ffd000;
+        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
     }
+    /* フリップ同色の白カード */
     .content-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
+        background: #ffffff;
+        color: #111111;
+        border: 2px solid #111111;
+        box-shadow:
+            0 8px 0 #1b1b1b,
+            0 20px 48px rgba(0, 0, 0, 0.25);
         border-radius: 12px;
-        padding: 36px 32px;
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+        padding: 40px 36px;
     }
     h1 {
-        color: var(--gold-primary);
-        font-size: 24px;
-        margin: 0 0 8px 0;
+        color: #111;
+        font-size: 26px;
+        font-weight: 900;
+        margin: 0 0 6px 0;
         letter-spacing: 0.5px;
+        border-bottom: 3px solid #111;
+        padding-bottom: 8px;
     }
     .meta-date {
-        color: var(--text-secondary);
+        color: #555;
         font-size: 13px;
+        margin-top: 6px;
         margin-bottom: 24px;
+        font-weight: 600;
     }
     .disclaimer-box {
-        background: rgba(255, 215, 0, 0.06);
-        border: 1px solid rgba(255, 215, 0, 0.25);
+        background: #fff9db;
+        border: 2px solid #f59f00;
         border-radius: 8px;
         padding: 14px 18px;
         margin-bottom: 28px;
+        box-shadow: 0 2px 0 rgba(0,0,0,0.08);
     }
     h2 {
-        color: #f8fafc;
-        font-size: 17px;
+        color: #111;
+        font-size: 18px;
+        font-weight: 900;
         margin-top: 32px;
         margin-bottom: 12px;
-        border-left: 3px solid var(--gold-primary);
-        padding-left: 12px;
+        border-left: 5px solid #ffcc00;
+        background: #fdfaf0;
+        padding: 6px 12px;
+        border-radius: 0 6px 6px 0;
     }
     p, li {
-        color: #cbd5e1;
-        font-size: 14.5px;
+        color: #222;
+        font-size: 15px;
         margin: 6px 0;
     }
     ul, ol {
-        padding-left: 22px;
+        padding-left: 24px;
         margin: 8px 0;
     }
     li {
         margin: 4px 0;
     }
     .contact-box {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
         border-radius: 8px;
         padding: 16px 20px;
         margin-top: 14px;
@@ -255,22 +261,64 @@ DOCS_COMMON_STYLE = """
     .lang-switch {
         margin-top: 48px;
         padding-top: 24px;
-        border-top: 1px dashed rgba(255, 255, 255, 0.15);
+        border-top: 2px dashed #ddd;
     }
     .lang-switch h2 {
-        border-left-color: #38bdf8;
+        border-left-color: #3b82f6;
+        background: #eff6ff;
     }
     .footer {
         text-align: center;
-        color: #64748b;
-        font-size: 12px;
-        margin-top: 32px;
+        color: #444;
+        font-size: 13px;
+        font-weight: 700;
+        margin-top: 28px;
     }
     @media (max-width: 640px) {
         .content-card { padding: 24px 18px; }
         .brand-header { flex-direction: column; gap: 12px; align-items: flex-start; }
     }
 """
+
+MINI_LOGO_SVG = """<svg class="brand-logo-svg" viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI-PPON GRAND PRIX">
+    <defs>
+        <linearGradient id="barGloss" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
+            <stop offset="5%" stop-color="#48382d" />
+            <stop offset="18%" stop-color="#251a14" />
+            <stop offset="50%" stop-color="#0c0907" />
+            <stop offset="85%" stop-color="#19120d" />
+            <stop offset="96%" stop-color="#3c2e25" />
+            <stop offset="100%" stop-color="#554236" />
+        </linearGradient>
+        <linearGradient id="barBorderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#b8bcc4" />
+            <stop offset="25%" stop-color="#ffffff" />
+            <stop offset="50%" stop-color="#8a8e98" />
+            <stop offset="75%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#a0a4ae" />
+        </linearGradient>
+        <linearGradient id="sheenGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.32" />
+            <stop offset="35%" stop-color="#ffffff" stop-opacity="0.12" />
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+        </linearGradient>
+        <filter id="logoShadow" x="-10%" y="-10%" width="120%" height="125%">
+            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.25" />
+        </filter>
+    </defs>
+    <g filter="url(#logoShadow)">
+        <text x="8" y="125" font-family="'Impact', 'Arial Black', sans-serif" font-size="122" font-weight="900" letter-spacing="1" textLength="504" lengthAdjust="spacingAndGlyphs" fill="#000000">AI-PPON</text>
+        <text x="8" y="184" font-family="'Impact', 'Arial Black', sans-serif" font-size="62" font-weight="900" letter-spacing="2" textLength="500" lengthAdjust="spacingAndGlyphs" fill="#000000">GRAND PRIX</text>
+        <g id="bottom-bar">
+            <rect x="4" y="196" width="512" height="46" rx="3" fill="url(#barGloss)" stroke="url(#barBorderGrad)" stroke-width="1.6" />
+            <polygon points="4,196 290,196 150,242 4,242" fill="url(#sheenGlow)" />
+            <line x1="6" y1="198" x2="514" y2="198" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.7" />
+        </g>
+    </g>
+</svg>"""
+
 
 
 @app.get("/terms", response_class=HTMLResponse)
@@ -287,7 +335,9 @@ async def terms_of_service():
 <body>
     <div class="page-wrapper">
         <header class="brand-header">
-            <a href="/" class="brand-logo">AI-PPON GRAND PRIX</a>
+            <a href="/" class="brand-logo-link" title="AI-PPON GRAND PRIX">
+                {MINI_LOGO_SVG}
+            </a>
             <a href="/" class="back-btn">← ゲームトップへ戻る</a>
         </header>
 
@@ -440,7 +490,9 @@ async def privacy_policy():
 <body>
     <div class="page-wrapper">
         <header class="brand-header">
-            <a href="/" class="brand-logo">AI-PPON GRAND PRIX</a>
+            <a href="/" class="brand-logo-link" title="AI-PPON GRAND PRIX">
+                {MINI_LOGO_SVG}
+            </a>
             <a href="/" class="back-btn">← ゲームトップへ戻る</a>
         </header>
 
