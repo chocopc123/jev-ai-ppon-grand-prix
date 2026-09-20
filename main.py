@@ -593,8 +593,8 @@ async def privacy_policy():
                     <div class="contact-box">
                         <p><strong>サービス名：</strong> AI-PPON GRAND PRIX</p>
                         <p><strong>運営組織：</strong> AI-PPON GRAND PRIX 開発運営チーム</p>
-                        <p><strong>Discordサポート：</strong> 公式Discordサーバーまたは開発者DM</p>
-                        <p><strong>Web・メール窓口：</strong> <a href="mailto:chocoduck.dev@gmail.com" style="color: #1d4ed8; font-weight: 600; text-decoration: underline;">chocoduck.dev@gmail.com</a> （またはアプリ公式お問い合わせフォーム）</p>
+                        <p><strong>Discordサポート：</strong> <a href="https://discord.gg/bAW99Hxjyu" target="_blank" rel="noopener noreferrer" style="color: #1d4ed8; font-weight: 600; text-decoration: underline;">公式Discordサーバー</a></p>
+                        <p><strong>Web・メール窓口：</strong> <a href="mailto:ai-ppon.contact@chocoduck.com" style="color: #1d4ed8; font-weight: 600; text-decoration: underline;">ai-ppon.contact@chocoduck.com</a> </p>
                     </div>
                 </section>
 
@@ -604,7 +604,7 @@ async def privacy_policy():
                     <strong>Zero Data Retention:</strong> All user information and submitted game answers are strictly processed in-memory during an active session and are permanently wiped immediately upon session closure. Thus, no persistent personal data is stored on disk.<br>
                     <strong>No AI Model Training:</strong> In compliance with Discord Developer Policy (Rule 21), user data and answers are NEVER used to train, tune, or improve machine learning or AI models.<br>
                     <strong>Children's Privacy:</strong> The service is not directed at children under the age of 13, and does not knowingly collect personal data from them.<br>
-                    <strong>Contact:</strong> For privacy inquiries, please contact our support desk via Discord or support email (<a href="mailto:chocoduck.dev@gmail.com" style="color: #1d4ed8; text-decoration: underline;">chocoduck.dev@gmail.com</a>).</p>
+                    <strong>Contact:</strong> For privacy inquiries, please contact our support desk via <a href="https://discord.gg/bAW99Hxjyu" target="_blank" rel="noopener noreferrer" style="color: #1d4ed8; text-decoration: underline;">Discord</a> or support email (<a href="mailto:ai-ppon.contact@chocoduck.com" style="color: #1d4ed8; text-decoration: underline;">ai-ppon.contact@chocoduck.com</a>).</p>
                 </div>
         </main>
 
