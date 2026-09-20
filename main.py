@@ -80,6 +80,15 @@ async def exchange_discord_token(req: DiscordTokenRequest):
         raise HTTPException(status_code=resp.status_code, detail=f"Discord token exchange failed: {resp.text}")
     return resp.json()
 
+
+@app.get("/api/config")
+async def get_config():
+    """フロントエンドに必要な動的設定（Discord Client IDなど）を返す。"""
+    return {
+        "discord_client_id": DISCORD_CLIENT_ID,
+    }
+
+
 @app.get("/api/tts/theme")
 async def get_theme_audio(text: str, voice: str = "Algieba"):
     """Gemini 3.1 Flash TTS Preview で生成したお題の低音WAV音声を返す。"""

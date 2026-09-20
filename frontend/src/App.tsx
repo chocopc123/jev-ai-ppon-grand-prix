@@ -493,6 +493,15 @@ function generateRoomId(): string {
   return res;
 }
 
+function checkIsDiscord(): boolean {
+  if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  return (
+    params.has("frame_id") ||
+    window.location.host.includes("discordsays.com")
+  );
+}
+
 const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "";
 
 export default function App() {
@@ -517,19 +526,17 @@ export default function App() {
   });
   const [roomId, setRoomId] = useState<string>(() => {
     if (typeof window === "undefined") return "";
+    if (checkIsDiscord()) return ""; // Discord Activity では SDK が DSC-{channelId} を設定する
     const params = new URLSearchParams(window.location.search);
     const roomFromUrl = params.get("room")?.trim();
     if (roomFromUrl) return roomFromUrl;
-    const newId = generateRoomId();
-    const newUrl = `${window.location.pathname}?room=${encodeURIComponent(newId)}`;
-    window.history.replaceState({}, "", newUrl);
-    return newId;
+    return generateRoomId();
   });
   const [toast, setToast] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   // Discord Activities 連携ステート
-  const [isDiscord, setIsDiscord] = useState<boolean>(false);
+  const [isDiscord, setIsDiscord] = useState<boolean>(() => checkIsDiscord());
   const [discordLoading, setDiscordLoading] = useState<boolean>(false);
   const [discordError, setDiscordError] = useState<string | null>(null);
   const [myAvatarUrl, setMyAvatarUrl] = useState<string | null>(null);
@@ -853,9 +860,11 @@ export default function App() {
     const pName = (targetName || name || "").trim();
     if (!pName || !rId) return;
 
-    // URLのパラメータを更新
-    const newUrl = `${window.location.pathname}?room=${encodeURIComponent(rId)}`;
-    window.history.replaceState({}, "", newUrl);
+    // URLのパラメータを更新 (Discord Activity 内では URL を書き換えない)
+    if (!checkIsDiscord()) {
+      const newUrl = `${window.location.pathname}?room=${encodeURIComponent(rId)}`;
+      window.history.replaceState({}, "", newUrl);
+    }
 
     const pidToUse =
       targetPid ||
@@ -1016,6 +1025,8 @@ export default function App() {
 
   // URLパラメータと自動再接続（リロード対策）
   useEffect(() => {
+    if (checkIsDiscord()) return; // Discord Activity 内は SDK による自動接続に任せる
+
     const savedRoom =
       localStorage.getItem("aippon_room_id") ||
       localStorage.getItem("oogiri_room_id");
@@ -1090,42 +1101,57 @@ export default function App() {
   // --------------------------------------------------------------------------
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const isDiscordFrame = params.has("frame_id");
 
-    if (!isDiscordFrame) {
+    if (!checkIsDiscord()) {
       // 通常ブラウザアクセス: 何もしない (手動ロビー画面を表示)
       return;
     }
 
     setIsDiscord(true);
-    if (!DISCORD_CLIENT_ID) {
-      console.warn(
-        "[Discord SDK] VITE_DISCORD_CLIENT_ID が設定されていません。手動モードで続行します。",
-      );
-      setDiscordError(
-        "Discord クライアントIDが未設定です。下のフォームから手動で参加できます。",
-      );
-      return;
-    }
-
     let isMounted = true;
+
     const initDiscord = async () => {
       try {
         setDiscordLoading(true);
-        const discordSdk = new DiscordSDK(DISCORD_CLIENT_ID);
-        await discordSdk.ready();
 
-        // 1. 認可コード取得
+        // 1. Client ID の解決 (Vite環境変数 -> /api/config -> ハードコードフォールバック)
+        let clientId = DISCORD_CLIENT_ID;
+        if (!clientId) {
+          try {
+            const cfgRes = await fetch("/api/config");
+            if (cfgRes.ok) {
+              const cfg = await cfgRes.json();
+              clientId = cfg.discord_client_id || "";
+            }
+          } catch (e) {
+            console.warn("[Discord SDK] Failed to fetch /api/config:", e);
+          }
+        }
+        if (!clientId) {
+          clientId = "1551072987417944104";
+        }
+
+        console.log("[Discord SDK] Starting initialization with Client ID:", clientId);
+        const discordSdk = new DiscordSDK(clientId);
+        await discordSdk.ready();
+        console.log(
+          "[Discord SDK] ready() resolved. Channel ID:",
+          discordSdk.channelId,
+          "Instance ID:",
+          discordSdk.instanceId,
+        );
+
+        // 2. 認可コード取得
         const { code } = await discordSdk.commands.authorize({
-          client_id: DISCORD_CLIENT_ID,
+          client_id: clientId,
           response_type: "code",
           state: "",
           prompt: "none",
           scope: ["identify", "guilds"],
         });
+        console.log("[Discord SDK] Authorize success, code acquired");
 
-        // 2. バックエンドで access_token と交換
+        // 3. バックエンドで access_token と交換
         const tokenRes = await fetch("/api/token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1133,15 +1159,18 @@ export default function App() {
         });
 
         if (!tokenRes.ok) {
-          throw new Error(`トークン交換失敗 (${tokenRes.status})`);
+          const errDetail = await tokenRes.text();
+          throw new Error(`トークン交換失敗 (${tokenRes.status}): ${errDetail}`);
         }
 
         const { access_token } = await tokenRes.json();
+        console.log("[Discord SDK] Access token exchanged successfully");
 
-        // 3. SDK 認証
+        // 4. SDK 認証
         const auth = await discordSdk.commands.authenticate({ access_token });
         if (!isMounted) return;
 
+        console.log("[Discord SDK] Authenticated as user:", auth.user);
         const user = auth.user;
         const displayName = user.global_name || user.username || "名無し";
         let avatarUrl = "";
@@ -1156,16 +1185,20 @@ export default function App() {
           }
         }
 
-        // 4. 部屋ID: DSC-プレフィックス + channelId (または instanceId)
+        // 5. 部屋ID: ボイスチャンネルID優先 (DSC-${channelId})
         const channelId =
-          discordSdk.channelId || discordSdk.instanceId || "room";
+          discordSdk.channelId || discordSdk.instanceId || "voice";
         const discordRoomId = `DSC-${channelId}`;
+
+        console.log(
+          `[Discord SDK] Auto-joining room: ${discordRoomId}, player: ${displayName}, avatar: ${avatarUrl}`,
+        );
 
         setName(displayName);
         setRoomId(discordRoomId);
         setMyAvatarUrl(avatarUrl);
 
-        // 5. 自動接続
+        // 6. 自動接続
         connect(discordRoomId, displayName, user.id, avatarUrl);
       } catch (err: any) {
         console.error("[Discord SDK Error]", err);
