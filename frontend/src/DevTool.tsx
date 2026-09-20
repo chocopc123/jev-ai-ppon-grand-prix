@@ -21,21 +21,22 @@ export interface CriterionItem {
   id: string;
   name: string;
   description: string;
-  conf: number;  // 0.0 ~ 1.0 (確信度)
-  pass: boolean; // 合格/点灯 (1点 or 0点)
+  threshold: number; // 点灯閾値 (例: 0.50, 0.65 など)
+  conf: number;      // 0.0 ~ 1.0 (確信度)
+  pass: boolean;     // 確信度 >= 閾値 で自動計算
 }
 
 const DEFAULT_CRITERIA: CriterionItem[] = [
-  { id: "on_topic", name: "お題適合", description: "お題のフリや世界観を上手く料理しているか", conf: 1.0, pass: true },
-  { id: "punchline", name: "オチの鮮やかさ", description: "意外性のあるオチや裏切り・ボケどころがあるか", conf: 1.0, pass: true },
-  { id: "novelty", name: "発想の独自性", description: "誰も思いつかない斬新・奇抜・シュールな視点か", conf: 1.0, pass: true },
-  { id: "comprehensible", name: "情景描写・共感", description: "頭に絵がスッと浮かび、「あるある」と共感できるか", conf: 1.0, pass: true },
-  { id: "conciseness", name: "言葉のキレ・語感", description: "無駄がなく短く研ぎ澄まされ、語感が抜群か", conf: 1.0, pass: true },
-  { id: "cliche", name: "脱ベタ・新鮮さ", description: "手垢のついたベタや安易な下ネタではないか", conf: 1.0, pass: true },
-  { id: "gut_funny", name: "直感的な面白さ", description: "理屈抜きで思わず吹き出す破壊力・笑いがあるか", conf: 1.0, pass: true },
-  { id: "peak", name: "突出したキレ味", description: "どれか1つの要素が圧倒的に突出しているか", conf: 1.0, pass: true },
-  { id: "structure", name: "構成・完成度", description: "お題適合・オチ・情景の全体の調和と完成度", conf: 1.0, pass: true },
-  { id: "impact", name: "総合インパクト", description: "会場を揺らす決め手・IPPONの決定打があるか", conf: 1.0, pass: true },
+  { id: "on_topic", name: "お題適合", description: "お題のフリや世界観を上手く料理しているか", threshold: 0.50, conf: 1.0, pass: true },
+  { id: "punchline", name: "オチの鮮やかさ", description: "意外性のあるオチや裏切り・ボケどころがあるか", threshold: 0.50, conf: 1.0, pass: true },
+  { id: "novelty", name: "発想の独自性", description: "誰も思いつかない斬新・奇抜・シュールな視点か", threshold: 0.50, conf: 1.0, pass: true },
+  { id: "comprehensible", name: "情景描写・共感", description: "頭に絵がスッと浮かび、「あるある」と共感できるか", threshold: 0.50, conf: 1.0, pass: true },
+  { id: "conciseness", name: "言葉のキレ・語感", description: "無駄がなく短く研ぎ澄まされ、語感が抜群か", threshold: 0.50, conf: 1.0, pass: true },
+  { id: "cliche", name: "脱ベタ・新鮮さ", description: "手垢のついたベタや安易な下ネタではないか", threshold: 0.50, conf: 1.0, pass: true },
+  { id: "gut_funny", name: "直感的な面白さ", description: "理屈抜きで思わず吹き出す破壊力・笑いがあるか", threshold: 0.50, conf: 1.0, pass: true },
+  { id: "peak", name: "突出したキレ味", description: "どれか1つの要素が圧倒的に突出しているか", threshold: 0.65, conf: 1.0, pass: true },
+  { id: "structure", name: "構成・完成度", description: "お題適合・オチ・情景の全体の調和と完成度", threshold: 0.55, conf: 1.0, pass: true },
+  { id: "impact", name: "総合インパクト", description: "会場を揺らす決め手・IPPONの決定打があるか", threshold: 0.60, conf: 1.0, pass: true },
 ];
 
 export const DevTool: React.FC = () => {
@@ -64,7 +65,7 @@ export const DevTool: React.FC = () => {
       }
     });
 
-  // 合計点数 (合格項目の個数 = 0〜10点)
+  // 合計点数 (自動判定 pass が true の項目数 = 0〜10点)
   const totalScore = criteria.filter((c) => c.pass).length;
 
   // 本家バックエンド（jev_client.py）と同一ロジック (案2: 電光石火仕様):
@@ -164,15 +165,14 @@ export const DevTool: React.FC = () => {
     }
   };
 
-  const toggleCriterionPass = (id: string) => {
-    setCriteria((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, pass: !c.pass } : c))
-    );
-  };
-
+  // 確信度変更時に「確度 >= 閾値」で自動的に pass (点灯/非点灯) を判定
   const updateCriterionConf = (id: string, conf: number) => {
     setCriteria((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, conf } : c))
+      prev.map((c) => {
+        if (c.id !== id) return c;
+        const pass = conf >= c.threshold;
+        return { ...c, conf, pass };
+      })
     );
   };
 
@@ -181,47 +181,42 @@ export const DevTool: React.FC = () => {
     switch (presetType) {
       case "allMax":
         // 全10項目満点＆確度1.0 (ノンストップIPPON)
-        newItems = criteria.map((c) => ({ ...c, pass: true, conf: 1.0 }));
+        newItems = criteria.map((c) => ({ ...c, conf: 1.0, pass: true }));
         break;
       case "fastIppon":
-        // 全10項目高確度IPPON
-        newItems = criteria.map((c, i) => ({
-          ...c,
-          pass: true,
-          conf: Math.max(0.7, 1.0 - i * 0.03),
-        }));
+        // 全10項目高確度IPPON (すべて閾値超え)
+        newItems = criteria.map((c, i) => {
+          const conf = Math.max(c.threshold + 0.15, 1.0 - i * 0.03);
+          return { ...c, conf, pass: true };
+        });
         break;
       case "slowIppon":
-        // 迷いながらもギリギリ全10項目クリア
-        newItems = criteria.map((c, i) => ({
-          ...c,
-          pass: true,
-          conf: Math.max(0.1, 0.9 - i * 0.09),
-        }));
+        // 迷いながらもギリギリ全10項目クリア (閾値すれすれ)
+        newItems = criteria.map((c) => {
+          const conf = Number((c.threshold + 0.05).toFixed(2));
+          return { ...c, conf, pass: true };
+        });
         break;
       case "miss9":
-        // 9点惜しい！不成立（「脱ベタ」項目だけ落とす）
-        newItems = criteria.map((c) =>
-          c.id === "cliche"
-            ? { ...c, pass: false, conf: 0.15 }
-            : { ...c, pass: true, conf: 0.85 }
-        );
+        // 9点惜しい！不成立（「脱ベタ」だけ閾値0.50未満に落とす）
+        newItems = criteria.map((c) => {
+          const conf = c.id === "cliche" ? 0.35 : 0.85;
+          return { ...c, conf, pass: conf >= c.threshold };
+        });
         break;
       case "miss7":
         // 7点不成立（3項目落とす）
-        newItems = criteria.map((c) =>
-          ["cliche", "novelty", "conciseness"].includes(c.id)
-            ? { ...c, pass: false, conf: 0.3 }
-            : { ...c, pass: true, conf: 0.75 }
-        );
+        newItems = criteria.map((c) => {
+          const conf = ["cliche", "novelty", "conciseness"].includes(c.id) ? 0.30 : 0.80;
+          return { ...c, conf, pass: conf >= c.threshold };
+        });
         break;
       case "miss5":
         // 5点不成立（半分合格）
-        newItems = criteria.map((c, i) => ({
-          ...c,
-          pass: i < 5,
-          conf: i < 5 ? 0.7 : 0.25,
-        }));
+        newItems = criteria.map((c, i) => {
+          const conf = i < 5 ? 0.75 : 0.25;
+          return { ...c, conf, pass: conf >= c.threshold };
+        });
         break;
     }
     setCriteria(newItems);
@@ -237,7 +232,7 @@ export const DevTool: React.FC = () => {
     return "answerFlip__text--xxlarge";
   };
 
-  const { sorted: sortedCriteria, timeline: currentTimeline } = calculateTimeline(criteria);
+  const { sorted: sortedCriteria } = calculateTimeline(criteria);
   const activeItemName = currentItemIndex !== null && sortedCriteria[currentItemIndex] ? sortedCriteria[currentItemIndex].name : null;
 
   return (
@@ -282,7 +277,7 @@ export const DevTool: React.FC = () => {
       </header>
 
       {/* メインレイアウト */}
-      <div style={{ display: "grid", gridTemplateColumns: "480px 1fr", flex: 1, minHeight: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "500px 1fr", flex: 1, minHeight: 0 }}>
         {/* 左側コントロールパネル */}
         <aside
           style={{
@@ -387,9 +382,9 @@ export const DevTool: React.FC = () => {
             </div>
           </div>
 
-          {/* 10項目の評価基準リスト（確度が高い順に自動整列） */}
+          {/* 10項目の評価基準リスト（固定順表示、閾値インジケーター付き） */}
           <div style={{ background: "#161b22", padding: "12px", borderRadius: "8px", border: "1px solid #30363d" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
               <span style={{ fontSize: "13px", fontWeight: "bold", color: "#ffd200" }}>
                 💡 10評価項目 (合計: {totalScore} / 10点)
               </span>
@@ -411,28 +406,28 @@ export const DevTool: React.FC = () => {
               </button>
             </div>
             <div style={{ fontSize: "11px", color: "#8b949e", marginBottom: "10px" }}>
-              確信度が高い項目から順に1本ずつバラバラに点灯します。
+              スライダーを閾値（赤▼）以上に動かすと自動で点灯（1点）になります。
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {criteria.map((c, fixedIdx) => {
-                // 点灯順（確信度降順での順位）を計算
                 const order = sortedCriteria.findIndex((sc) => sc.id === c.id);
                 const delayMs = Math.max(0, Math.floor((1.0 - c.conf) * 250));
                 const isCurrentlyActive = activeItemName === c.name;
+                const thresholdPercent = c.threshold * 100;
 
                 return (
                   <div
                     key={c.id}
                     style={{
-                      padding: "6px 10px",
+                      padding: "8px 10px",
                       borderRadius: "6px",
                       background: isCurrentlyActive ? "#1f6feb22" : "#21262d",
                       border: isCurrentlyActive ? "1px solid #58a6ff" : "1px solid #30363d",
                       transition: "background 0.2s",
                     }}
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <span style={{ color: "#8b949e", fontSize: "11px", width: "16px" }}>
                           {fixedIdx + 1}.
@@ -455,43 +450,95 @@ export const DevTool: React.FC = () => {
                         </span>
                       </div>
 
-                      {/* 合格（点灯）/ 不合格（不点灯）切り替え */}
-                      <button
-                        onClick={() => toggleCriterionPass(c.id)}
-                        disabled={isAnimating}
+                      {/* 点灯・非点灯ステータスバッジ（確信度により自動制御） */}
+                      <span
                         style={{
                           padding: "2px 8px",
                           fontSize: "11px",
                           fontWeight: "bold",
                           borderRadius: "4px",
-                          border: "none",
-                          cursor: isAnimating ? "not-allowed" : "pointer",
                           background: c.pass ? "#238636" : "#30363d",
                           color: c.pass ? "#fff" : "#8b949e",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
                         }}
                       >
-                        {c.pass ? "✔ 1点 点灯" : "✕ 0点"}
-                      </button>
+                        {c.pass ? "✔ 点灯 (1点)" : "✕ 消灯 (0点)"}
+                      </span>
                     </div>
 
-                    {/* 確信度スライダー */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
-                      <span style={{ fontSize: "10px", color: "#8b949e", width: "36px" }}>確度</span>
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.05"
-                        value={c.conf}
-                        disabled={isAnimating}
-                        onChange={(e) => updateCriterionConf(c.id, parseFloat(e.target.value))}
-                        style={{ flex: 1, accentColor: "#ffd200", height: "4px" }}
-                      />
-                      <span style={{ fontSize: "10px", fontFamily: "monospace", width: "28px", textAlign: "right", color: "#ffd200" }}>
+                    {/* スライダーと閾値目印 */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                      <span style={{ fontSize: "10px", color: "#8b949e", width: "24px" }}>確度</span>
+                      
+                      {/* スライダー＋目印コンテナ */}
+                      <div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center" }}>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={c.conf}
+                          disabled={isAnimating}
+                          onChange={(e) => updateCriterionConf(c.id, parseFloat(e.target.value))}
+                          style={{
+                            width: "100%",
+                            accentColor: c.pass ? "#ffd200" : "#8b949e",
+                            height: "6px",
+                            cursor: isAnimating ? "not-allowed" : "pointer",
+                          }}
+                        />
+
+                        {/* 閾値の目印ライン＆▼マーカー */}
+                        <div
+                          style={{
+                            position: "absolute",
+                            left: `${thresholdPercent}%`,
+                            top: "50%",
+                            transform: "translate(-50%, -50%)",
+                            pointerEvents: "none",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            height: "18px",
+                            zIndex: 2,
+                          }}
+                          title={`点灯閾値: ${c.threshold.toFixed(2)} 以上で点灯`}
+                        >
+                          {/* 赤い三角マーカー */}
+                          <div
+                            style={{
+                              width: 0,
+                              height: 0,
+                              borderLeft: "4px solid transparent",
+                              borderRight: "4px solid transparent",
+                              borderTop: "5px solid #f85149",
+                              marginBottom: "1px",
+                            }}
+                          />
+                          {/* 垂直バー */}
+                          <div style={{ width: "2px", height: "10px", backgroundColor: "#f85149", opacity: 0.9 }} />
+                        </div>
+                      </div>
+
+                      {/* 確信度数値 */}
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          fontFamily: "monospace",
+                          width: "32px",
+                          textAlign: "right",
+                          fontWeight: "bold",
+                          color: c.pass ? "#ffd200" : "#8b949e",
+                        }}
+                      >
                         {c.conf.toFixed(2)}
                       </span>
-                      <span style={{ fontSize: "10px", color: "#7ee787", width: "42px", textAlign: "right" }}>
-                        {delayMs}ms
+
+                      {/* 閾値情報＆遅延ms */}
+                      <span style={{ fontSize: "10px", color: "#8b949e", width: "95px", textAlign: "right" }}>
+                        (閾値:<strong style={{ color: "#f85149" }}>{c.threshold.toFixed(2)}</strong>/{delayMs}ms)
                       </span>
                     </div>
                   </div>
