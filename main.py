@@ -163,42 +163,51 @@ DOCS_COMMON_STYLE = """
     }
     .nav-tabs {
         display: flex;
-        gap: 10px;
-        margin-bottom: 16px;
+        gap: 0;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 2;
+        padding: 0 4px;
     }
     .tab-btn {
         flex: 1;
         text-align: center;
-        padding: 12px 16px;
+        padding: 13px 20px;
         font-size: 15px;
         font-weight: 900;
         text-decoration: none;
-        border-radius: 8px;
-        color: #111;
-        background: rgba(255, 255, 255, 0.7);
-        border: 2px solid #111;
-        box-shadow: 0 3px 0 #111;
-        transition: all 0.15s;
+        border-radius: 10px 10px 0 0;
+        color: #64748b;
+        background: rgba(220, 215, 195, 0.7);
+        border: 2px solid #111111;
+        border-bottom: 2px solid #111111;
+        margin-bottom: -2px;
+        transition: all 0.15s ease;
     }
     .tab-btn:hover {
-        background: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 0 #111;
+        background: rgba(240, 235, 215, 0.9);
+        color: #111111;
     }
+    /* 選択中: カードと完全に一体化（白背景＋下枠線をカードへ接続） */
     .tab-btn.is-active {
-        background: #111;
-        color: #ffd000;
-        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+        background: #ffffff;
+        color: #111111;
+        border-bottom: 2px solid #ffffff;
+        position: relative;
+        z-index: 3;
+        box-shadow: none;
     }
-    /* フリップ同色の白カード */
+    /* フリップ同色の白カード（タブと一体化） */
     .content-card {
+        position: relative;
+        z-index: 1;
         background: #ffffff;
         color: #111111;
         border: 2px solid #111111;
+        border-radius: 0 0 12px 12px;
         box-shadow:
             0 8px 0 #1b1b1b,
             0 20px 48px rgba(0, 0, 0, 0.25);
-        border-radius: 12px;
         padding: 40px 36px;
     }
     h1 {
@@ -342,8 +351,8 @@ async def terms_of_service():
         </header>
 
         <nav class="nav-tabs">
-            <a href="/terms" class="tab-btn is-active">📄 利用規約 (Terms)</a>
-            <a href="/privacy" class="tab-btn">🔒 プライバシーポリシー (Privacy)</a>
+            <a href="/terms" class="tab-btn is-active">利用規約</a>
+            <a href="/privacy" class="tab-btn">プライバシーポリシー</a>
         </nav>
 
         <main class="content-card">
@@ -497,8 +506,8 @@ async def privacy_policy():
         </header>
 
         <nav class="nav-tabs">
-            <a href="/terms" class="tab-btn">📄 利用規約 (Terms)</a>
-            <a href="/privacy" class="tab-btn is-active">🔒 プライバシーポリシー (Privacy)</a>
+            <a href="/terms" class="tab-btn">利用規約</a>
+            <a href="/privacy" class="tab-btn is-active">プライバシーポリシー</a>
         </nav>
 
         <main class="content-card">
