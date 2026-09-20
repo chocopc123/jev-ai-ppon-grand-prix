@@ -193,17 +193,19 @@ DOCS_COMMON_STYLE = """
     .tab-btn:hover {
         color: #111111;
     }
-    /* 選択中タブ: カードと同じ色(#ffffff)で天板・左右ボーダーをつけ、下線なしでカードと直結 */
+    /* 選択中タブ: カードと同じ完全な純白(#ffffff)で天板・左右ボーダーをつけ、下線なしでカードと直結 */
     .tab-btn.is-active {
-        background: #ffffff;
+        background-color: #ffffff !important;
         color: #111111;
-        border: 2px solid #111111;
-        border-bottom: none; /* 下線をなくしてカード本体と完全直結 */
+        border-top: 2px solid #111111;
+        border-left: 2px solid #111111;
+        border-right: 2px solid #111111;
+        border-bottom: 2px solid #ffffff; /* 下側を純白にしてカード本体に完全に溶け込ませる */
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         margin-top: -2px; /* 天板の上に覆いかぶさる */
-        margin-bottom: 0;
-        z-index: 3;
+        margin-bottom: -2px; /* カードとの境界を完全に白で埋める */
+        z-index: 5;
     }
     /* 左端・右端のタブ選択時にベースの外枠とピッタリ重なるようオフセット */
     .tab-btn.is-active:first-child {
