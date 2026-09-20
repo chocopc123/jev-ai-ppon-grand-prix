@@ -49,6 +49,9 @@ body {
   overflow: hidden;
 }
 
+/* ==========================================================================
+   参加登録画面 (Join Screen) - 洗練されたプロダクトUI
+   ========================================================================== */
 .join-container {
   display: flex;
   flex-direction: column;
@@ -56,19 +59,19 @@ body {
   justify-content: center;
   min-height: 100vh;
   width: 100%;
-  padding: 32px 16px;
-  background: radial-gradient(circle at 50% 35%, #ffef40 0%, #ffdc00 50%, #e6c600 100%) !important;
+  padding: 40px 16px;
+  background: radial-gradient(circle at 50% 30%, #ffef4a 0%, #ffd000 55%, #e6b800 100%) !important;
   box-sizing: border-box;
   overflow-y: auto;
 }
 
 .join-inner {
   width: 100%;
-  max-width: 480px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
 /* メインロゴ表示 */
@@ -77,12 +80,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: joinLogoEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: joinLogoEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.16));
 }
 
 .join-logo-svg {
   width: 100%;
-  max-width: 460px;
+  max-width: 420px;
   height: auto;
   display: block;
 }
@@ -98,260 +102,259 @@ body {
   }
 }
 
-/* ==========================================================================
-   フリップ風エントリーカード（terms / privacy と完全共通の白カード×黒枠仕様）
-   ========================================================================== */
+/* 参加登録カード */
 .join-card {
   position: relative;
   width: 100%;
   background: #ffffff;
-  color: #111111;
-  border: 2px solid #111111;
-  border-radius: 14px;
-  padding: 30px 24px 26px;
-  box-shadow:
-    0 8px 0 #1b1b1b,
-    0 20px 48px rgba(0, 0, 0, 0.22);
+  border-radius: 20px;
+  padding: 32px 28px 26px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 20px 48px -8px rgba(0, 0, 0, 0.16),
+    0 8px 16px -4px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  overflow: hidden;
-  animation: joinCardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+  animation: joinCardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s backwards;
 }
 
 @keyframes joinCardEntrance {
   0% {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(14px) scale(0.98);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
+/* カードヘッダー */
 .join-card-header {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 22px;
-}
-
-.join-card-tag {
-  font-size: 0.72rem;
-  letter-spacing: 3px;
-  font-weight: 900;
-  color: #111111;
-  background: #ffdc00;
-  padding: 3px 12px;
-  border-radius: 4px;
-  border: 1.5px solid #111111;
-  box-shadow: 0 2px 0 #111111;
-  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 24px;
 }
 
 .join-card-title {
   font-family: var(--font-heavy);
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 900;
   color: #111111;
-  letter-spacing: 1.5px;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
+.join-card-desc {
+  font-size: 0.82rem;
+  color: #6e6e73;
+  font-weight: 600;
+  margin-top: 6px;
+  letter-spacing: 0.01em;
+}
+
+/* フォーム構造 */
 .join-form {
-  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   width: 100%;
 }
 
 .join-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   text-align: left;
 }
 
 .join-field-label {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.join-field-label .label-en {
-  font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #d5001c;
-}
-
-.join-field-label .label-jp {
+  font-family: var(--font-heavy);
   font-size: 0.82rem;
   font-weight: 800;
-  color: #222222;
+  color: #222226;
+  letter-spacing: 0.02em;
 }
 
+.join-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* 入力インプット共通 */
 .join-input {
   width: 100%;
-  padding: 12px 16px;
+  height: 48px;
+  padding: 0 16px;
   font-family: var(--font-heavy);
-  font-size: 1.05rem;
-  font-weight: 800;
-  border-radius: 8px;
-  background: #f7f7f9;
-  border: 2px solid #111111;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 12px;
+  background: #f5f5f7;
+  border: 1.5px solid transparent;
   color: #111111;
   outline: none;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.join-input:hover {
+  background: #ebebee;
 }
 
 .join-input:focus {
   background: #ffffff;
   border-color: #111111;
-  box-shadow: 0 0 0 3px rgba(255, 220, 0, 0.65), inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 0 3px rgba(255, 208, 0, 0.35);
 }
 
 .join-input::placeholder {
-  color: #9c9ca4;
-  font-weight: 600;
+  color: #8e8e93;
+  font-weight: 500;
 }
 
-/* ==========================================================================
-   アンサーボタン仕様「入場する」コンソール
-   IPPONグランプリの回答席にある深紅のハードボタンと特番グラフィックの質感を再現
-   ========================================================================== */
+/* ルーム入力グループ */
+.room-input-group {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.room-input-group .room-input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+/* 再生成ボタン */
+.btn-random-room {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 48px;
+  padding: 0 16px;
+  background: #f5f5f7;
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  color: #222226;
+  font-family: var(--font-heavy);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-random-room:hover {
+  background: #111111;
+  color: #ffffff;
+}
+
+.btn-random-room:hover .btn-action-icon {
+  color: #ffd000;
+}
+
+.btn-random-room:active {
+  transform: scale(0.97);
+}
+
+.btn-random-room .btn-action-icon {
+  color: #55555c;
+  transition: color 0.18s ease;
+}
+
+/* 入場ボタン (メインCTA) */
 .join-submit-container {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .join-submit-btn {
   position: relative;
   width: 100%;
-  padding: 0;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #ff1733 0%, #d5001c 65%, #a60015 100%);
+  height: 52px;
+  padding: 0 24px;
+  border-radius: 14px;
+  background: #111113;
   color: #ffffff;
-  border: 2px solid #111111;
+  border: none;
   cursor: pointer;
   user-select: none;
-  overflow: hidden;
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.45) inset,
-    0 5px 0 #111111,
-    0 12px 24px rgba(0, 0, 0, 0.2);
-  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
-}
-
-/* ボタン内部コンテンツ配置 */
-.join-btn-body {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 13px 20px;
-  gap: 12px;
-}
-
-.join-btn-labels {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-}
-
-.join-submit-btn .join-btn-sub {
+  gap: 10px;
   font-family: var(--font-heavy);
-  font-size: 0.7rem;
+  font-size: 1.05rem;
   font-weight: 900;
-  letter-spacing: 3px;
-  color: #ffdc00;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.join-submit-btn .join-btn-main {
-  font-family: var(--font-heavy);
-  font-size: 1.35rem;
-  font-weight: 900;
-  letter-spacing: 3px;
+.join-submit-btn .join-btn-text {
   color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* エントリーアローアイコン */
-.join-btn-arrow-icon {
-  color: #ffdc00;
-  flex-shrink: 0;
-  transition: transform 0.15s ease;
+.join-submit-btn .join-btn-arrow-icon {
+  color: #ffd000;
+  transition: transform 0.18s ease;
+}
+
+.join-submit-btn:hover:not(:disabled) {
+  background: #d6001c;
+  box-shadow: 0 10px 28px rgba(214, 0, 28, 0.35);
+  transform: translateY(-1.5px);
 }
 
 .join-submit-btn:hover:not(:disabled) .join-btn-arrow-icon {
   transform: translateX(3px);
-}
-
-/* ホバー＆アクティブ状態 */
-.join-submit-btn:hover:not(:disabled) {
-  filter: brightness(1.06);
-  transform: translateY(-1px);
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.5) inset,
-    0 6px 0 #111111,
-    0 14px 28px rgba(0, 0, 0, 0.25);
+  color: #ffffff;
 }
 
 .join-submit-btn:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: 
-    0 1px 0 rgba(0, 0, 0, 0.2) inset,
-    0 1px 0 #111111,
-    0 4px 10px rgba(0, 0, 0, 0.15);
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .join-submit-btn:disabled {
-  background: #e2e2e8;
-  border-color: #888890;
-  box-shadow: 0 3px 0 #888890;
-  color: #888890;
+  background: #e5e5ea;
+  color: #8e8e93;
+  box-shadow: none;
   cursor: not-allowed;
-  opacity: 0.8;
 }
 
-.join-submit-btn:disabled .join-btn-sub,
-.join-submit-btn:disabled .join-btn-main,
+.join-submit-btn:disabled .join-btn-text,
 .join-submit-btn:disabled .join-btn-arrow-icon {
-  color: #888890;
-  text-shadow: none;
+  color: #8e8e93;
 }
 
+/* カードフッター */
 .join-card-footer {
-  position: relative;
-  margin-top: 14px;
+  margin-top: 18px;
   text-align: center;
 }
 
 .join-footer-hint {
-  font-size: 12px;
-  color: #666666;
-  font-weight: 700;
+  font-size: 0.76rem;
+  color: #8e8e93;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
-
-/* トップ画面 法的情報フッター (利用規約・プライバシーポリシー) */
+/* 法的リンクフッター */
 .join-page-footer {
-  margin-top: 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
-  text-align: center;
+  margin-top: 4px;
 }
 
 .join-legal-links {
@@ -361,31 +364,31 @@ body {
 }
 
 .join-legal-link {
-  color: #3d3106;
-  text-decoration: none;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  color: #111111;
   font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
 }
 
 .join-legal-link:hover {
-  color: #000000;
+  opacity: 1;
   text-decoration: underline;
-  background: rgba(0, 0, 0, 0.06);
 }
 
 .join-legal-divider {
-  color: rgba(61, 49, 6, 0.4);
-  font-size: 12px;
+  color: #111111;
+  opacity: 0.4;
+  font-size: 10px;
 }
 
 .join-copyright {
-  font-size: 11px;
-  color: rgba(61, 49, 6, 0.65);
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  color: #111111;
+  opacity: 0.55;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 
@@ -501,11 +504,30 @@ body {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
   white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.themeStage__timer:hover {
+  border-color: #ffd700;
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.28),
+    0 0 12px rgba(255, 215, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.themeStage__timer:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 }
 
 .themeStage__timerIcon {
-  font-size: 1.1em;
+  font-size: 1em;
   line-height: 1;
+  opacity: 0.85;
 }
 
 .themeStage__timer--paused {
@@ -516,6 +538,13 @@ body {
     0 3px 0 rgba(0, 0, 0, 0.35),
     0 0 10px rgba(255, 152, 0, 0.2),
     inset 0 1px 0 rgba(255, 200, 100, 0.2);
+}
+
+.themeStage__timer--paused:hover {
+  border-color: #ffb74d;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.35),
+    0 0 14px rgba(255, 152, 0, 0.4);
 }
 
 .themeStage__timerPausedTag {
@@ -535,46 +564,6 @@ body {
 @keyframes timerPausedPulse {
   0% { opacity: 0.65; }
   100% { opacity: 1; }
-}
-
-.themeStage__timerButton {
-  min-height: 38px;
-  padding: 0 14px;
-
-  color: #f0e6d2;
-  background: #1e1a0d;
-  border: 2px solid #5a4b16;
-  border-radius: 8px;
-
-  box-shadow:
-    0 3px 0 rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-
-  cursor: pointer;
-  font-size: clamp(12px, 1.15vw, 14px);
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  transition: filter 0.15s ease, transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.themeStage__timerButton:hover {
-  filter: brightness(1.18);
-  transform: translateY(-1px);
-}
-
-.themeStage__timerButton:active {
-  box-shadow: none;
-  transform: translateY(2px);
-}
-
-.themeStage__timerButton--paused {
-  color: #1a0a00;
-  background: #ff9800;
-  border-color: #b25300;
-  box-shadow:
-    0 3px 0 rgba(110, 45, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .themeStage__skipButton {
@@ -1500,51 +1489,7 @@ body {
   display: inline-block;
 }
 
-/* Join Screen */
-.join-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
-  background: radial-gradient(circle, #252532 0%, #101014 100%);
-  gap: 20px;
-  padding: 24px;
-}
 
-.join-title-group {
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-.join-brand-title {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 900;
-  color: var(--color-gold);
-  letter-spacing: 6px;
-  text-shadow: 0 0 20px rgba(255, 208, 0, 0.4);
-}
-
-.join-subtitle {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  letter-spacing: 3px;
-  margin-top: 4px;
-}
-
-.join-card {
-  background: var(--color-dark-surface);
-  border: 1px solid var(--color-dark-border);
-  padding: 32px 28px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 380px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-}
 
 /* ==========================================================================
    4. Animations
@@ -1784,316 +1729,460 @@ body {
 }
 
 /* ==========================================================================
-   待機室 (Waiting Room) & コントロール
+   待機室 (Waiting Room) & コントロール - 特番フリップ世界観統一仕様
    ========================================================================== */
 .waiting-room-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
   height: 100%;
   width: 100%;
-  padding: 24px;
-  position: relative;
-  z-index: 10;
+  padding: 32px 16px;
+  background: radial-gradient(circle at 50% 35%, #ffef40 0%, #ffdc00 50%, #e6c600 100%) !important;
+  box-sizing: border-box;
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
 }
 
-.waiting-card {
-  background: rgba(20, 20, 24, 0.95);
-  border: 1px solid rgba(255, 208, 0, 0.35);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 208, 0, 0.15);
-  border-radius: 12px;
-  padding: 32px;
+.waiting-room-inner {
   width: 100%;
-  max-width: 580px;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 18px;
+  margin: auto;
+}
+
+.waiting-logo-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: joinLogoEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.waiting-logo-svg {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  display: block;
+}
+
+/* フリップ風待機カード */
+.waiting-card {
+  position: relative;
+  width: 100%;
+  background: #ffffff;
+  color: #111111;
+  border: 2px solid #111111;
+  border-radius: 14px;
+  padding: 26px 24px;
+  box-shadow:
+    0 8px 0 #1b1b1b,
+    0 20px 48px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  gap: 16px;
+  animation: joinCardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+}
+
+.waiting-card-header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   text-align: center;
-  gap: 20px;
-  animation: waitingCardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes waitingCardEntrance {
-  0% {
-    opacity: 0;
-    transform: scale(0.95) translateY(16px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.waiting-badge {
-  display: inline-flex;
+.waiting-tag-row {
+  display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 208, 0, 0.12);
-  border: 1px solid var(--color-gold);
-  color: var(--color-gold);
-  padding: 4px 14px;
-  border-radius: 9999px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.waiting-card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+  font-weight: 900;
+  color: #111111;
+  background: #ffdc00;
+  padding: 3px 12px;
+  border-radius: 4px;
+  border: 1.5px solid #111111;
+  box-shadow: 0 2px 0 #111111;
+  text-transform: uppercase;
 }
 
 .waiting-pulse-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--color-gold);
+  width: 7px;
+  height: 7px;
+  background-color: #d5001c;
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--color-gold);
+  box-shadow: 0 0 6px #d5001c;
   animation: pulse-dot 1.5s infinite;
 }
 
-@keyframes pulse-dot {
-  0% { transform: scale(0.85); opacity: 0.6; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(0.85); opacity: 0.6; }
+.waiting-tts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #111111;
+  background: #ffe66d;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1.5px solid #111111;
+  box-shadow: 0 2px 0 #111111;
 }
 
-.waiting-title {
-  font-size: 26px;
+.waiting-card-title {
+  font-family: var(--font-heavy);
+  font-size: 1.35rem;
   font-weight: 900;
-  color: var(--color-text-white);
-  letter-spacing: 0.5px;
-  margin: 0;
+  color: #111111;
+  letter-spacing: 1px;
+  margin: 4px 0 0 0;
 }
 
 .waiting-desc {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  line-height: 1.5;
+  font-size: 0.84rem;
+  color: #555562;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 700;
 }
 
 /* 部屋共有バー */
-.room-share-bar {
+.waiting-share-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  background: #111115;
-  border: 1px solid #33333f;
-  border-radius: 8px;
+  background: #f5f5f8;
+  border: 2px solid #111111;
+  border-radius: 9px;
   padding: 8px 14px;
   gap: 12px;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.room-share-info {
+.waiting-share-info {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: baseline;
+  gap: 10px;
   text-align: left;
 }
 
-.room-share-label {
-  font-size: 11px;
-  font-weight: 800;
-  color: #8e8e9f;
-  letter-spacing: 1px;
-}
-
-.room-share-id {
-  font-size: 18px;
+.waiting-share-label {
+  font-size: 0.72rem;
   font-weight: 900;
-  color: var(--color-gold);
-  font-family: var(--font-mono);
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
+  color: #d5001c;
 }
 
-.btn-copy-url {
+.waiting-share-id {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #111111;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.waiting-share-id:hover {
+  color: #d5001c;
+}
+
+.btn-waiting-copy {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  background: linear-gradient(180deg, #2a2b37 0%, #1a1b24 100%);
-  border: 1px solid rgba(255, 215, 0, 0.45);
-  color: #ffe6a3;
-  font-size: 13px;
+  gap: 6px;
+  background: #ffffff;
+  border: 1.5px solid #111111;
+  color: #111111;
+  font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 0 #111111;
+  transition: all 0.1s ease;
   white-space: nowrap;
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.12) inset,
-    0 3px 8px rgba(0, 0, 0, 0.45);
   user-select: none;
 }
 
-.btn-copy-url:hover {
-  background: linear-gradient(180deg, #373948 0%, #242533 100%);
-  border-color: #ffd700;
-  color: #ffffff;
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.2) inset,
-    0 0 14px rgba(255, 215, 0, 0.4),
-    0 4px 12px rgba(0, 0, 0, 0.6);
-  transform: translateY(-1.5px);
+.btn-waiting-copy:hover {
+  background: #ffdc00;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 #111111;
 }
 
-.btn-copy-url:active {
-  transform: translateY(1px);
-  box-shadow: 
-    0 1px 0 rgba(0, 0, 0, 0.5) inset,
-    0 1px 4px rgba(0, 0, 0, 0.4);
+.btn-waiting-copy:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 #111111;
 }
 
-/* コピー完了時のフィードバック演出 */
-.btn-copy-url.is-copied {
-  background: linear-gradient(180deg, #059669 0%, #047857 100%);
-  border-color: #34d399;
+.btn-waiting-copy.is-copied {
+  background: #059669;
+  border-color: #047857;
   color: #ffffff;
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.3) inset,
-    0 0 16px rgba(52, 211, 153, 0.6),
-    0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 0 #034e38;
   animation: copyPulse 0.3s ease-out;
-}
-
-@keyframes copyPulse {
-  0% { transform: scale(0.96); }
-  50% { transform: scale(1.04); }
-  100% { transform: scale(1); }
 }
 
 /* 待機参加者リスト */
 .waiting-players-section {
   width: 100%;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .waiting-players-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+  align-items: baseline;
+  border-bottom: 1.5px solid #eaeaea;
+  padding-bottom: 6px;
+}
+
+.waiting-players-label {
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #d5001c;
 }
 
 .waiting-players-count {
-  font-size: 13px;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: var(--color-text-muted);
+  color: #44444a;
 }
 
-.waiting-players-count span {
-  color: var(--color-gold);
-  font-size: 15px;
+.waiting-players-count strong {
+  color: #111111;
+  font-size: 1rem;
+  font-weight: 900;
 }
 
 .waiting-players-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
-  max-height: 180px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  max-height: 190px;
   overflow-y: auto;
-  padding: 4px;
+  padding: 2px;
 }
 
 .waiting-player-chip {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #f7f7fa;
+  border: 1.5px solid #111111;
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-white);
-  transition: border-color 0.2s;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #111111;
+  box-shadow: 0 2px 0 #111111;
+  transition: transform 0.15s ease;
 }
 
 .waiting-player-chip.is-me {
-  border-color: var(--color-gold);
-  background: rgba(255, 208, 0, 0.08);
+  background: #fff9d6;
+  border-color: #111111;
 }
 
 .waiting-player-avatar {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--color-gold);
-  color: #111;
+  background: #111111;
+  color: #ffdc00;
+  border: 1.5px solid #111111;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 900;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .waiting-player-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+}
+
+.waiting-player-me-tag {
+  font-size: 0.65rem;
+  font-weight: 900;
+  background: #ffdc00;
+  color: #111111;
+  border: 1px solid #111111;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
 }
 
 /* 待機室のアクションボタン群 */
 .waiting-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
-.btn-start-game {
+.waiting-start-btn {
   flex: 2;
   position: relative;
-  display: inline-flex;
+  padding: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ff1733 0%, #d5001c 65%, #a60015 100%);
+  color: #ffffff;
+  border: 2px solid #111111;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 5px 0 #111111,
+    0 12px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+}
+
+.waiting-start-btn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 6px 0 #111111,
+    0 14px 28px rgba(0, 0, 0, 0.25);
+}
+
+.waiting-start-btn:active {
+  transform: translateY(4px);
+  box-shadow: 
+    0 1px 0 rgba(0, 0, 0, 0.2) inset,
+    0 1px 0 #111111,
+    0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.waiting-start-btn-body {
+  position: relative;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: linear-gradient(180deg, #ffd700 0%, #ffaa00 100%);
-  border: 1px solid #ffffff;
-  color: #0d0d0d;
+  padding: 11px 18px;
+  gap: 10px;
+}
+
+.waiting-start-btn-labels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.waiting-start-btn-sub {
   font-family: var(--font-heavy);
-  font-size: 16px;
+  font-size: 0.68rem;
   font-weight: 900;
-  padding: 14px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(255, 170, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  transition: all 0.2s ease;
-  letter-spacing: 0.5px;
+  letter-spacing: 2.5px;
+  color: #ffdc00;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
 
-.btn-start-game:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 26px rgba(255, 170, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  filter: brightness(1.05);
+.waiting-start-btn-main {
+  font-family: var(--font-heavy);
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-.btn-start-game:active {
-  transform: translateY(1px);
+.waiting-start-btn-icon {
+  color: #ffdc00;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
 }
 
-.btn-leave-room {
+.waiting-leave-btn {
   flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #c0c0cf;
+  background: #f2f2f5;
+  border: 2px solid #111111;
+  color: #111111;
   font-family: var(--font-heavy);
-  font-size: 14px;
-  font-weight: 700;
-  padding: 14px 16px;
-  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding: 11px 14px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  user-select: none;
+  box-shadow: 0 4px 0 #111111;
+  transition: all 0.1s ease;
 }
 
-.btn-leave-room:hover {
-  background: rgba(255, 59, 48, 0.15);
-  border-color: rgba(255, 59, 48, 0.4);
-  color: #ff453a;
+.waiting-leave-btn:hover {
+  background: #ffffff;
+  color: #d5001c;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 #111111;
 }
+
+.waiting-leave-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #111111;
+}
+
+.waiting-leave-btn-icon {
+  flex-shrink: 0;
+}
+
+.waiting-page-footer {
+  width: 100%;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.waiting-copyright {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: rgba(17, 17, 17, 0.65);
+}
+
 
 .btn-tts-toggle {
   flex: 1;
@@ -2136,51 +2225,96 @@ body {
   margin-right: 6px;
 }
 
+.themeStage__roomIdBtn,
 .themeStage__roomIdTag {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 700;
-  background: rgba(0, 0, 0, 0.35);
-  color: var(--color-gold);
+  background: #111111;
+  color: #ffffff;
   padding: 4px 8px;
   border-radius: 4px;
-  border: 1px solid rgba(255, 208, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  user-select: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
-.themeStage__copyBtn {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 208, 0, 0.4);
-  color: var(--color-gold);
-  padding: 4px 9px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
+.themeStage__roomIdBtn {
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-.themeStage__copyBtn:hover {
-  background: rgba(255, 208, 0, 0.2);
-  border-color: var(--color-gold);
+.themeStage__roomIdBtn:hover {
+  background: #222222;
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+.themeStage__roomIdBtn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.themeStage__roomIdBtn.is-copied {
+  background: #052e16;
+  border-color: #22c55e;
+  color: #4ade80;
+}
+
+.themeStage__roomIdIcon {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .themeStage__leaveBtn {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #e0e0e0;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #111111;
+  border: 2px solid #dc2626;
+  color: #ff4d4f;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all 0.2s ease;
+  white-space: nowrap;
+  user-select: none;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.28);
+  transition: all 0.15s ease;
+}
+
+.themeStage__leaveBtnIcon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  flex-shrink: 0;
 }
 
 .themeStage__leaveBtn:hover {
-  background: rgba(255, 59, 48, 0.25);
-  border-color: rgba(255, 59, 48, 0.6);
-  color: #ff6b6b;
+  background: #dc2626;
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5), 0 3px 0 rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.themeStage__leaveBtn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* トースト通知 */
@@ -2218,59 +2352,6 @@ body {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-}
-
-/* ==========================================================================
-   エントリー画面: ルーム入力＆再生成ボタン（スタジオ機材仕様）
-   ========================================================================== */
-.room-input-group {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-
-.room-input-group .join-input {
-  flex: 1;
-  min-width: 0;
-}
-
-/* 白カード用の再生成ボタン */
-.btn-random-room {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: #ffffff;
-  border: 2px solid #111111;
-  color: #111111;
-  font-family: var(--font-heavy);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 0 16px;
-  height: auto;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.12s ease;
-  white-space: nowrap;
-  user-select: none;
-  box-shadow: 0 3px 0 #111111;
-}
-
-.btn-random-room:hover {
-  background: #ffdc00;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 0 #111111;
-}
-
-.btn-random-room:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #111111;
-}
-
-.btn-random-room .btn-action-icon {
-  color: #111111;
-  flex-shrink: 0;
 }
 
 /* ナレーション解禁バッジ & 解除ボタン */
@@ -2350,6 +2431,34 @@ body {
   .join-submit-btn .join-btn-body {
     padding: 12px 16px;
     gap: 10px;
+  }
+
+  /* 待機室レスポンシブ */
+  .waiting-card {
+    padding: 20px 14px;
+    gap: 14px;
+  }
+  .waiting-card-title {
+    font-size: 1.2rem;
+  }
+  .waiting-start-btn .waiting-start-btn-main {
+    font-size: 1.1rem;
+    letter-spacing: 1.5px;
+  }
+  .waiting-start-btn-body {
+    padding: 10px 14px;
+  }
+  .waiting-share-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .waiting-share-info {
+    justify-content: space-between;
+  }
+  .btn-waiting-copy {
+    width: 100%;
+    padding: 7px 12px;
   }
 }
 
