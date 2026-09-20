@@ -162,11 +162,16 @@ DOCS_COMMON_STYLE = """
         box-shadow: 0 2px 0 #111;
     }
     /* フリップ同色の白カード（外周全体を完全な1本の黒線で囲む） */
-    /* タブバー (カードの上に自然に重なる独立ナビゲーション) */
+    /* タブバー (非選択タブはカードと同じ横幅のベース天板) */
     .nav-tabs {
         display: flex;
         position: relative;
-        margin-bottom: -2px; /* カードの天板の黒枠(2px)にぴったり重ねる */
+        background: #dedcd3;
+        border: 2px solid #111111;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        margin-bottom: -2px; /* 下のカードと隙間なく結合 */
+        z-index: 1;
     }
     .tab-btn {
         flex: 1;
@@ -176,45 +181,47 @@ DOCS_COMMON_STYLE = """
         font-weight: 900;
         text-decoration: none;
         color: #71717a;
-        background: #dedcd3;
-        border: 2px solid #111111;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
+        background: transparent;
+        border: none;
         position: relative;
-        z-index: 1; /* 非選択タブはカード(z-index: 2)の奥 */
-        transition: color 0.15s ease, background 0.15s ease;
+        transition: color 0.15s ease;
     }
     .tab-btn:hover {
         color: #111111;
     }
-    /* 選択中タブ: z-index: 3 で最前面に浮上し、下線なしでカード天板を白く繋ぐ */
+    /* 選択中タブ: それ（ベース）の上に重ねる（両角丸み・枠線・白背景で手前に乗る） */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
-        border-bottom: 2px solid #ffffff; /* カード天板の黒線を白で覆い、完全に貫通・結合 */
+        border: 2px solid #111111;
+        border-bottom: 2px solid #ffffff; /* 下のカード天板とシームレスに結合 */
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        margin-top: -2px; /* 天板の上に覆いかぶさる */
+        margin-bottom: -2px;
         z-index: 3;
     }
+    /* 左端・右端のタブ選択時にベースの外枠とピッタリ重なるようオフセット */
+    .tab-btn.is-active:first-child {
+        margin-left: -2px;
+    }
+    .tab-btn.is-active:last-child {
+        margin-right: -2px;
+    }
 
-    /* フリップ同色の白カード本体 */
+    /* フリップ同色の白カード本体（右上と左上は丸めず直角） */
     .content-card {
         width: 100%;
         background: #ffffff;
         color: #111111;
         border: 2px solid #111111;
-        border-radius: 0 0 14px 14px; /* 下側の角丸 */
+        border-radius: 0 0 14px 14px; /* 右上・左上は丸めない（直角） */
         box-shadow:
             0 8px 0 #1b1b1b,
             0 20px 48px rgba(0, 0, 0, 0.25);
         padding: 36px 36px 40px;
         position: relative;
         z-index: 2; /* 非選択タブより手前、選択中タブより奥 */
-    }
-    /* 選択中タブがある側のカード上角丸をタブと揃える */
-    .content-card.active-left {
-        border-top-right-radius: 14px;
-    }
-    .content-card.active-right {
-        border-top-left-radius: 14px;
     }
     h1 {
         color: #111;
@@ -361,7 +368,7 @@ async def terms_of_service():
             <a href="/privacy" class="tab-btn">プライバシーポリシー</a>
         </nav>
 
-        <main class="content-card active-left">
+        <main class="content-card">
             <h1>利用規約 (Terms of Service)</h1>
                 <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
@@ -516,7 +523,7 @@ async def privacy_policy():
             <a href="/privacy" class="tab-btn is-active">プライバシーポリシー</a>
         </nav>
 
-        <main class="content-card active-right">
+        <main class="content-card">
             <h1>プライバシーポリシー (Privacy Policy)</h1>
                 <div class="meta-date">制定日: 2026年9月20日 / Last Updated: September 20, 2026</div>
 
