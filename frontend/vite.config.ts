@@ -14,6 +14,12 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:8080",
       },
+      "/privacy": {
+        target: "http://localhost:8080",
+      },
+      "/terms": {
+        target: "http://localhost:8080",
+      },
     },
   },
 })
