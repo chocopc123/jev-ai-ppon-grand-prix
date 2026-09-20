@@ -1599,6 +1599,32 @@ export default function App() {
               )}
             </div>
           </div>
+
+          {/* 法的情報フッター（利用規約 / プライバシーポリシー） */}
+          <footer className="join-page-footer">
+            <div className="join-legal-links">
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="join-legal-link"
+              >
+                利用規約
+              </a>
+              <span className="join-legal-divider">•</span>
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="join-legal-link"
+              >
+                プライバシーポリシー
+              </a>
+            </div>
+            <div className="join-copyright">
+              &copy; 2026 AI-PPON GRAND PRIX
+            </div>
+          </footer>
         </div>
         {toast && (
           <div className="toast-container">

@@ -304,6 +304,51 @@ body {
   font-weight: 600;
 }
 
+/* トップ画面 法的情報フッター (利用規約・プライバシーポリシー) */
+.join-page-footer {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.join-legal-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.join-legal-link {
+  color: #3d3106;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 12.5px;
+}
+
+.join-legal-link:hover {
+  color: #000000;
+  text-decoration: underline;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.join-legal-divider {
+  color: rgba(61, 49, 6, 0.4);
+  font-size: 12px;
+}
+
+.join-copyright {
+  font-size: 11px;
+  color: rgba(61, 49, 6, 0.65);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
 
 /* ==========================================================================
    1. Theme Stage (お題ステージUI 修正指示書 v1.0)

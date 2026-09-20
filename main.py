@@ -491,7 +491,7 @@ async def terms_of_service():
         </main>
 
         <footer class="footer">
-            &copy; 2026 AI-PPON GRAND PRIX Project. All rights reserved.
+            &copy; 2026 AI-PPON GRAND PRIX. All rights reserved.
         </footer>
     </div>
 </body>
@@ -620,7 +620,7 @@ async def privacy_policy():
         </main>
 
         <footer class="footer">
-            &copy; 2026 AI-PPON GRAND PRIX Project. All rights reserved.
+            &copy; 2026 AI-PPON GRAND PRIX. All rights reserved.
         </footer>
     </div>
 </body>
