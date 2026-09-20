@@ -156,54 +156,89 @@ async def terms_of_service():
 
 @app.get("/privacy", response_class=HTMLResponse)
 async def privacy_policy():
-    """Discord App Directory 審査対応のプライバシーポリシー (Privacy Policy) ページ"""
+    """Discord App Directory 審査対応・個人情報保護法準拠のプライバシーポリシー"""
     html_content = """<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>プライバシーポリシー (Privacy Policy) - AI-PPON GRAND PRIX</title>
+    <title>プライバシーポリシー - AI-PPON GRAND PRIX</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; max-width: 800px; margin: 0 auto; padding: 40px 20px; background: #0f1117; color: #e2e8f0; }
-        h1 { color: #ffd700; border-bottom: 2px solid #ffd700; padding-bottom: 12px; }
-        h2 { color: #f6ad55; margin-top: 30px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.8; max-width: 820px; margin: 0 auto; padding: 40px 20px; background: #0f1117; color: #e2e8f0; }
+        h1 { color: #ffd700; border-bottom: 2px solid #ffd700; padding-bottom: 12px; font-size: 26px; }
+        h2 { color: #f6ad55; margin-top: 32px; font-size: 19px; border-left: 4px solid #f6ad55; padding-left: 10px; }
         p, li { color: #cbd5e1; font-size: 15px; }
-        .date { color: #718096; font-size: 13px; margin-bottom: 30px; }
-        .lang-switch { margin-top: 40px; padding-top: 20px; border-top: 1px dashed #4a5568; }
+        ul { padding-left: 20px; }
+        .date { color: #718096; font-size: 13px; margin-bottom: 24px; }
+        .contact-box { background: rgba(255, 255, 255, 0.05); border: 1px solid #4a5568; border-radius: 8px; padding: 16px 20px; margin-top: 10px; }
+        .lang-switch { margin-top: 45px; padding-top: 25px; border-top: 1px dashed #4a5568; }
     </style>
 </head>
 <body>
-    <h1>プライバシーポリシー (Privacy Policy)</h1>
+    <h1>プライバシーポリシー</h1>
     <div class="date">制定日: 2026年3月20日 / Last Updated: March 20, 2026</div>
 
+    <p>AI-PPON GRAND PRIX 開発運営チーム（以下，「当チーム」といいます。）は，本サービス「AI-PPON GRAND PRIX」（以下，「本サービス」といいます。）におけるユーザーの個人情報の取扱いについて，以下のとおりプライバシーポリシー（以下，「本ポリシー」といいます。）を定めます。</p>
+
     <section>
-        <h2>1. 取得する情報</h2>
-        <p>本アプリは、ゲームプレイおよびスコア管理を円滑に行うため、以下の情報のみを取得・利用します：</p>
+        <h2>第1条（個人情報および取得する情報）</h2>
+        <p>1. 「個人情報」とは，個人情報保護法にいう「個人情報」を指すものとします。<br>
+        2. 本サービスにおいて当チームが取得する情報は，ゲームプレイの提供・進行に必要な以下の情報に限定されます：</p>
         <ul>
-            <li><strong>Discord ユーザー情報:</strong> ユーザーID、ユーザー名（表示名）、アバター画像URL（スコアボードおよび待機室での表示用）</li>
-            <li><strong>ゲーム内データ:</strong> ゲームセッション内に入力された大喜利の回答テキスト</li>
+            <li><strong>Discordアカウント公開情報：</strong> ユーザーID，表示名（ユーザー名），アバター画像URL（ゲーム内でのプレイヤー識別およびスコアボード表示用）</li>
+            <li><strong>ゲームプレイ情報：</strong> ゲーム内のお題に対して送信された大喜利の回答テキスト</li>
         </ul>
-        <p>※ パスワード、メールアドレス、クレジットカード情報などの機密個人情報は一切収集・保持しません。</p>
+        <p>※ メールアドレス，パスワード，住所，電話番号，クレジットカード番号等の機密性の高い個人情報は一切取得・保管いたしません。</p>
 
-        <h2>2. 情報の利用目的</h2>
+        <h2>第2条（個人情報の収集方法）</h2>
+        <p>当チームは，ユーザーがDiscordクライアント上で本サービスを起動・認証した際に，Discord API（Embedded App SDK）を通じて上記第1条記載の情報を自動的に取得します。</p>
+
+        <h2>第3条（個人情報を収集・利用する目的）</h2>
+        <p>当チームが個人情報を収集・利用する目的は，以下のとおりです。</p>
         <ul>
-            <li>ゲームルーム内でのプレイヤーの識別およびスコア管理</li>
-            <li>入力された回答に対するAIによる審査およびゲーム内判定の表示</li>
+            <li>本サービスにおけるゲームセッションの作成・マッチングおよび対戦運営のため</li>
+            <li>ゲームルーム内における参加プレイヤーの識別，スコア集計および勝敗判定の表示のため</li>
+            <li>ユーザーが入力した回答に対するAIによる審査・採点処理の実行のため</li>
+            <li>不正行為・利用規約違反行為の防止および調査のため</li>
+            <li>ユーザーからのお問い合わせに対応するため</li>
         </ul>
 
-        <h2>3. データの保持と管理</h2>
-        <p>ゲーム内で送信された回答やユーザー情報は、現在のゲームセッション（ルーム）の存続期間中のみサーバーのメモリ上に一時保持され、永続的なデータベース等への長期保存は行いません。セッション終了後は破棄されます。</p>
+        <h2>第4条（利用目的の変更）</h2>
+        <p>当チームは，利用目的が変更前と関連性を有すると合理的に認められる場合に限り，個人情報の利用目的を変更するものとします。変更を行った場合には，変更後の目的について本ウェブサイト上に公表します。</p>
 
-        <h2>4. 第三者への提供</h2>
-        <p>回答のAI判定のためにGoogle等のAI API（Gemini等）と連携しますが、個人を特定可能な情報（個人名や連絡先等）を外部へ販売・提供することはありません。</p>
+        <h2>第5条（個人情報の第三者提供および外部連携）</h2>
+        <p>1. 当チームは，次に掲げる場合を除いて，あらかじめユーザーの同意を得ることなく第三者に個人情報を提供することはありません：</p>
+        <ul>
+            <li>人の生命，身体または財産の保護のために必要がある場合</li>
+            <li>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合</li>
+            <li>法令に基づく場合</li>
+        </ul>
+        <p>2. （AI審査機能における外部サービス連携）本サービスは，回答のユーモア判定・審査のためにGoogle LLC等の提供するAIサービス（Gemini API等）とテキスト連携を行います。当該送信には回答テキストおよびお題のみが含まれ，個人を特定可能な情報（個人名や連絡先等）は含まれません。</p>
 
-        <h2>5. お問い合わせ</h2>
-        <p>プライバシーに関するご質問やデータの削除要請は、アプリ開発者まで直接お問い合わせください。</p>
+        <h2>第6条（データの管理と保持期間）</h2>
+        <p>本サービスで送受信されるユーザー情報および回答データは，ゲームセッション（ルーム）の進行中のみサーバーの揮発性メモリ上に一時保持されます。ゲームセッションの終了または切断後，当該データは自動的に消去され，永続的なデータベース等への保存は行いません。</p>
+
+        <h2>第7条（個人情報の開示・訂正・削除）</h2>
+        <p>ユーザーは，当チームの保有する自己の個人情報について開示・訂正・削除を請求することができます。当チームは，ユーザー本人からの請求であることを確認の上，遅滞なく対応を行います。</p>
+
+        <h2>第8条（個人情報の利用停止等）</h2>
+        <p>当チームは，本人から個人情報が利用目的の範囲を超えて取り扱われている等の理由により利用停止を求められた場合には，遅滞なく必要な調査を行い，その結果に基づき利用停止等の措置を講じます。</p>
+
+        <h2>第9条（プライバシーポリシーの変更）</h2>
+        <p>本ポリシーの内容は，法令その他本ポリシーに別段の定めのある事項を除いて，ユーザーに通知することなく変更することができるものとします。変更後のプライバシーポリシーは，本ウェブサイトに掲載したときから効力を生じるものとします。</p>
+
+        <h2>第10条（お問い合わせ窓口）</h2>
+        <p>本ポリシーに関するお問い合わせ・苦情・削除要請等は，以下の窓口までご連絡ください。</p>
+        <div class="contact-box">
+            <p style="margin: 4px 0;"><strong>サービス名：</strong> AI-PPON GRAND PRIX</p>
+            <p style="margin: 4px 0;"><strong>運営組織：</strong> AI-PPON GRAND PRIX 開発チーム</p>
+            <p style="margin: 4px 0;"><strong>連絡先：</strong> Discord Application Support / 公式サーバーまたは開発者DM</p>
+        </div>
     </section>
 
     <div class="lang-switch">
-        <h2>English Summary</h2>
-        <p><strong>Privacy Policy:</strong> "AI-PPON GRAND PRIX" only accesses your Discord User ID, username, and avatar URL to display your player status and scores inside the game session. Answers submitted are processed in-memory for AI judging during the session and are not permanently stored or shared with third-party advertisers.</p>
+        <h2>English Summary (for Discord Verification)</h2>
+        <p><strong>Privacy Policy Summary:</strong> "AI-PPON GRAND PRIX" only accesses your Discord User ID, username, and avatar URL to identify players and display scores inside the game room. Answers submitted are evaluated in-memory by AI APIs (e.g. Gemini) solely for gameplay judgment. No personal data (passwords, payment information, physical addresses) is collected or permanently stored on disk. All session data is cleared when the game ends.</p>
     </div>
 </body>
 </html>"""
