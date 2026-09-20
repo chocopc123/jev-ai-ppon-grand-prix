@@ -164,41 +164,48 @@ DOCS_COMMON_STYLE = """
     .nav-tabs {
         display: flex;
         gap: 0;
+        width: 100%;
         margin-bottom: 0;
         position: relative;
         z-index: 2;
-        padding: 0 4px;
+        padding: 0;
     }
     .tab-btn {
         flex: 1;
         text-align: center;
-        padding: 13px 20px;
+        padding: 14px 20px;
         font-size: 15px;
         font-weight: 900;
         text-decoration: none;
-        border-radius: 10px 10px 0 0;
-        color: #64748b;
-        background: rgba(220, 215, 195, 0.7);
+        color: #71717a;
+        background: #e4e2d7;
         border: 2px solid #111111;
         border-bottom: 2px solid #111111;
         margin-bottom: -2px;
         transition: all 0.15s ease;
     }
+    .tab-btn:first-child {
+        border-top-left-radius: 12px;
+    }
+    .tab-btn:last-child {
+        border-top-right-radius: 12px;
+        margin-left: -2px; /* 中央の境界線重複を解消 */
+    }
     .tab-btn:hover {
-        background: rgba(240, 235, 215, 0.9);
+        background: #edebe2;
         color: #111111;
     }
-    /* 選択中: カードと完全に一体化（白背景＋下枠線をカードへ接続） */
+    /* 選択中: カードと完全に一体化（白背景＋下枠線をカードへ開放） */
     .tab-btn.is-active {
         background: #ffffff;
         color: #111111;
         border-bottom: 2px solid #ffffff;
         position: relative;
         z-index: 3;
-        box-shadow: none;
     }
-    /* フリップ同色の白カード（タブと一体化） */
+    /* フリップ同色の白カード（タブと完全一致） */
     .content-card {
+        width: 100%;
         position: relative;
         z-index: 1;
         background: #ffffff;
