@@ -843,7 +843,9 @@ export default function App() {
           if (typeof m.remaining === "number") {
             setRemaining(m.remaining);
           }
-          pushFeed("⏸ タイマーが停止されました", "info");
+          if (!m.silent) {
+            pushFeed("⏸ タイマーが停止されました", "info");
+          }
           break;
         case "TIMER_RESUMED":
           setIsTimerPaused(false);
@@ -854,7 +856,9 @@ export default function App() {
           if (typeof m.remaining === "number") {
             setRemaining(m.remaining);
           }
-          pushFeed("▶ タイマーが再開されました", "info");
+          if (!m.silent) {
+            pushFeed("▶ タイマーが再開されました", "info");
+          }
           break;
         case "THEME_ENDED":
           if (!judgingRef.current) {

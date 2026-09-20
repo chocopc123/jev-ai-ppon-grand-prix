@@ -498,9 +498,13 @@ TTS_PRIMARY_MODEL = "gemini-3.1-flash-tts-preview"
 TTS_FALLBACK_MODELS = ["gemini-2.5-flash-preview-tts", "gemini-2.5-flash-tts"]
 TTS_CACHE: dict[str, bytes] = {}
 
+# モデルごとのクールダウン期限エポック秒: { "gemini-3.1-flash-tts-preview": 1789873000.0 }
+TTS_MODEL_COOLDOWNS: dict[str, float] = {}
+DEFAULT_COOLDOWN_SECONDS = 300.0  # 429発生時は5分間そのモデルへのリクエストを停止
+
 async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> bytes | None:
     """Gemini 3.1 Flash TTS Preview API を使用して、お題テキストから低い男性の声のWAV音声を生成する。
-    3.1 Flash TTSが制限(429等)やエラーになった場合は、自動的に 2.5 Flash TTS へフォールバックする。
+    3.1 Flash TTSが制限(429等)でクールダウン中の場合は即座にスキップし、2.5 Flash TTS を呼び出す。
     voice_name: 'Algieba' 等
     """
     clean_text = theme_text.strip()
@@ -523,8 +527,16 @@ async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> 
     )
 
     candidate_models = [TTS_PRIMARY_MODEL, *TTS_FALLBACK_MODELS]
+    now = time.time()
 
     for model_name in candidate_models:
+        # クールダウンチェック: 429発生期間中はリクエスト自体を送信せず即座にフォールバック
+        cooldown_until = TTS_MODEL_COOLDOWNS.get(model_name, 0.0)
+        if now < cooldown_until:
+            remaining_cd = int(cooldown_until - now)
+            print(f"[TTS-COOLDOWN] Model {model_name} is in cooldown for {remaining_cd}s more (saving request). Skipping to next model...")
+            continue
+
         url = f"{GEMINI_API_BASE_URL}/models/{model_name}:generateContent?key={api_key}"
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
@@ -548,6 +560,10 @@ async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> 
             async with httpx.AsyncClient(timeout=25) as client:
                 r = await client.post(url, json=payload)
                 if r.status_code == 200:
+                    # 成功した場合はクールダウンを解除
+                    if model_name in TTS_MODEL_COOLDOWNS:
+                        del TTS_MODEL_COOLDOWNS[model_name]
+
                     data = r.json()
                     candidates = data.get("candidates", [])
                     if candidates:
@@ -579,7 +595,19 @@ async def generate_theme_audio(theme_text: str, voice_name: str = "Algieba") -> 
                                 print(f"[TTS] Successfully generated WAV audio for theme via {model_name} ({len(wav_bytes)} bytes)")
                                 return wav_bytes
                 elif r.status_code in (429, 503, 500, 404):
-                    print(f"[TTS-FALLBACK] Model {model_name} hit rate-limit or error (HTTP {r.status_code}). Trying next fallback model...")
+                    # 429 レート制限時はクールダウンを設定
+                    if r.status_code == 429:
+                        retry_after = DEFAULT_COOLDOWN_SECONDS
+                        header_ra = r.headers.get("Retry-After")
+                        if header_ra:
+                            try:
+                                retry_after = float(header_ra)
+                            except ValueError:
+                                pass
+                        TTS_MODEL_COOLDOWNS[model_name] = time.time() + retry_after
+                        print(f"[TTS-COOLDOWN] Model {model_name} hit 429 rate limit! Cooling down for {int(retry_after)}s.")
+                    else:
+                        print(f"[TTS-FALLBACK] Model {model_name} returned status {r.status_code}. Trying next fallback model...")
                     continue
                 else:
                     print(f"[WARN] Gemini TTS API returned status {r.status_code} for model {model_name}: {r.text}")

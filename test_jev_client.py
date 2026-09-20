@@ -154,7 +154,30 @@ class TestAsyncWorkflow(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(last_item["delay_ms"], 1000)
             self.assertEqual(round(last_item["conf"], 2), 0.50)
 
+    def test_room_timer_pause_and_resume(self):
+        """Room の pause_timer / resume_timer の動作検証"""
+        from main import Room
+        import time
+
+        room = Room("test_room")
+        room.phase = "theme"
+        room.deadline = time.time() + 60.0
+        room.is_timer_paused = False
+
+        # ポーズ実行
+        room.pause_timer(silent=True)
+        self.assertTrue(room.is_timer_paused)
+        self.assertIsNone(room.deadline)
+        self.assertGreater(room.paused_remaining, 55.0)
+
+        # 再開実行
+        room.resume_timer(silent=True)
+        self.assertFalse(room.is_timer_paused)
+        self.assertIsNotNone(room.deadline)
+        self.assertGreater(room.deadline, time.time() + 55.0)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
