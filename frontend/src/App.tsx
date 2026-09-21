@@ -894,6 +894,19 @@ export default function App() {
   const focusAnswer = () => {
     answerInputRef.current?.focus({ preventScroll: true });
   };
+  // 回答入力欄の初回タップ時フォーカス制御。
+  // onTouchStart との重複発火・競合を避け onPointerDown に一本化。
+  // 未フォーカス時のみ既定のブラウザパン付きフォーカスを preventDefault で阻止し、
+  // ユーザー操作の同期スタック内で preventScroll: true による自前フォーカスを行う。
+  // すでにフォーカスがある場合は早期リターンし、キャレット移動やテキスト選択を阻害しない。
+  const handleAnswerPointerDown = (
+    event: React.PointerEvent<HTMLInputElement>,
+  ) => {
+    const input = answerInputRef.current;
+    if (!input || document.activeElement === input) return;
+    event.preventDefault();
+    focusAnswer();
+  };
   const judgingRef = useRef<JudgingState | null>(null);
   const pendingPlayersRef = useRef<Player[] | null>(null);
   const pendingThemeStartedRef = useRef<any | null>(null);
@@ -2184,18 +2197,7 @@ export default function App() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submit()}
-                onPointerDown={(e) => {
-                  if (document.activeElement !== answerInputRef.current) {
-                    e.preventDefault();
-                    focusAnswer();
-                  }
-                }}
-                onTouchStart={(e) => {
-                  if (document.activeElement !== answerInputRef.current) {
-                    e.preventDefault();
-                    focusAnswer();
-                  }
-                }}
+                onPointerDown={handleAnswerPointerDown}
                 aria-label="大喜利回答の入力"
               />
               <button className="submit-btn" onClick={submit}>
