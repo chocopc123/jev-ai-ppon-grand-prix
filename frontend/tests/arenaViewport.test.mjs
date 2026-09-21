@@ -4,19 +4,7 @@ import { bindArenaViewport } from "../src/useArenaViewport.ts";
 
 function createEnvironment() {
   const classes = new Set();
-  const properties = new Map();
   const listeners = new Map();
-  const element = {
-    style: {
-      setProperty: (key, value) => properties.set(key, value),
-      removeProperty: (key) => properties.delete(key),
-    },
-  };
-  const viewport = Object.assign(new EventTarget(), {
-    height: 800,
-    offsetTop: 0,
-    scale: 1,
-  });
   const scrolledTo = [];
   const browserWindow = Object.assign(new EventTarget(), {
     innerHeight: 800,
@@ -34,40 +22,38 @@ function createEnvironment() {
       addEventListener: (type, cb) => listeners.set(type, cb),
       removeEventListener: (type) => listeners.delete(type),
     },
-    visualViewport: viewport,
   });
-  return { element, browserWindow, classes, properties, listeners, scrolledTo };
+  return { browserWindow, classes, listeners, scrolledTo };
 }
 
-test("画面固定クラスを付与し、パン量の初期値は0", () => {
-  const { element, browserWindow, classes, properties } = createEnvironment();
-  const cleanup = bindArenaViewport(element, browserWindow);
+test("画面固定クラスを付与し、フォーカス監視を開始する", () => {
+  const { browserWindow, classes, listeners } = createEnvironment();
+  const cleanup = bindArenaViewport(browserWindow);
   assert.ok(classes.has("arena-viewport-active"));
-  assert.equal(properties.get("--arena-pan-y"), "0px");
-  assert.equal(properties.has("--keyboard-height"), false);
-  assert.equal(properties.has("--arena-viewport-height"), false);
-  assert.equal(properties.has("--arena-viewport-top"), false);
+  assert.ok(listeners.has("focusin"));
   cleanup();
 });
 
-test("visualViewportの自動パン量をtransform打ち消し量として保持する", () => {
-  const { element, browserWindow, properties } = createEnvironment();
-  const cleanup = bindArenaViewport(element, browserWindow);
-  const viewport = browserWindow.visualViewport;
+test("窓スクロールは即時に0へ戻す", () => {
+  const { browserWindow, scrolledTo } = createEnvironment();
+  const cleanup = bindArenaViewport(browserWindow);
 
-  viewport.offsetTop = 120;
-  viewport.dispatchEvent(new Event("scroll"));
-  assert.equal(properties.get("--arena-pan-y"), "120px");
+  browserWindow.scrollX = 0;
+  browserWindow.scrollY = 30;
+  browserWindow.dispatchEvent(new Event("scroll"));
+  assert.deepEqual(scrolledTo[0], [0, 0]);
 
-  viewport.offsetTop = 0;
-  viewport.dispatchEvent(new Event("scroll"));
-  assert.equal(properties.get("--arena-pan-y"), "0px");
+  scrolledTo.length = 0;
+  browserWindow.scrollX = 0;
+  browserWindow.scrollY = 0;
+  browserWindow.dispatchEvent(new Event("scroll"));
+  assert.equal(scrolledTo.length, 0);
   cleanup();
 });
 
 test("フォーカスインでドキュメントスクロールだけを戻す", () => {
-  const { element, browserWindow, listeners, scrolledTo } = createEnvironment();
-  const cleanup = bindArenaViewport(element, browserWindow);
+  const { browserWindow, listeners, scrolledTo } = createEnvironment();
+  const cleanup = bindArenaViewport(browserWindow);
   const onFocusIn = listeners.get("focusin");
   assert.ok(onFocusIn);
 
@@ -82,30 +68,15 @@ test("フォーカスインでドキュメントスクロールだけを戻す",
   cleanup();
 });
 
-test("ピンチズーム中のパンには干渉しない", () => {
-  const { element, browserWindow, properties } = createEnvironment();
-  const cleanup = bindArenaViewport(element, browserWindow);
-  const viewport = browserWindow.visualViewport;
-
-  viewport.scale = 2;
-  viewport.offsetTop = 80;
-  viewport.dispatchEvent(new Event("scroll"));
-  assert.equal(properties.get("--arena-pan-y"), "0px");
-  cleanup();
-});
-
 test("退出時にページ固定とイベント購読を解除し、再入室できる", () => {
-  const { element, browserWindow, classes, listeners, properties } =
-    createEnvironment();
-  const cleanup = bindArenaViewport(element, browserWindow);
+  const { browserWindow, classes, listeners } = createEnvironment();
+  const cleanup = bindArenaViewport(browserWindow);
   cleanup();
   assert.equal(classes.has("arena-viewport-active"), false);
   assert.equal(listeners.has("focusin"), false);
-  assert.equal(properties.has("--arena-pan-y"), false);
 
-  const cleanupAgain = bindArenaViewport(element, browserWindow);
+  const cleanupAgain = bindArenaViewport(browserWindow);
   assert.ok(classes.has("arena-viewport-active"));
-  assert.equal(properties.get("--arena-pan-y"), "0px");
   cleanupAgain();
   assert.equal(classes.size, 0);
 });

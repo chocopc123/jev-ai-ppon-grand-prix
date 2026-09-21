@@ -49,11 +49,10 @@ body {
   overflow: hidden;
 }
 
-/* 対戦中はドキュメント自体をスクロール不可能にする。入力欄はステージ直下に
-   あり最初から可視のため自動パンは不要だが、WebKit は余白計算で実機パンする。
-   visualViewport / window のスクロールは JS で 0 に戻し、追従は一切行わない。
-   body の position:fixed は visualViewport 追従とは別物で、
-   ドキュメントスクロール禁止が目的のため残す。transform 持ち上げは行わない。 */
+/* 対戦中はドキュメント自体をスクロール不可能にする。自動パンの発生自体は
+   回答 input 側の先取り防止 (preventDefault + focus({ preventScroll: true }))
+   で抑止している。transform による後追い打ち消しは持たない。
+   body の position:fixed はドキュメントスクロール禁止が目的。 */
 html.arena-viewport-active,
 .arena-viewport-active body {
   position: fixed;
@@ -82,12 +81,6 @@ html.arena-viewport-active,
   overflow: hidden;
   padding-top: env(safe-area-inset-top, 0px);
   box-sizing: border-box;
-  contain: layout style;
-  /* WebKit の自動パン量を合成スレッドで打ち消す。
-     visualViewport が下にパンした分だけコンテナも下に追従させ、
-     見かけ上の位置を固定する。高さは変えないためキーボードは下から重なるだけ。 */
-  transform: translate3d(0, var(--arena-pan-y, 0px), 0);
-  will-change: transform;
 }
 
 .arena-viewport-active .player-scoreboard {

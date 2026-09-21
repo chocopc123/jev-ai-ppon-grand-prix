@@ -838,7 +838,7 @@ export default function App() {
   const [roomPhase, setRoomPhase] = useState<
     "waiting" | "theme" | "transition" | "match_win"
   >("waiting");
-  const arenaRef = useArenaViewport(screen === "game" && roomPhase !== "waiting");
+  useArenaViewport(screen === "game" && roomPhase !== "waiting");
   const [myPlayerId, setMyPlayerId] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
     return (
@@ -1811,7 +1811,7 @@ export default function App() {
   // Main Arena Screen
   // --------------------------------------------------------------------------
   return (
-    <div className="arena-container" ref={arenaRef}>
+    <div className="arena-container">
       {roomPhase === "waiting" ? (
         <div className="waiting-room-container">
           <div className="waiting-room-inner">
