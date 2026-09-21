@@ -248,6 +248,79 @@ def test_websocket_with_avatar():
         print("[OK] WebSocket connection with avatar_url in DSC room passed")
 
 
+def test_room_settings_update_and_win_condition():
+    from unittest.mock import patch
+    client = TestClient(app)
+    ROOMS.clear()
+
+    with client.websocket_connect("/ws/test-room-settings/player1") as ws1:
+        msg1 = ws1.receive_json()
+        assert msg1["type"] == "JOINED"
+        assert msg1["target_ippon"] == 3
+        assert msg1["time_limit"] == 150
+        ws1.receive_json()  # PLAYER_JOINED
+
+        # プレイヤー2が参加
+        with client.websocket_connect("/ws/test-room-settings/player2") as ws2:
+            msg2 = ws2.receive_json()
+            assert msg2["type"] == "JOINED"
+            assert msg2["target_ippon"] == 3
+            ws1.receive_json()  # PLAYER_JOINED for ws1
+            ws2.receive_json()  # PLAYER_JOINED for ws2
+
+            # ルール設定を変更 (1本先取、制限時間60秒)
+            ws1.send_json({"type": "UPDATE_SETTINGS", "target_ippon": 1, "time_limit": 60})
+            update_ws1 = ws1.receive_json()
+            update_ws2 = ws2.receive_json()
+            assert update_ws1["type"] == "SETTINGS_UPDATED"
+            assert update_ws1["target_ippon"] == 1
+            assert update_ws1["time_limit"] == 60
+            assert update_ws2["type"] == "SETTINGS_UPDATED"
+            assert update_ws2["target_ippon"] == 1
+            assert update_ws2["time_limit"] == 60
+
+            # ゲーム開始
+            ws1.send_json({"type": "START_GAME"})
+            th1 = ws1.receive_json()
+            th2 = ws2.receive_json()
+            assert th1["type"] == "THEME_STARTED"
+            assert th1["target_ippon"] == 1
+            assert th1["time_limit"] == 60
+            assert th2["type"] == "THEME_STARTED"
+            print("[OK] Room settings applied to THEME_STARTED (target_ippon=1, time_limit=60)")
+
+            # 1本獲得で即座にMATCH_WINになることを検証
+            with patch("main.gatekeep", return_value=(True, "")):
+                with patch("main.judge") as mock_judge:
+                    mock_judge.return_value = {
+                        "total": 10,
+                        "is_ippon": True,
+                        "timeline": [{"score": 2, "delay_ms": 10} for _ in range(5)],
+                        "failed": [],
+                        "raw": {},
+                    }
+                    ws1.send_json({"type": "SUBMIT", "answer": "Winning Answer"})
+                    assert ws1.receive_json()["type"] == "SUBMIT_ACK"
+                    recv_ignore_timer(ws1)  # ANSWER_REVEALED
+                    recv_ignore_timer(ws2)  # ANSWER_REVEALED
+                    recv_ignore_timer(ws1)  # SCORE_REVEAL_START
+                    recv_ignore_timer(ws2)  # SCORE_REVEAL_START
+                    rr1 = recv_ignore_timer(ws1)  # ROUND_RESULT
+                    rr2 = recv_ignore_timer(ws2)  # ROUND_RESULT
+                    assert rr1["type"] == "ROUND_RESULT"
+                    assert rr1["is_ippon"] is True
+                    assert rr1["target_ippon"] == 1
+                    assert rr2["type"] == "ROUND_RESULT"
+
+                    mw1 = recv_ignore_timer(ws1)  # MATCH_WIN
+                    mw2 = recv_ignore_timer(ws2)  # MATCH_WIN
+                    assert mw1["type"] == "MATCH_WIN"
+                    assert mw1["winner"] == "player1"
+                    assert mw1["target_ippon"] == 1
+                    assert mw2["type"] == "MATCH_WIN"
+                    print("[OK] MATCH_WIN triggered on 1st IPPON when target_ippon=1")
+
+
 if __name__ == "__main__":
     test_static_files()
     test_websocket_gameplay()
@@ -256,4 +329,5 @@ if __name__ == "__main__":
     test_reconnect_and_leave()
     test_discord_token_endpoint()
     test_websocket_with_avatar()
+    test_room_settings_update_and_win_condition()
     print("=== All integration tests passed successfully ===")

@@ -620,8 +620,8 @@ async def privacy_policy():
 with open(os.path.join(os.path.dirname(__file__), "themes.json"), encoding="utf-8") as f:
     THEMES = [t["text"] for t in json.load(f)["themes"]]
 
-THEME_TIME_LIMIT = int(os.environ.get("THEME_TIME_LIMIT", "150"))  # 1お題の制限時間(秒)
-TARGET_IPPON = int(os.environ.get("TARGET_IPPON", "3"))             # 勝利IPPON数
+THEME_TIME_LIMIT = int(os.environ.get("THEME_TIME_LIMIT", "150"))  # デフォルト1お題の制限時間(秒)
+TARGET_IPPON = int(os.environ.get("TARGET_IPPON", "3"))             # デフォルト勝利IPPON数
 
 
 class Room:
@@ -644,6 +644,8 @@ class Room:
         self.next_theme_buffer: str | None = None
         self._pregen_task: asyncio.Task | None = None
         self.tts_enabled: bool = False       # 隠しコマンド有効化フラグ (部屋単位)
+        self.time_limit: int = THEME_TIME_LIMIT  # ルームごとの制限時間(秒)
+        self.target_ippon: int = TARGET_IPPON    # ルームごとの勝利IPPON数
 
     # ---------------- 基礎 ----------------
 
@@ -738,7 +740,7 @@ class Room:
         self.recent_answers.clear()
         self.is_timer_paused = False
         self.paused_remaining = 0.0
-        self.deadline = time.time() + THEME_TIME_LIMIT
+        self.deadline = time.time() + self.time_limit
         self.broadcast({
             "type": "THEME_STARTED",
             "theme": self.theme,
@@ -747,6 +749,8 @@ class Room:
             "is_timer_paused": False,
             "players": self.roster(),
             "tts_enabled": self.tts_enabled,
+            "time_limit": self.time_limit,
+            "target_ippon": self.target_ippon,
         })
         if not self.ticker_started:
             self.ticker_started = True
@@ -816,7 +820,9 @@ class Room:
         self.broadcast({
             "type": "WAITING_LOBBY",
             "phase": "waiting",
-            "players": self.roster()
+            "players": self.roster(),
+            "time_limit": self.time_limit,
+            "target_ippon": self.target_ippon,
         })
         # 待機中（次の1問目）のお題およびTTS音声を事前生成
         self.schedule_next_pregeneration()
@@ -939,10 +945,16 @@ class Room:
                             "type": "ROUND_RESULT",
                             "player": name, "answer": answer, "is_ippon": True,
                             "players": self.roster(),
+                            "target_ippon": self.target_ippon,
                         })
-                        if self.players[pid]["ippons"] >= TARGET_IPPON:
+                        if self.players[pid]["ippons"] >= self.target_ippon:
                             self.phase = "match_win"
-                            self.broadcast({"type": "MATCH_WIN", "winner": name, "players": self.roster()})
+                            self.broadcast({
+                                "type": "MATCH_WIN",
+                                "winner": name,
+                                "players": self.roster(),
+                                "target_ippon": self.target_ippon,
+                            })
                             return
 
                         # 時間が残っていればお題は切り替えずにタイマー再開
@@ -1037,12 +1049,15 @@ async def ws_endpoint(
         "is_timer_paused": room.is_timer_paused,
         "remaining": int(room.paused_remaining) if room.is_timer_paused else None,
         "players": room.roster(),
-        "target_ippon": TARGET_IPPON,
+        "target_ippon": room.target_ippon,
+        "time_limit": room.time_limit,
         "tts_enabled": room.tts_enabled,
     })
     room.broadcast({
         "type": "PLAYER_JOINED",
         "players": room.roster(),
+        "target_ippon": room.target_ippon,
+        "time_limit": room.time_limit,
         "tts_enabled": room.tts_enabled,
     })
     if room.phase == "waiting" and not room.next_theme_buffer and (not room._pregen_task or room._pregen_task.done()):
@@ -1060,6 +1075,18 @@ async def ws_endpoint(
                 room.next_theme("スキップされました")
             elif t == "START_GAME" and room.phase == "waiting":
                 room.start_theme()
+            elif t == "UPDATE_SETTINGS" and room.phase == "waiting":
+                new_target = data.get("target_ippon")
+                new_time = data.get("time_limit")
+                if isinstance(new_target, int) and 1 <= new_target <= 10:
+                    room.target_ippon = new_target
+                if isinstance(new_time, int) and 10 <= new_time <= 600:
+                    room.time_limit = new_time
+                room.broadcast({
+                    "type": "SETTINGS_UPDATED",
+                    "target_ippon": room.target_ippon,
+                    "time_limit": room.time_limit,
+                })
             elif t == "TOGGLE_TTS":
                 room.tts_enabled = not room.tts_enabled
                 pname = room.players.get(pid, {}).get("name", "プレイヤー")

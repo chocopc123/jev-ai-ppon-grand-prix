@@ -537,6 +537,26 @@ function PlayIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function SettingsIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
 function ExitIcon({ className = "" }: { className?: string }) {
   return (
     <svg
@@ -853,6 +873,8 @@ export default function App() {
   const [myAvatarUrl, setMyAvatarUrl] = useState<string | null>(null);
 
   const [players, setPlayers] = useState<Player[]>([]);
+  const [targetIppon, setTargetIppon] = useState<number>(3);
+  const [timeLimit, setTimeLimit] = useState<number>(150);
   const [theme, setTheme] = useState("");
   const [, setDeadline] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(0);
@@ -866,6 +888,12 @@ export default function App() {
   const isTimerPausedRef = useRef(false);
   const deadlineRef = useRef<number | null>(null);
   const feedKey = useRef(0);
+  const answerInputRef = useRef<HTMLInputElement>(null);
+  // iPhone Chrome のフォーカス時自動パン抑止（smart-kakeibo「内容」input と同型）。
+  // 未フォーカス時のタップ既定動作を preventDefault で潰し、preventScroll 付きで自前フォーカスする。
+  const focusAnswer = () => {
+    answerInputRef.current?.focus({ preventScroll: true });
+  };
   const judgingRef = useRef<JudgingState | null>(null);
   const pendingPlayersRef = useRef<Player[] | null>(null);
   const pendingThemeStartedRef = useRef<any | null>(null);
@@ -1216,6 +1244,12 @@ export default function App() {
           localStorage.setItem("aippon_player_id", m.player_id);
           localStorage.setItem("aippon_player_name", pName);
           setPlayers(m.players);
+          if (typeof m.target_ippon === "number") {
+            setTargetIppon(m.target_ippon);
+          }
+          if (typeof m.time_limit === "number") {
+            setTimeLimit(m.time_limit);
+          }
           if (m.tts_enabled !== undefined) {
             setRoomTtsEnabled(Boolean(m.tts_enabled));
           }
@@ -1235,8 +1269,22 @@ export default function App() {
         case "PLAYER_JOINED":
         case "PLAYER_LEFT":
           setPlayers(m.players);
+          if (typeof m.target_ippon === "number") {
+            setTargetIppon(m.target_ippon);
+          }
+          if (typeof m.time_limit === "number") {
+            setTimeLimit(m.time_limit);
+          }
           if (m.tts_enabled !== undefined) {
             setRoomTtsEnabled(Boolean(m.tts_enabled));
+          }
+          break;
+        case "SETTINGS_UPDATED":
+          if (typeof m.target_ippon === "number") {
+            setTargetIppon(m.target_ippon);
+          }
+          if (typeof m.time_limit === "number") {
+            setTimeLimit(m.time_limit);
           }
           break;
         case "TTS_TOGGLED":
@@ -1252,6 +1300,12 @@ export default function App() {
           pendingThemeStartedRef.current = null;
           setRoomPhase("waiting");
           setPlayers(m.players);
+          if (typeof m.target_ippon === "number") {
+            setTargetIppon(m.target_ippon);
+          }
+          if (typeof m.time_limit === "number") {
+            setTimeLimit(m.time_limit);
+          }
           setTheme("");
           setWinner(null);
           setJudging(null);
@@ -1398,6 +1452,24 @@ export default function App() {
   const skip = () => wsRef.current?.send(JSON.stringify({ type: "SKIP" }));
   const startGame = () => {
     wsRef.current?.send(JSON.stringify({ type: "START_GAME" }));
+  };
+  const updateSettings = (newSettings: {
+    target_ippon?: number;
+    time_limit?: number;
+  }) => {
+    if (newSettings.target_ippon !== undefined) {
+      setTargetIppon(newSettings.target_ippon);
+    }
+    if (newSettings.time_limit !== undefined) {
+      setTimeLimit(newSettings.time_limit);
+    }
+    wsRef.current?.send(
+      JSON.stringify({
+        type: "UPDATE_SETTINGS",
+        target_ippon: newSettings.target_ippon ?? targetIppon,
+        time_limit: newSettings.time_limit ?? timeLimit,
+      }),
+    );
   };
   const toggleTts = () => {
     wsRef.current?.send(JSON.stringify({ type: "TOGGLE_TTS" }));
@@ -1797,6 +1869,58 @@ export default function App() {
                 )}
               </div>
 
+              <div className="waiting-settings-section">
+                <div className="waiting-settings-header">
+                  <span className="waiting-settings-label">
+                    <SettingsIcon className="waiting-settings-icon" />
+                    <span>ゲームルール設定</span>
+                  </span>
+                </div>
+                <div className="waiting-settings-grid">
+                  <div className="waiting-setting-item">
+                    <span className="waiting-setting-title">勝利ポイント数</span>
+                    <div className="waiting-setting-custom-input-wrap">
+                      <input
+                        type="number"
+                        className="waiting-setting-input"
+                        min={1}
+                        max={10}
+                        value={targetIppon}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val)) {
+                            updateSettings({ target_ippon: Math.max(1, Math.min(10, val)) });
+                          }
+                        }}
+                        aria-label="勝利ポイント数の自由入力"
+                      />
+                      <span className="waiting-setting-unit">本先取</span>
+                    </div>
+                  </div>
+                  <div className="waiting-setting-item">
+                    <span className="waiting-setting-title">1問の制限時間</span>
+                    <div className="waiting-setting-custom-input-wrap">
+                      <input
+                        type="number"
+                        className="waiting-setting-input time-input"
+                        min={10}
+                        max={600}
+                        step={10}
+                        value={timeLimit}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val)) {
+                            updateSettings({ time_limit: Math.max(10, Math.min(600, val)) });
+                          }
+                        }}
+                        aria-label="1問の制限時間の自由入力"
+                      />
+                      <span className="waiting-setting-unit">秒</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="waiting-players-section">
                 <div className="waiting-players-header">
                   <span className="waiting-players-label">参加者リスト</span>
@@ -2049,8 +2173,36 @@ export default function App() {
             )}
           </section>
 
-          {/* 2. Lower Area: Scoreboard + Feed + Input */}
+          {/* 2. Lower Area: Input + Scoreboard + Feed */}
           <div className="arena-bottom">
+            {/* Input (ステージ直下に固定。フォーカス時の自動パンを抑える) */}
+            <div className="input-bar">
+              <input
+                ref={answerInputRef}
+                className="answer-input"
+                placeholder="回答を入力してEnter (例: ○○○○○)"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submit()}
+                onPointerDown={(e) => {
+                  if (document.activeElement !== answerInputRef.current) {
+                    e.preventDefault();
+                    focusAnswer();
+                  }
+                }}
+                onTouchStart={(e) => {
+                  if (document.activeElement !== answerInputRef.current) {
+                    e.preventDefault();
+                    focusAnswer();
+                  }
+                }}
+                aria-label="大喜利回答の入力"
+              />
+              <button className="submit-btn" onClick={submit}>
+                送信
+              </button>
+            </div>
+
             {/* Player Scoreboard */}
             <section
               className="player-scoreboard"
@@ -2078,9 +2230,9 @@ export default function App() {
                   </div>
                   <div
                     className="ippon-bars-container"
-                    title={`${p.ippons} AI-PPON`}
+                    title={`${p.ippons} / ${targetIppon} AI-PPON`}
                   >
-                    {[0, 1, 2].map((idx) => (
+                    {Array.from({ length: targetIppon }).map((_, idx) => (
                       <div
                         key={idx}
                         className={`ippon-bar ${idx < p.ippons ? "active" : ""}`}
@@ -2091,22 +2243,8 @@ export default function App() {
               ))}
             </section>
 
-            {/* Input & Feed */}
+            {/* Feed */}
             <section className="feed-section">
-              <div className="input-bar">
-                <input
-                  className="answer-input"
-                  placeholder="回答を入力してEnter (例: ○○○○○)"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && submit()}
-                  aria-label="大喜利回答の入力"
-                />
-                <button className="submit-btn" onClick={submit}>
-                  送信
-                </button>
-              </div>
-
               <div className="feed-list" role="log" aria-live="polite">
                 {feed.map((f) => (
                   <div key={f.key} className={`feed-bubble ${f.kind}`}>
@@ -2139,7 +2277,7 @@ export default function App() {
                   🏆 {winner} 優勝!!
                 </div>
                 <p style={{ color: "#aaa", marginBottom: 24, fontSize: 16 }}>
-                  3本のAI-PPONを獲得して勝利しました！
+                  {targetIppon}本のAI-PPONを獲得して勝利しました！
                 </p>
                 <button className="submit-btn" onClick={restart}>
                   もう一度遊ぶ

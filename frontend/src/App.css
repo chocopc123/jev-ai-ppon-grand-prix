@@ -49,36 +49,60 @@ body {
   overflow: hidden;
 }
 
-/* 対戦中のみページを固定。参加画面・待機室のスクロールには干渉しない。 */
+/* 対戦中はドキュメント自体をスクロール不可能にする。入力欄はステージ直下に
+   あり最初から可視のため自動パンは不要だが、WebKit は余白計算で実機パンする。
+   visualViewport / window のスクロールは JS で 0 に戻し、追従は一切行わない。
+   body の position:fixed は visualViewport 追従とは別物で、
+   ドキュメントスクロール禁止が目的のため残す。transform 持ち上げは行わない。 */
 html.arena-viewport-active,
-.arena-viewport-active body,
+.arena-viewport-active body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .arena-viewport-active #root {
   height: 100%;
   min-height: 0;
   overflow: hidden;
-}
-
-.arena-viewport-active body {
-  position: fixed;
-  inset: 0;
+  /* 子要素へのフォーカスで祖先がスクロールしないよう遮断 */
+  overflow-anchor: none;
 }
 
 .arena-viewport-active .arena-container {
   position: fixed;
-  top: var(--arena-viewport-top, 0px);
+  top: 0;
   left: 0;
-  height: var(--arena-viewport-height, 100dvh);
+  right: 0;
+  height: 100%;
+  overflow: hidden;
+  padding-top: env(safe-area-inset-top, 0px);
+  box-sizing: border-box;
+  contain: layout style;
+  /* WebKit の自動パン量を合成スレッドで打ち消す。
+     visualViewport が下にパンした分だけコンテナも下に追従させ、
+     見かけ上の位置を固定する。高さは変えないためキーボードは下から重なるだけ。 */
+  transform: translate3d(0, var(--arena-pan-y, 0px), 0);
+  will-change: transform;
 }
 
-.arena-viewport-active .themeStage {
-  /* キーボード表示時にも得点欄・回答欄の領域を確保する。 */
-  min-height: min(var(--theme-stage-height), max(0px, calc(var(--arena-viewport-height, 100dvh) - 160px)));
+.arena-viewport-active .player-scoreboard {
   flex-shrink: 0;
 }
 
-.arena-viewport-active .player-scoreboard,
 .arena-viewport-active .input-bar {
   flex-shrink: 0;
+}
+
+/* フォーカス時の ScrollIntoView を抑制: 必要な持ち上げ量は 0 扱いにする */
+.arena-viewport-active .answer-input,
+.arena-viewport-active .join-input {
+  scroll-margin: 0;
+  overflow-anchor: none;
 }
 
 /* ==========================================================================
@@ -1011,12 +1035,13 @@ html.arena-viewport-active,
   background-color: var(--color-dark-bg);
 }
 
-/* Player Scoreboard Bar */
+/* Player Scoreboard Bar (入力欄の下に配置) */
 .player-scoreboard {
   display: flex;
   gap: 16px;
   padding: 12px 24px;
   background: var(--color-dark-surface);
+  border-top: 1px solid var(--color-dark-border);
   border-bottom: 1px solid var(--color-dark-border);
   overflow-x: auto;
   scrollbar-width: thin;
@@ -1123,11 +1148,13 @@ html.arena-viewport-active,
   font-weight: 800;
 }
 
-/* Input Bar */
+/* Input Bar (ステージ直下に固定。フォーカス時の自動パンを抑える) */
 .input-bar {
   display: flex;
   gap: 12px;
-  padding-bottom: 4px;
+  padding: 12px 24px 4px;
+  background-color: var(--color-dark-bg);
+  flex-shrink: 0;
 }
 
 .answer-input {
@@ -1142,6 +1169,8 @@ html.arena-viewport-active,
   border-radius: 10px;
   outline: none;
   transition: border-color 0.2s ease;
+  /* ダブルタップズーム起因のパン連鎖を抑止（回答inputのみ） */
+  touch-action: manipulation;
 }
 
 .answer-input:focus {
@@ -1594,7 +1623,9 @@ html.arena-viewport-active,
    ========================================================================== */
 @media (max-width: 640px) {
   .themeStage {
-    --theme-stage-height: clamp(280px, 44vh, 460px);
+    --theme-stage-height: clamp(220px, 32vh, 320px);
+    max-height: 36vh;
+    flex-shrink: 0;
   }
 
   .themeStage__hud {
@@ -1670,11 +1701,11 @@ html.arena-viewport-active,
   }
 
   .themeStage__question {
-    padding: 94px 20px 44px;
+    padding: 86px 20px 30px;
   }
 
   .themeStage__eyebrow {
-    margin: 0 0 8px;
+    margin: 0 0 6px;
     font-size: 11px;
   }
 
@@ -1682,9 +1713,17 @@ html.arena-viewport-active,
     font-size: clamp(15px, 5.2vw, 20px);
     line-height: 1.35;
   }
+
+  .answerFlip {
+    min-height: clamp(110px, 18vh, 180px);
+  }
 }
 
 @media (max-width: 380px) {
+  .themeStage {
+    --theme-stage-height: clamp(200px, 30vh, 280px);
+    max-height: 34vh;
+  }
   .themeStage__hud {
     top: 10px;
     right: 12px;
@@ -1720,7 +1759,7 @@ html.arena-viewport-active,
   }
 
   .themeStage__question {
-    padding: 86px 14px 36px;
+    padding: 78px 14px 28px;
   }
 
   .themeStage__title {
@@ -1736,6 +1775,10 @@ html.arena-viewport-active,
   .brand-title {
     font-size: 15px;
     letter-spacing: 4px;
+  }
+
+  .input-bar {
+    padding: 10px 16px 2px;
   }
 
   .player-scoreboard {
@@ -2075,6 +2118,101 @@ html.arena-viewport-active,
   border-color: #059669;
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+
+/* 待機画面: ルール設定セクション */
+.waiting-settings-section {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+}
+
+.waiting-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.waiting-settings-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #222226;
+}
+
+.waiting-settings-icon {
+  color: #e65100;
+}
+
+.waiting-settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.waiting-setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.waiting-setting-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #333336;
+}
+
+.waiting-setting-custom-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.waiting-setting-input {
+  width: 54px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1.5px solid #d0d2d6;
+  background: #fdfdfd;
+  font-family: var(--font-heavy);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #111111;
+  text-align: center;
+  outline: none;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.waiting-setting-input.time-input {
+  width: 68px;
+}
+
+.waiting-setting-input:focus {
+  border-color: #ffd000;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 208, 0, 0.25);
+}
+
+.waiting-setting-unit {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #555558;
 }
 
 /* 待機参加者リスト */
