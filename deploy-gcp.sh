@@ -23,13 +23,16 @@ DISCORD_CLIENT_ID=""
 DISCORD_CLIENT_SECRET=""
 
 if [ -f ".env" ]; then
-    API_KEY=$(grep -E '^OPENROUTER_API_KEY=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
+    API_KEY=$(grep -E '^TYPESAFE_API_KEY=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
+    if [ -z "$API_KEY" ]; then
+        API_KEY=$(grep -E '^OPENROUTER_API_KEY=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
+    fi
     DISCORD_CLIENT_ID=$(grep -E '^DISCORD_CLIENT_ID=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
     DISCORD_CLIENT_SECRET=$(grep -E '^DISCORD_CLIENT_SECRET=' .env | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
 fi
 
 if [ -z "$API_KEY" ]; then
-    read -p "OpenRouter API Key (sk-or-...): " API_KEY
+    read -p "TypeSafe API Key (apikey_...): " API_KEY
 fi
 
 if [ -z "$API_KEY" ]; then
@@ -63,7 +66,7 @@ fi
 echo ""
 echo -e "\033[36m[3/3] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)...\033[0m"
 
-ENV_VARS="OPENROUTER_API_KEY=${API_KEY},THEME_TIME_LIMIT=150,TARGET_IPPON=3"
+ENV_VARS="TYPESAFE_API_KEY=${API_KEY},THEME_TIME_LIMIT=150,TARGET_IPPON=3"
 if [ -n "$DISCORD_CLIENT_ID" ]; then
     ENV_VARS="${ENV_VARS},DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}"
 fi

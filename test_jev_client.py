@@ -9,7 +9,7 @@ from jev_client import _normalize, gatekeep, judge, _mock, GATEKEEP_QUESTIONS, J
 class TestJevClient(unittest.TestCase):
 
     def test_normalize_noul(self):
-        """OpenRouter decisions API の noul 型の正規化テスト"""
+        """TypeSafe / Jev API の noul 型の正規化テスト"""
         raw = {
             "answers": {
                 "on_topic": {"type": "noul", "noul": 0.85},
@@ -23,7 +23,7 @@ class TestJevClient(unittest.TestCase):
         self.assertAlmostEqual(res["is_cliche"]["probability"], 0.20)
 
     def test_normalize_choice(self):
-        """OpenRouter decisions API の choice 型の正規化テスト"""
+        """TypeSafe / Jev API の choice 型の正規化テスト"""
         raw = {
             "answers": {
                 "effort_level": {
@@ -42,8 +42,9 @@ class TestJevClient(unittest.TestCase):
         self.assertAlmostEqual(res["effort_level"]["probability"], 0.80)
 
     def test_normalize_score(self):
-        """OpenRouter decisions API の score 型の正規化テスト"""
-        raw = {
+        """TypeSafe / Jev API の score 型 (0.0-1.0 および 0-4 スケール) の正規化テスト"""
+        # 1. 0.0〜1.0 スケール
+        raw1 = {
             "answers": {
                 "novelty": {
                     "type": "score",
@@ -52,9 +53,25 @@ class TestJevClient(unittest.TestCase):
                 }
             }
         }
-        res = _normalize(raw)
-        self.assertAlmostEqual(res["novelty"]["value"], 0.75)
-        self.assertAlmostEqual(res["novelty"]["probability"], 0.90)
+        res1 = _normalize(raw1)
+        self.assertAlmostEqual(res1["novelty"]["value"], 0.75)
+        self.assertAlmostEqual(res1["novelty"]["probability"], 0.90)
+
+        # 2. TypeSafe AI 公式のインデックススケール (例: 5段階 0〜4 で score: 3.0)
+        raw2 = {
+            "answers": {
+                "conciseness": {
+                    "type": "score",
+                    "score": 3.0,
+                    "confidence": 0.85,
+                    "legend": {"0": "a", "1": "b", "2": "c", "3": "d", "4": "e"}
+                }
+            }
+        }
+        res2 = _normalize(raw2)
+        # 3.0 / 4.0 = 0.75
+        self.assertAlmostEqual(res2["conciseness"]["value"], 0.75)
+        self.assertAlmostEqual(res2["conciseness"]["probability"], 0.85)
 
     def test_normalize_legacy_and_primitives(self):
         """従来の形式やプリミティブ値に対する耐性テスト"""

@@ -1,11 +1,11 @@
 # プロジェクトルール & 開発ガイドライン (jev-oogiri-grand-prix)
 
 ## 1. プロジェクト概要 & 技術仕様
-- **目的**: TypeSafe の Jev (System One モデル) を OpenRouter 経由で活用した、大喜利グランプリ（AI-PPON GRAND PRIX）風のリアルタイムマルチ対戦 Web / Discord Activity アプリケーション。
+- **目的**: TypeSafe の Jev (System One モデル) を TypeSafe AI 公式エンドポイント（または OpenRouter）経由で活用した、大喜利グランプリ（AI-PPON GRAND PRIX）風のリアルタイムマルチ対戦 Web / Discord Activity アプリケーション。
 - **技術スタック**:
   - **バックエンド**: Python 3.11+ / FastAPI / Uvicorn / httpx / python-dotenv / WebSocket
   - **フロントエンド**: React 19 / TypeScript / Vite / `@discord/embedded-app-sdk` / Oxlint
-  - **AI / 採点基盤**: OpenRouter decisions API (`~typesafe/jev-latest`) / 決定論的モックフォールバック
+  - **AI / 採点基盤**: TypeSafe decisions API (`https://api.typesafe.ai/v1/systemone` / `jev-latest`) / 決定論的モックフォールバック
   - **インフラ・デプロイ**: Google Cloud Run (Dockerfile によるマルチステージビルド、フロントエンド静的配信 + WebSocket 同一ポート運用)
 - **データ整合性 & 拡張・安全ルール**:
   - **自動テスト必須**:
@@ -17,14 +17,14 @@
       - `cmd /c npm --prefix frontend run lint` (Oxlint による構文・コードチェック)
       - `cmd /c npm --prefix frontend run build` (TypeScript 型チェック & Vite 本番ビルド)
   - **Jev API 接続仕様**:
-    - 通常の `chat/completions` は非対応。必ず `POST https://openrouter.ai/api/alpha/decisions` を使用すること。
+    - 通常の `chat/completions` は非対応。専用の `POST https://api.typesafe.ai/v1/systemone` を使用すること。
     - `noul`, `choice`, `score`, `probabilities` 形式のゆらぎは `jev_client.py` の `_normalize()` で吸収し、安全に型定義された辞書へマッピングする。
-    - APIキー未設定時 (`OPENROUTER_API_KEY` なし) でも開発・テストできるよう、決定論的モックで正常動作を担保する。
+    - APIキー未設定時 (`TYPESAFE_API_KEY` なし) でも開発・テストできるよう、決定論的モックで正常動作を担保する。
   - **ステート管理 & Cloud Run 制約**:
     - ルームおよび対戦ステートはインメモリ管理のため、Cloud Run デプロイ時は `--max-instances 1` を厳守（複数インスタンスでの対戦分断を防止）。
     - WebSocket の持続接続のため、タイムアウトは `--timeout 3600` を設定。
   - **機密保持**:
-    - `.env`, `.env.local` や実トークン（`OPENROUTER_API_KEY`, `DISCORD_CLIENT_SECRET` 等）はコミット厳禁。
+    - `.env`, `.env.local` や実トークン（`TYPESAFE_API_KEY`, `OPENROUTER_API_KEY`, `DISCORD_CLIENT_SECRET` 等）はコミット厳禁。
 
 ---
 
@@ -46,7 +46,7 @@
   | ディレクトリ / ファイル | 役割 | ルール・留意事項 |
   | :--- | :--- | :--- |
   | `main.py` | API & WebSocketサーバー | FastAPIルーティング、WebSocketルーム管理、ゲーム進行ステートマシン。採点ロジック本体は `jev_client.py` に委任 |
-  | `jev_client.py` | 採点・演出クライアント | OpenRouter Jev API 通信、採点正規化、点灯タイムライン生成の純粋ロジック。テストコードから直接検証可能にする |
+  | `jev_client.py` | 採点・演出クライアント | TypeSafe Jev API 通信、採点正規化、点灯タイムライン生成の純粋ロジック。テストコードから直接検証可能にする |
   | `scoring_config.json` | 採点設定 | ゲートキーパー、構造化基準、プロンプト定義の外出し設定 |
   | `themes.json` | お題定義 | プリセットお題データ |
   | `frontend/src/` | フロントエンド実装 | React UIコンポーネント、Web Audioサウンド制御、WebSocketクライアント |

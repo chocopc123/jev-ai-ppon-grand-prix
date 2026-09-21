@@ -1,10 +1,10 @@
 """
 AI-PPON GRAND PRIX Web — Jev (TypeSafe) 判定クライアント
 
-OpenRouter 経由で Jev を呼び出す。
-重要: Jev は chat/completions 非対応。専用の /api/alpha/decisions を使う。
+TypeSafe AI 公式エンドポイント経由で Jev を呼び出す。
+重要: Jev は chat/completions 非対応。専用の /v1/systemone を使う。
 
-OPENROUTER_API_KEY が未設定の場合は決定論的モックにフォールバックするため、
+TYPESAFE_API_KEY (または OPENROUTER_API_KEY) が未設定の場合は決定論的モックにフォールバックするため、
 APIキーなしでもローカル開発・演出の調整ができる。
 
 判定設計 (Jevの強みに寄せた構成):
@@ -23,9 +23,9 @@ import httpx
 
 load_dotenv()
 
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
-JEV_MODEL = os.environ.get("JEV_MODEL", "~typesafe/jev-latest")
-DECISIONS_URL = "https://openrouter.ai/api/alpha/decisions"
+TYPESAFE_API_KEY = os.environ.get("TYPESAFE_API_KEY") or os.environ.get("OPENROUTER_API_KEY", "")
+JEV_MODEL = os.environ.get("JEV_MODEL", "jev-latest")
+DECISIONS_URL = os.environ.get("TYPESAFE_API_URL", "https://api.typesafe.ai/v1/systemone")
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "scoring_config.json")
 try:
@@ -146,7 +146,7 @@ JUDGE_LABELS = ["王道派", "シュール派", "共感派", "勢い派", "辛�
 
 async def _decide(state: dict, questions: dict) -> dict:
     """state + questions を送り、{name: {value, probability}} の形に正規化して返す。"""
-    api_key = os.environ.get("OPENROUTER_API_KEY", OPENROUTER_API_KEY)
+    api_key = os.environ.get("TYPESAFE_API_KEY") or os.environ.get("OPENROUTER_API_KEY", TYPESAFE_API_KEY)
     if not api_key:
         return _mock(state, questions)
 
@@ -159,18 +159,18 @@ async def _decide(state: dict, questions: dict) -> dict:
                 headers={"Authorization": f"Bearer {api_key}"},
             )
             if r.status_code != 200:
-                print(f"[WARN] OpenRouter decisions API returned status {r.status_code}: {r.text}")
+                print(f"[WARN] TypeSafe decisions API returned status {r.status_code}: {r.text}")
                 print("[WARN] Falling back to mock decision")
                 return _mock(state, questions)
             return _normalize(r.json())
     except Exception as e:
-        print(f"[ERROR] OpenRouter decisions API request failed: {e}")
+        print(f"[ERROR] TypeSafe decisions API request failed: {e}")
         print("[WARN] Falling back to mock decision")
         return _mock(state, questions)
 
 
 def _normalize(data: dict) -> dict:
-    """OpenRouter/Jev のレスポンスを {name: {value, probability}} に整形。"""
+    """TypeSafe / Jev のレスポンスを {name: {value, probability}} に整形。"""
     body = data.get("answers") or data.get("results") or data.get("questions") or data
     out = {}
     if isinstance(body, dict):
@@ -190,7 +190,17 @@ def _normalize(data: dict) -> dict:
                         prob = float(v.get("probability", v.get("confidence", 0.8)))
                 # 3. score 型 (スコア値)
                 elif "score" in v:
-                    value = float(v.get("score", 0.0))
+                    raw_score = float(v.get("score", 0.0))
+                    # TypeSafe AI の score は criteria インデックス（例: 0〜4）で返る場合があるため、
+                    # 1.0 より大きい値は配列の最大インデックス（legend または 4.0）で割って 0.0〜1.0 に正規化
+                    if raw_score > 1.0:
+                        max_scale = 4.0
+                        legend = v.get("legend")
+                        if isinstance(legend, dict) and len(legend) > 1:
+                            max_scale = float(len(legend) - 1)
+                        value = min(1.0, max(0.0, raw_score / max_scale))
+                    else:
+                        value = min(1.0, max(0.0, raw_score))
                     prob = float(v.get("probability", v.get("confidence", 0.8)))
                 # 4. 一般的な value / answer 形式
                 else:

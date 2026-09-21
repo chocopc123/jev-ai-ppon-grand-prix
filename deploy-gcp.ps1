@@ -25,7 +25,10 @@ $discordClientSecret = ""
 
 if (Test-Path ".env") {
     Get-Content ".env" | ForEach-Object {
-        if ($_ -match "^\s*OPENROUTER_API_KEY\s*=\s*(.+)$") {
+        if ($_ -match "^\s*TYPESAFE_API_KEY\s*=\s*(.+)$") {
+            $apiKey = $matches[1].Trim().Trim('"').Trim("'")
+        }
+        elseif ([string]::IsNullOrWhiteSpace($apiKey) -and $_ -match "^\s*OPENROUTER_API_KEY\s*=\s*(.+)$") {
             $apiKey = $matches[1].Trim().Trim('"').Trim("'")
         }
         if ($_ -match "^\s*DISCORD_CLIENT_ID\s*=\s*(.+)$") {
@@ -38,7 +41,7 @@ if (Test-Path ".env") {
 }
 
 if ([string]::IsNullOrWhiteSpace($apiKey)) {
-    $apiKey = Read-Host "OpenRouter API Key (sk-or-...)"
+    $apiKey = Read-Host "TypeSafe API Key (apikey_...)"
 }
 
 if ([string]::IsNullOrWhiteSpace($apiKey)) {
@@ -72,7 +75,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host ""
 Write-Host "[3/3] Cloud Run へソースデプロイ中 (東京リージョン: asia-northeast1)..." -ForegroundColor Cyan
 
-$envVarsList = @("OPENROUTER_API_KEY=$apiKey", "THEME_TIME_LIMIT=150", "TARGET_IPPON=3")
+$envVarsList = @("TYPESAFE_API_KEY=$apiKey", "THEME_TIME_LIMIT=150", "TARGET_IPPON=3")
 if ($discordClientId) {
     $envVarsList += "DISCORD_CLIENT_ID=$discordClientId"
 }

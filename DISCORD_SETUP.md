@@ -46,8 +46,9 @@ Discord のプロキシ（`discordsays.com`）からアプリケーションへ�
 
 ### バックエンド用 (`.env`)
 ```env
-# OpenRouter / Gemini 設定
-OPENROUTER_API_KEY="sk-or-..."
+# TypeSafe AI / Gemini 設定
+TYPESAFE_API_KEY="apikey_..."
+# (Optional) OPENROUTER_API_KEY="sk-or-..."
 
 # Discord Activities 設定
 DISCORD_CLIENT_ID="<取得したAPPLICATION ID>"

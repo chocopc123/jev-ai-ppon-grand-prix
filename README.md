@@ -1,6 +1,6 @@
 # AI-PPON GRAND PRIX Web — Jev × 大喜利マルチ対戦
 
-TypeSafe の Jev (System One モデル) を OpenRouter 経由で使った、大喜利グランプリ（AI-PPON GRAND PRIX）風マルチ対戦 Web アプリケーション。
+TypeSafe の Jev (System One モデル) を使った、大喜利グランプリ（AI-PPON GRAND PRIX）風マルチ対戦 Web アプリケーション。
 
 ## 特徴 (Jev の強みを生かした設計)
 
@@ -20,7 +20,7 @@ IPPON 条件: 構造的満点 (10点) × 直感のウケ (`gut_funny >= 0.60`) �
 ```
 .
 ├── main.py              # FastAPI + WebSocket (ルーム管理・進行・採点パイプライン・静的配信)
-├── jev_client.py        # OpenRouter decisions API クライアント + スコア合成・点灯タイムライン生成
+├── jev_client.py        # TypeSafe decisions API クライアント + スコア合成・点灯タイムライン生成
 ├── themes.json          # プリセットお題
 ├── requirements.txt     # Python依存パッケージ (fastapi, uvicorn, httpx)
 ├── Dockerfile           # Cloud Run / コンテナ用 Dockerfile
@@ -47,11 +47,11 @@ pip install -r requirements.txt
 uvicorn main:app --port 8080
 
 # 実API接続時
-export OPENROUTER_API_KEY="sk-or-..."
+export TYPESAFE_API_KEY="apikey_..."
 uvicorn main:app --port 8080
 ```
 
-> **Note**: Jev は通常の `chat/completions` には非対応です。必ず `POST https://openrouter.ai/api/alpha/decisions` (`model: ~typesafe/jev-latest`) を使用します。`_normalize()` 関数により `noul`, `choice`, `score`, `probabilities` 形式を自動整形します。
+> **Note**: Jev は通常の `chat/completions` には非対応です。専用の `POST https://api.typesafe.ai/v1/systemone` (`model: jev-latest`) を使用します。`_normalize()` 関数により `noul`, `choice`, `score`, `probabilities` 形式を自動整形します。
 
 ### 2. フロントエンドの開発
 
@@ -113,7 +113,7 @@ gcloud run deploy ai-ppon-grand-prix \
   --memory 512Mi \
   --timeout 3600 \
   --concurrency 80 \
-  --set-env-vars OPENROUTER_API_KEY=sk-or-...,THEME_TIME_LIMIT=150,TARGET_IPPON=3
+  --set-env-vars TYPESAFE_API_KEY=apikey_...,THEME_TIME_LIMIT=150,TARGET_IPPON=3
 ```
 
 ### Cloud Run 設定の重要ポイント:
