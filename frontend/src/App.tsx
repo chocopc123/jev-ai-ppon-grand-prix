@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 import { useArenaViewport } from "./useArenaViewport";
+import { Analytics } from "./analytics";
 import "./App.css";
 
 type Player = {
@@ -19,7 +20,15 @@ type FeedItem = {
 
 let ac: AudioContext | null = null;
 function audio(): AudioContext {
-  if (!ac) ac = new AudioContext();
+  if (!ac) {
+    ac = new AudioContext();
+  }
+  // iOS 16.4+ WebKit向け: システムオーディオセッションをメディア再生（playback）に明示指定
+  if (typeof navigator !== "undefined" && "audioSession" in navigator) {
+    try {
+      (navigator as unknown as { audioSession: { type: string } }).audioSession.type = "playback";
+    } catch {}
+  }
   return ac;
 }
 function tone(
@@ -74,9 +83,30 @@ function getFallbackIpponAudio(): HTMLAudioElement {
   return fallbackIpponAudioEl;
 }
 
+// iOS画面収録・バックグラウンド音声録音対策（Playbackセッション昇格）
+// iOS WebKitの画面収録は標準でWeb Audio API（Ambientカテゴリ）を収録ストリームから除外するため、
+// 無音のHTML5 Audio要素をバックグラウンドループ再生してOSのAudioSessionをPlayback（メディア再生）に昇格させる。
+const SILENT_WAV_BASE64 =
+  "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
+let silentAudioEl: HTMLAudioElement | null = null;
+function activatePlaybackSession() {
+  if (typeof window === "undefined") return;
+  try {
+    if (!silentAudioEl) {
+      silentAudioEl = new Audio(SILENT_WAV_BASE64);
+      silentAudioEl.loop = true;
+      silentAudioEl.volume = 0.01; // 完全ミュートにするとiOSでセッション昇格が無効化されることがあるため極小音量
+    }
+    if (silentAudioEl.paused) {
+      silentAudioEl.play().catch(() => {});
+    }
+  } catch {}
+}
+
 // ユーザー操作時に事前ロード & Web Speech API / Web Audio アンロック
 if (typeof window !== "undefined") {
   const unlockAudioAndSpeech = () => {
+    activatePlaybackSession();
     const a = audio();
     if (a.state === "suspended") {
       a.resume().catch(() => {});
@@ -911,6 +941,16 @@ export default function App() {
   const pendingPlayersRef = useRef<Player[] | null>(null);
   const pendingThemeStartedRef = useRef<any | null>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const nameRef = useRef(name);
+  nameRef.current = name;
+  const roomIdRef = useRef(roomId);
+  roomIdRef.current = roomId;
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
+  const questionNumberRef = useRef(questionNumber);
+  questionNumberRef.current = questionNumber;
+  const targetIpponRef = useRef(targetIppon);
+  targetIpponRef.current = targetIppon;
 
   // 隠しTTSナレーション要素: ロゴ5回連続タップでアンロック
   const [ttsUnlocked, setTtsUnlocked] = useState<boolean>(() => {
@@ -1102,6 +1142,14 @@ export default function App() {
   }
 
   const applyThemeStarted = (m: any) => {
+    if ((m.question_number ?? 1) === 1) {
+      Analytics.gameStart({
+        roomId: roomIdRef.current || m.room || "",
+        playerCount: (m.players || []).length,
+        targetIppon: targetIpponRef.current,
+        isDiscord,
+      });
+    }
     setRoomPhase("theme");
     setStageMode("theme");
     judgingRef.current = null;
@@ -1154,6 +1202,22 @@ export default function App() {
             `💥 ${judgement.player} AI-PPON獲得!! 「${judgement.answer}」`,
             "ippon",
           );
+          const isSelf = judgement.player === nameRef.current;
+          Analytics.ipponGet({
+            playerName: judgement.player,
+            theme: themeRef.current,
+            answer: judgement.answer,
+            isSelf,
+            roomId: roomIdRef.current,
+          });
+          Analytics.answerScored({
+            score: 10,
+            isIppon: true,
+            playerName: judgement.player,
+            theme: themeRef.current,
+            isSelf,
+            roomId: roomIdRef.current,
+          });
           setJudging((prev) => {
             if (!prev || prev.player !== judgement.player) return prev;
             return { ...prev, isIppon: true, done: true };
@@ -1188,6 +1252,15 @@ export default function App() {
       `${judgement.player} ${judgement.totalScore}点… 「${judgement.answer}」`,
       "miss",
     );
+    const isSelf = judgement.player === nameRef.current;
+    Analytics.answerScored({
+      score: judgement.totalScore,
+      isIppon: false,
+      playerName: judgement.player,
+      theme: themeRef.current,
+      isSelf,
+      roomId: roomIdRef.current,
+    });
 
     judgingRef.current = { ...judgement, done: true };
     setJudging((prev) => {
@@ -1253,6 +1326,7 @@ export default function App() {
           setScreen("game");
           setRoomPhase(m.phase || "waiting");
           setMyPlayerId(m.player_id);
+          Analytics.setUserId(m.player_id);
           localStorage.setItem("aippon_room_id", m.room);
           localStorage.setItem("aippon_player_id", m.player_id);
           localStorage.setItem("aippon_player_name", pName);
@@ -1411,6 +1485,12 @@ export default function App() {
         case "MATCH_WIN":
           setWinner(m.winner);
           pushFeed(`🏆 優勝: ${m.winner}!!`, "ippon");
+          Analytics.gameFinish({
+            winner: m.winner,
+            isWinner: m.winner === nameRef.current,
+            targetIppon: targetIpponRef.current,
+            roomId: roomIdRef.current,
+          });
           break;
         case "SUBMIT_ACK":
           setInput("");
@@ -1421,6 +1501,7 @@ export default function App() {
 
   // URLパラメータと自動再接続（リロード対策）
   useEffect(() => {
+    Analytics.setUserId();
     if (checkIsDiscord()) return; // Discord Activity 内は SDK による自動接続に任せる
 
     const savedRoom =
@@ -1456,7 +1537,14 @@ export default function App() {
   }, []);
 
   const submit = () => {
-    if (!input.trim() || !wsRef.current) return;
+    const trimmed = input.trim();
+    if (!trimmed || !wsRef.current) return;
+    Analytics.answerSubmit({
+      theme: themeRef.current,
+      questionNumber: questionNumberRef.current,
+      answerLength: trimmed.length,
+      roomId: roomIdRef.current,
+    });
     wsRef.current.send(JSON.stringify({ type: "SUBMIT", answer: input }));
   };
   const toggleTimer = () => {
@@ -1627,6 +1715,7 @@ export default function App() {
         setName(displayName);
         setRoomId(discordRoomId);
         setMyAvatarUrl(avatarUrl);
+        Analytics.setUserId(user.id);
 
         // 6. 自動接続
         connect(discordRoomId, displayName, user.id, avatarUrl);
