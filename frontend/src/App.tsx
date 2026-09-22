@@ -19,6 +19,20 @@ type FeedItem = {
 };
 
 let ac: AudioContext | null = null;
+let isSoundMuted =
+  typeof window !== "undefined"
+    ? localStorage.getItem("ai_ppon_sound_muted") !== "false"
+    : true;
+
+function setSoundMuted(muted: boolean) {
+  isSoundMuted = muted;
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("ai_ppon_sound_muted", String(muted));
+    } catch {}
+  }
+}
+
 function audio(): AudioContext {
   if (!ac) {
     ac = new AudioContext();
@@ -38,6 +52,7 @@ function tone(
   type: OscillatorType = "sine",
   vol = 0.25,
 ) {
+  if (isSoundMuted) return;
   const a = audio();
   const o = a.createOscillator();
   const g = a.createGain();
@@ -132,6 +147,7 @@ if (typeof window !== "undefined") {
 }
 
 function playIpponVoice() {
+  if (isSoundMuted) return;
   try {
     const a = audio();
     if (a.state === "suspended") {
@@ -162,6 +178,7 @@ function playIpponVoice() {
 
 export const sfx = {
   pingpong() {
+    if (isSoundMuted) return;
     const a = audio();
     const now = a.currentTime;
 
@@ -224,6 +241,7 @@ export const sfx = {
     tone(440, 0, 0.25, "triangle", 0.2);
   },
   fanfare() {
+    if (isSoundMuted) return;
     const a = audio();
     const now = a.currentTime;
 
@@ -318,6 +336,7 @@ export const sfx = {
     this.shakin();
   },
   shakin() {
+    if (isSoundMuted) return;
     const a = audio();
     const now = a.currentTime;
 
@@ -366,6 +385,7 @@ export const sfx = {
     });
   },
   unlock() {
+    if (isSoundMuted) return;
     const a = audio();
     const now = a.currentTime;
     // 解禁音: 明るい2音のピコーン（E5 -> B5）
@@ -463,6 +483,48 @@ function CheckIcon({ className = "" }: { className?: string }) {
       aria-hidden="true"
     >
       <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function VolumeUpIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  );
+}
+
+function VolumeMuteIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <line x1="23" y1="9" x2="17" y2="15" />
+      <line x1="17" y1="9" x2="23" y2="15" />
     </svg>
   );
 }
@@ -1024,6 +1086,21 @@ export default function App() {
     window.history.replaceState({}, "", newUrl);
   };
 
+  // 音声ミュート状態
+  const [isMuted, setIsMuted] = useState<boolean>(() => isSoundMuted);
+
+  const toggleSoundMute = () => {
+    const nextState = !isMuted;
+    setIsMuted(nextState);
+    setSoundMuted(nextState);
+    if (nextState) {
+      stopSpeaking();
+      showToast("🔇 音声をOFFにしました");
+    } else {
+      showToast("🔊 音声をONにしました");
+    }
+  };
+
   const stopSpeaking = () => {
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
@@ -1039,6 +1116,7 @@ export default function App() {
     textToSpeak?: string,
     isTtsActive: boolean = false,
   ) => {
+    if (isSoundMuted) return;
     // 部屋でTTSが有効化されていない場合は一切APIリクエストを投げない
     if (!isTtsActive && !roomTtsEnabled) return;
 
@@ -1072,6 +1150,10 @@ export default function App() {
   // 回答テキストの読み上げ: Web Speech API のみ使用（読み上げ完了を待機できるようにPromiseを返す）
   const speakAnswer = (answerText: string): Promise<void> => {
     return new Promise((resolve) => {
+      if (isSoundMuted) {
+        resolve();
+        return;
+      }
       const text = answerText.trim();
       if (
         !text ||
@@ -1738,12 +1820,41 @@ export default function App() {
   }, []);
 
   // --------------------------------------------------------------------------
+  // Sound Toggle Button (常駐音声無効化ボタン)
+  // --------------------------------------------------------------------------
+  const soundToggleButton = (
+    <button
+      type="button"
+      className={`sound-toggle-btn ${isMuted ? "is-muted" : ""}`}
+      onClick={toggleSoundMute}
+      aria-label={
+        isMuted
+          ? "音声を有効にする (現在はOFF)"
+          : "音声を無効にする (現在はON)"
+      }
+      title={
+        isMuted
+          ? "音声を有効にする (クリックでON)"
+          : "音声を無効にする (クリックでOFF)"
+      }
+    >
+      {isMuted ? (
+        <VolumeMuteIcon className="sound-toggle-icon" />
+      ) : (
+        <VolumeUpIcon className="sound-toggle-icon" />
+      )}
+      <span className="sound-toggle-label">{isMuted ? "音声OFF" : "音声ON"}</span>
+    </button>
+  );
+
+  // --------------------------------------------------------------------------
   // Join Screen
   // --------------------------------------------------------------------------
   if (screen === "join") {
     if (discordLoading) {
       return (
         <div className="join-container">
+          {soundToggleButton}
           <div className="join-inner">
             <div className="discord-loading-card">
               <div className="discord-loading-spinner" />
@@ -1759,6 +1870,7 @@ export default function App() {
 
     return (
       <div className="join-container">
+        {soundToggleButton}
         <div className="join-inner">
           {discordError && (
             <div className="discord-error-banner">
@@ -1916,6 +2028,7 @@ export default function App() {
     <div className="arena-container">
       {roomPhase === "waiting" ? (
         <div className="waiting-room-container">
+          {soundToggleButton}
           <div className="waiting-room-inner">
             <div className="waiting-logo-wrapper" aria-label="AI-PPON GRAND PRIX">
               <GrandPrixLogo className="waiting-logo-svg" />
@@ -2273,6 +2386,9 @@ export default function App() {
                 </div>
               </>
             )}
+
+            {/* ステージ右下の常駐音声無効化ボタン */}
+            {soundToggleButton}
           </section>
 
           {/* 2. Lower Area: Input + Scoreboard + Feed */}

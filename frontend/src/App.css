@@ -2841,4 +2841,123 @@ html.arena-viewport-active,
   box-shadow: 0 4px 12px rgba(237, 66, 69, 0.2);
 }
 
+/* ============================================================================
+   常駐音声無効化（ミュート/アンミュート）ボタン
+   ============================================================================ */
+.sound-toggle-btn {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 14px;
+  background: rgba(18, 18, 24, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #e5e5ea;
+  font-family: var(--font-heavy);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+/* 大喜利ステージ内での配置（ステージ右下） */
+.themeStage .sound-toggle-btn {
+  position: absolute;
+  right: clamp(16px, 2.5vw, 28px);
+  bottom: clamp(12px, 1.8vw, 20px);
+  z-index: 15;
+  background: rgba(12, 12, 16, 0.92);
+  border-color: rgba(255, 215, 0, 0.3);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.sound-toggle-btn:hover {
+  background: rgba(28, 28, 38, 0.96);
+  border-color: var(--color-gold, #ffcc00);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 14px rgba(255, 204, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.sound-toggle-btn:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sound-toggle-btn:focus-visible {
+  outline: 2px solid var(--color-gold, #ffcc00);
+  outline-offset: 2px;
+}
+
+/* ミュート（消音/OFF）状態 */
+.sound-toggle-btn.is-muted {
+  background: rgba(42, 18, 20, 0.92);
+  border-color: rgba(255, 80, 80, 0.45);
+  color: #ff9b9b;
+}
+
+.sound-toggle-btn.is-muted:hover {
+  background: rgba(54, 20, 24, 0.98);
+  border-color: #ff5555;
+  color: #ffffff;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 14px rgba(255, 85, 85, 0.35);
+}
+
+.sound-toggle-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.sound-toggle-btn:hover .sound-toggle-icon {
+  transform: scale(1.1);
+}
+
+.sound-toggle-label {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* スマホ・狭小画面でのレスポンシブ対応 */
+@media (max-width: 600px) {
+  .sound-toggle-btn {
+    right: 12px;
+    bottom: 12px;
+    min-height: 32px;
+    padding: 0 10px;
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  .themeStage .sound-toggle-btn {
+    right: 12px;
+    bottom: 10px;
+    min-height: 30px;
+    padding: 0 8px;
+    gap: 4px;
+    font-size: 10px;
+  }
+}
+
 
