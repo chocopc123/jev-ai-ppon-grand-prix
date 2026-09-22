@@ -1,0 +1,20 @@
+{
+  "name": "jev-oogiri-grand-prix",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev:backend": "uvicorn main:app --host 0.0.0.0 --port 8080 --reload",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "test:unit": "python -m unittest tests/test_jev_client.py",
+    "test:integration": "python tests/test_integration.py",
+    "test": "npm run test:unit && npm run test:integration",
+    "deploy": "python deploy.py"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

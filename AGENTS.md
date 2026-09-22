@@ -7,15 +7,14 @@
   - **フロントエンド**: React 19 / TypeScript / Vite / `@discord/embedded-app-sdk` / Oxlint
   - **AI / 採点基盤**: TypeSafe decisions API (`https://api.typesafe.ai/v1/systemone` / `jev-latest`) / 決定論的モックフォールバック
   - **インフラ・デプロイ**: Google Cloud Run (Dockerfile によるマルチステージビルド、フロントエンド静的配信 + WebSocket 同一ポート運用)
-- **データ整合性 & 拡張・安全ルール**:
+  - **データ整合性 & 拡張・安全ルール**:
   - **自動テスト必須**:
-    - **Python 単体テスト**: `cmd /c python test_jev_client.py`
-      - 採点クライアント、レスポンス正規化 (`_normalize`)、スコア合成、点灯タイムライン生成、決定論的モックの整合性を検証。
-    - **Python 統合テスト**: `cmd /c python test_integration.py`
-      - HTTP静的配信、WebSocket 接続、ルーム作成・参加・ゲーム進行フローを検証。
+    - **テスト一括実行**: `cmd /c npm test`（または `cmd /c npm run test:unit`, `cmd /c npm run test:integration`）
+      - 単体テスト: 採点クライアント、レスポンス正規化 (`_normalize`)、スコア合成、点灯タイムライン生成、決定論的モックの整合性を検証。
+      - 統合テスト: HTTP静的配信、WebSocket 接続、ルーム作成・参加・ゲーム進行フローを検証。
     - **フロントエンド静的検証**:
-      - `cmd /c npm --prefix frontend run lint` (Oxlint による構文・コードチェック)
-      - `cmd /c npm --prefix frontend run build` (TypeScript 型チェック & Vite 本番ビルド)
+      - `cmd /c npm run lint` (Oxlint による構文・コードチェック)
+      - `cmd /c npm run build` (TypeScript 型チェック & Vite 本番ビルド)
   - **Jev API 接続仕様**:
     - 通常の `chat/completions` は非対応。専用の `POST https://api.typesafe.ai/v1/systemone` を使用すること。
     - `noul`, `choice`, `score`, `probabilities` 形式のゆらぎは `jev_client.py` の `_normalize()` で吸収し、安全に型定義された辞書へマッピングする。
@@ -83,10 +82,9 @@
    - コマンド実行時は必ず `cmd /c` を先頭に付与すること。
    - バックエンドロジック変更時は `test_jev_client.py` や `test_integration.py` を更新・追加。
 5. **静的検証 & セルフチェック (全パス必須)**:
-   - `cmd /c python test_jev_client.py` (単体テスト全パス)
-   - `cmd /c python test_integration.py` (統合テスト全パス)
-   - `cmd /c npm --prefix frontend run lint` (Linter)
-   - `cmd /c npm --prefix frontend run build` (型チェック & ビルド)
+   - `cmd /c npm test` (単体・統合テスト全パス)
+   - `cmd /c npm run lint` (Linter)
+   - `cmd /c npm run build` (型チェック & ビルド)
    - **差分セルフチェック**: `git diff` で意図しない変更、デバッグログの消し忘れ、秘密情報の混入がないかを点検。
 6. **ユーザー確認（コミット前の絶対原則）**:
    - **独断でコミット・プッシュしない**。変更内容を作業ツリーに保持した状態で、**具体的な動作確認手順（起動手順・対象画面・期待される挙動・リグレッション確認項目）**を提示してユーザーに確認を依頼する。

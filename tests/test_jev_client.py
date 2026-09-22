@@ -1,6 +1,12 @@
 """
 jev_client.py の単体テストおよび検証スクリプト
 """
+import os
+import sys
+
+# プロジェクトルートを sys.path に追加
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import asyncio
 import unittest
 from jev_client import _normalize, gatekeep, judge, _mock, GATEKEEP_QUESTIONS, JUDGE_QUESTIONS

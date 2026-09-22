@@ -21,11 +21,17 @@ IPPON 条件: 構造的満点 (10点) × 直感のウケ (`gut_funny >= 0.60`) �
 .
 ├── main.py              # FastAPI + WebSocket (ルーム管理・進行・採点パイプライン・静的配信)
 ├── jev_client.py        # TypeSafe decisions API クライアント + スコア合成・点灯タイムライン生成
+├── scoring_config.json  # 採点設定 (ゲートキーパー・構造化基準定義)
 ├── themes.json          # プリセットお題
 ├── requirements.txt     # Python依存パッケージ (fastapi, uvicorn, httpx)
 ├── Dockerfile           # Cloud Run / コンテナ用 Dockerfile
-├── test_jev_client.py   # 単体テスト (正規化・モック・判定)
-├── test_integration.py  # 統合テスト (HTTP配信・WebSocket対戦)
+├── package.json         # ルート開発・テスト・デプロイスクリプト定義
+├── deploy.py            # クロスプラットフォーム Cloud Run デプロイスクリプト (Python)
+├── tests/               # 自動テスト
+│   ├── test_jev_client.py   # 単体テスト (正規化・モック・判定)
+│   └── test_integration.py  # 統合テスト (HTTP配信・WebSocket対戦)
+├── docs/                # ドキュメント
+│   └── DISCORD_SETUP.md # Discord Embedded App 設定手順
 └── frontend/            # Vite + React (TypeScript) UI
     ├── src/
     │   └── App.tsx      # 入室・回答送信・審査員点灯演出・Web Audio効果音
@@ -37,52 +43,48 @@ IPPON 条件: 構造的満点 (10点) × 直感のウケ (`gut_funny >= 0.60`) �
 
 ## ローカル開発手順
 
-### 1. バックエンドの起動 (APIキーなしでもモックで動作可能)
+### 1. 依存関係のインストール
 
 ```bash
-# 依存パッケージのインストール
+# Python依存パッケージ
 pip install -r requirements.txt
 
-# APIキーなし（決定論的モックで演出・動作確認）
-uvicorn main:app --port 8080
-
-# 実API接続時
-export TYPESAFE_API_KEY="apikey_..."
-uvicorn main:app --port 8080
+# フロントエンド & 開発用ツールのインストール
+npm install
+npm --prefix frontend install
 ```
 
-> **Note**: Jev は通常の `chat/completions` には非対応です。専用の `POST https://api.typesafe.ai/v1/systemone` (`model: jev-latest`) を使用します。`_normalize()` 関数により `noul`, `choice`, `score`, `probabilities` 形式を自動整形します。
-
-### 2. フロントエンドの開発
+### 2. 同時起動（バックエンド + フロントエンド）
 
 ```bash
-cd frontend
-npm install
 npm run dev
 ```
 
-ブラウザで `http://localhost:5173` を開くと、`vite.config.ts` のプロキシ経由でバックエンドの WebSocket (`/ws`) に接続されます。
-2つのタブを開くことでマルチ対戦をテストできます。
+上記1コマンドで FastAPI (ポート8080) と Vite (ポート5173) が同時起動します。
+ブラウザで `http://localhost:5173` を開いて対戦テストが可能です。
+
+個別起動したい場合:
+- `npm run dev:backend` : FastAPI バックエンドのみ起動
+- `npm run dev:frontend` : Vite フロントエンドのみ起動
 
 ### 3. 本番ビルドと単一サーバー起動
 
 ```bash
-cd frontend
 npm run build
-cd ..
-uvicorn main:app --port 8080
+npm run dev:backend
 ```
 
-`http://localhost:8080` にアクセスすると、FastAPI 経由でビルド済みフロントエンド (`frontend/dist`) が配信され、そのままプレイ可能です。
+`http://localhost:8080` にアクセスすると、FastAPI 経由でビルド済みフロントエンド (`frontend/dist`) が配信されます。
 
 ### 4. テストの実行
 
 ```bash
-# 単体テスト (正規化・モック検証)
-python test_jev_client.py
+# すべてのテストを実行 (単体 + 統合)
+npm test
 
-# 統合テスト (WebSocket対戦フロー検証)
-python test_integration.py
+# 個別実行
+npm run test:unit
+npm run test:integration
 ```
 
 ---
@@ -91,9 +93,9 @@ python test_integration.py
 
 Dockerfile がマルチステージビルドに対応しているため、ソースコードをアップロードするだけでフロントエンドのビルド・コンテナ化・デプロイが自動実行されます。
 
-### 方法A: ワンクリックバッチスクリプト（Windows）
+### 方法A: ワンコマンドデプロイ (npm run deploy)
 ```bash
-cmd /c deploy-gcp.bat
+npm run deploy
 ```
 
 ### 方法B: gcloud CLI による手動デプロイ

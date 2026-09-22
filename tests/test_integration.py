@@ -1,6 +1,12 @@
 """
 AI-PPON GRAND PRIX Web の統合テスト (HTTP 静的配信 + WebSocket 対戦フロー + 再接続・待機室)
 """
+import os
+import sys
+
+# プロジェクトルートを sys.path に追加
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import asyncio
 from fastapi.testclient import TestClient
 from main import app, ROOMS
